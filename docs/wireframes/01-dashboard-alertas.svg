@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#0f172a"/>
+  
+  <!-- Sidebar -->
+  <rect width="240" height="800" fill="#1e293b"/>
+  <text x="24" y="45" fill="#38bdf8" font-size="20" font-weight="bold">🚛 FrotaGestão</text>
+  <text x="24" y="70" fill="#94a3b8" font-size="12">Controle de Manutenção</text>
+  
+  <!-- Menu Items -->
+  <rect x="12" y="100" width="216" height="40" rx="8" fill="#3b82f6" fill-opacity="0.2"/>
+  <text x="32" y="125" fill="#60a5fa" font-size="14" font-weight="bold">📊 Dashboard &amp; Alertas</text>
+  <text x="32" y="165" fill="#94a3b8" font-size="14">🚚 Veículos da Frota</text>
+  <text x="32" y="205" fill="#94a3b8" font-size="14">📋 Ordens de Serviço (O.S.)</text>
+  <text x="32" y="245" fill="#94a3b8" font-size="14">⚙️ Planos Preventivos</text>
+  
+  <!-- User Profile Badge -->
+  <rect x="12" y="730" width="216" height="50" rx="8" fill="#334155"/>
+  <circle cx="36" cy="755" r="16" fill="#3b82f6"/>
+  <text x="31" y="760" fill="#ffffff" font-size="12" font-weight="bold">G</text>
+  <text x="60" y="750" fill="#f8fafc" font-size="13" font-weight="600">Gabriel (Gestor)</text>
+  <text x="60" y="768" fill="#94a3b8" font-size="11">Admin / Logística</text>
+  
+  <!-- Header Bar -->
+  <rect x="240" width="960" height="70" fill="#1e293b"/>
+  <text x="270" y="42" fill="#f8fafc" font-size="20" font-weight="bold">Dashboard de Alertas &amp; Operação</text>
+  <rect x="1010" y="18" width="160" height="34" rx="6" fill="#ef4444"/>
+  <text x="1025" y="40" fill="#ffffff" font-size="13" font-weight="bold">⚠️ 2 Revisões Críticas</text>
+  
+  <!-- Content Area -->
+  <!-- API Banner Indicator -->
+  <rect x="270" y="90" width="900" height="32" rx="6" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-dasharray="4"/>
+  <text x="285" y="111" fill="#38bdf8" font-size="12" font-weight="600">🔗 INTEGRAÇÃO API: GET /api/dashboard/resumo e GET /api/dashboard/alertas</text>
+  
+  <!-- KPI Cards -->
+  <!-- Card 1 -->
+  <rect x="270" y="140" width="205" height="110" rx="10" fill="#1e293b" stroke="#334155"/>
+  <text x="290" y="170" fill="#94a3b8" font-size="13">Total da Frota</text>
+  <text x="290" y="210" fill="#ffffff" font-size="32" font-weight="bold">5</text>
+  <text x="290" y="235" fill="#10b981" font-size="12">3 em operação normal</text>
+  
+  <!-- Card 2 -->
+  <rect x="500" y="140" width="205" height="110" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="520" y="170" fill="#f87171" font-size="13" font-weight="600">Revisão Imediata (Crítico)</text>
+  <text x="520" y="210" fill="#ef4444" font-size="32" font-weight="bold">2</text>
+  <text x="520" y="235" fill="#fca5a5" font-size="12">KM ou Data vencidos</text>
+  
+  <!-- Card 3 -->
+  <rect x="730" y="140" width="205" height="110" rx="10" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="750" y="170" fill="#fbbf24" font-size="13">Revisão Próxima (&lt;1000km)</text>
+  <text x="750" y="210" fill="#f59e0b" font-size="32" font-weight="bold">1</text>
+  <text x="750" y="235" fill="#fde68a" font-size="12">Atenção preventiva</text>
+  
+  <!-- Card 4 -->
+  <rect x="960" y="140" width="210" height="110" rx="10" fill="#1e293b" stroke="#334155"/>
+  <text x="980" y="170" fill="#94a3b8" font-size="13">Total Gasto em Manutenção</text>
+  <text x="980" y="210" fill="#38bdf8" font-size="24" font-weight="bold">R$ 3.190,00</text>
+  <text x="980" y="235" fill="#94a3b8" font-size="12">2 OS Concluídas</text>
+  
+  <!-- Alertas Críticos Section -->
+  <rect x="270" y="275" width="900" height="490" rx="12" fill="#1e293b" stroke="#334155"/>
+  <text x="300" y="315" fill="#f8fafc" font-size="18" font-weight="bold">🚨 Painel de Veículos com Alerta de Revisão Preventiva</text>
+  <text x="300" y="335" fill="#94a3b8" font-size="13">Veículos que exigem intervenção mecânica imediata para evitar avarias operacionais</text>
+  
+  <!-- Alert Row 1 -->
+  <rect x="300" y="360" width="840" height="100" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="1.5"/>
+  <rect x="315" y="375" width="80" height="26" rx="4" fill="#ef4444"/>
+  <text x="330" y="393" fill="#ffffff" font-size="12" font-weight="bold">CRÍTICO</text>
+  <text x="410" y="393" fill="#f8fafc" font-size="16" font-weight="bold">Volvo FH 540 6x4 (BRA2E19)</text>
+  <text x="315" y="425" fill="#94a3b8" font-size="13">KM Atual: <tspan fill="#ffffff" font-weight="bold">92.400 km</tspan> | Próx. Revisão: <tspan fill="#ef4444" font-weight="bold">90.000 km</tspan> (Excedido em 2.400 km)</text>
+  <text x="315" y="445" fill="#cbd5e1" font-size="12">Plano: Frota Pesada | Motorista: Marcos Oliveira</text>
+  
+  <!-- Button Abrir OS 1 -->
+  <rect x="980" y="390" width="140" height="38" rx="6" fill="#3b82f6"/>
+  <text x="1005" y="414" fill="#ffffff" font-size="13" font-weight="bold">+ Abrir O.S.</text>
+  
+  <!-- Alert Row 2 -->
+  <rect x="300" y="480" width="840" height="100" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="1.5"/>
+  <rect x="315" y="495" width="80" height="26" rx="4" fill="#ef4444"/>
+  <text x="330" y="513" fill="#ffffff" font-size="12" font-weight="bold">CRÍTICO</text>
+  <text x="410" y="513" fill="#f8fafc" font-size="16" font-weight="bold">Renault Master Furgão (ABC4D56)</text>
+  <text x="315" y="545" fill="#94a3b8" font-size="13">Data Revisão: <tspan fill="#ef4444" font-weight="bold">20/08/2026</tspan> (Vencida há 6 dias) | KM Atual: 18.200 km</text>
+  <text x="315" y="565" fill="#cbd5e1" font-size="12">Plano: Frota Leve | Motorista: Fernando Ramos</text>
+  
+  <!-- Button Abrir OS 2 -->
+  <rect x="980" y="510" width="140" height="38" rx="6" fill="#3b82f6"/>
+  <text x="1005" y="534" fill="#ffffff" font-size="13" font-weight="bold">+ Abrir O.S.</text>
+  
+  <!-- Alert Row 3 (Atenção) -->
+  <rect x="300" y="600" width="840" height="100" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+  <rect x="315" y="615" width="80" height="26" rx="4" fill="#f59e0b"/>
+  <text x="325" y="633" fill="#ffffff" font-size="12" font-weight="bold">ATENÇÃO</text>
+  <text x="410" y="633" fill="#f8fafc" font-size="16" font-weight="bold">Mercedes-Benz Accelo 1016 (RQX4F88)</text>
+  <text x="315" y="665" fill="#94a3b8" font-size="13">KM Atual: <tspan fill="#ffffff" font-weight="bold">39.500 km</tspan> | Próx. Revisão: <tspan fill="#f59e0b" font-weight="bold">40.000 km</tspan> (Faltam 500 km)</text>
+  <text x="315" y="685" fill="#cbd5e1" font-size="12">Plano: Frota Média | Motorista: Lucas Santana</text>
+  
+  <!-- Button Agendar 3 -->
+  <rect x="980" y="630" width="140" height="38" rx="6" fill="#475569"/>
+  <text x="1005" y="654" fill="#ffffff" font-size="13" font-weight="bold">Programar</text>
+</svg>

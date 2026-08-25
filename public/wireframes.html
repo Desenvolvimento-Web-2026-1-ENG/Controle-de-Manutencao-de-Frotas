@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframes & Mapeamento de Integração — FrotaGestão</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+  <style>
+    .endpoint-card {
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .endpoint-title {
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <a href="/" class="brand">
+        <span class="brand-icon">🚛</span>
+        <div>
+          <div class="brand-title">FrotaGestão</div>
+          <div class="brand-subtitle">Wireframes &amp; Planejamento de Telas (P1)</div>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="nav-link">Início</a>
+        <a href="/wireframes.html" class="nav-link active">🎨 Wireframes &amp; Telas</a>
+        <a href="/api-docs" class="nav-link">📄 Swagger UI</a>
+        <a href="/api/status" target="_blank" class="nav-link">🔍 Status API</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero" style="padding: 1.5rem 0 1rem;">
+      <div class="badge-tag">Mapeamento Visual Front-end &harr; API REST</div>
+      <h1 style="font-size: 2.2rem;">Planejamento de Telas e Wireframes</h1>
+      <p>Navegue pelas abas abaixo para visualizar os protótipos de cada tela e o mapeamento detalhado dos botões e formulários com os respectivos endpoints da API Node.js.</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab(1)">1. Dashboard &amp; Alertas</button>
+      <button class="tab-btn" onclick="switchTab(2)">2. Listagem de Veículos</button>
+      <button class="tab-btn" onclick="switchTab(3)">3. Cadastro / Edição</button>
+      <button class="tab-btn" onclick="switchTab(4)">4. Ordens de Serviço (O.S.)</button>
+      <button class="tab-btn" onclick="switchTab(5)">5. Detalhes &amp; Histórico</button>
+    </div>
+
+    <!-- Wireframe View Section -->
+    <div class="wireframe-container" id="wireframe-view">
+      <div id="screen-info">
+        <!-- Dynamically filled by JS -->
+      </div>
+      
+      <div class="wireframe-img-wrapper" style="margin: 1.5rem 0;">
+        <img id="wireframe-img" src="/wireframes-docs/01-dashboard-alertas.svg" alt="Wireframe">
+      </div>
+
+      <div id="mapping-info">
+        <!-- Dynamically filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Wireframes e Mapeamento de Rotas — Entrega da P1 | Disciplina de Desenvolvimento Web</p>
+  </footer>
+
+  <script>
+    const screens = {
+      1: {
+        title: "Tela 1 — Dashboard e Painel de Alertas de Revisão Imediata",
+        desc: "Exibe indicadores consolidados da frota, custos de manutenção e a lista prioritária de veículos com revisão preventiva vencida (crítica) ou próxima (atenção).",
+        img: "/wireframes-docs/01-dashboard-alertas.svg",
+        mappings: [
+          { comp: "Cards de Indicadores (KPIs)", action: "Ao carregar a página", method: "GET", route: "/api/dashboard/resumo", payload: "Nenhum", response: "200 OK com métricas totais e financeiras" },
+          { comp: "Painel de Alertas de Revisão", action: "Ao carregar a página", method: "GET", route: "/api/dashboard/alertas", payload: "Nenhum", response: "200 OK com lista de veículos críticos e atenção" },
+          { comp: "Botão '+ Abrir O.S.'", action: "Clique do Gestor/Mecânico", method: "POST", route: "/api/ordens-servico", payload: "Preenche veiculoId e kmAtual na nova OS", response: "Redireciona para tela de O.S." }
+        ]
+      },
+      2: {
+        title: "Tela 2 — Listagem e Gestão da Frota de Veículos",
+        desc: "Visão em tabela de todos os veículos cadastrados, com status operacional, status do plano preventivo, filtros por categoria/status e ações rápidas.",
+        img: "/wireframes-docs/02-listagem-veiculos.svg",
+        mappings: [
+          { comp: "Tabela de Veículos", action: "Carregamento e Filtros", method: "GET", route: "/api/veiculos?busca=...&status=...", payload: "Query params", response: "200 OK com array de veículos enriquecidos" },
+          { comp: "Botão 'Apenas Alertas'", action: "Clique no filtro", method: "GET", route: "/api/veiculos?apenasAlertas=true", payload: "Query param", response: "200 OK com veículos que precisam de revisão" },
+          { comp: "Ícone de Excluir 🗑️", action: "Clique + Confirmação", method: "DELETE", route: "/api/veiculos/:id", payload: "req.params.id", response: "200 OK com mensagem de confirmação" },
+          { comp: "Atualização de KM", action: "Modal de KM", method: "PATCH", route: "/api/veiculos/:id/km", payload: "{ 'kmAtual': 95000 }", response: "200 OK com KM e alertas recalculados" }
+        ]
+      },
+      3: {
+        title: "Tela 3 — Formulário de Cadastro / Edição de Veículo",
+        desc: "Formulário com validações de placa, modelo, ano, KM inicial e associação com o Plano de Manutenção Preventiva para cálculo dos próximos ciclos.",
+        img: "/wireframes-docs/03-cadastro-veiculo.svg",
+        mappings: [
+          { comp: "Select de Planos Preventivos", action: "Carregamento do formulário", method: "GET", route: "/api/planos-manutencao", payload: "Nenhum", response: "200 OK para preencher as opções de plano" },
+          { comp: "Botão 'Salvar Veículo' (Novo)", action: "Envio do formulário", method: "POST", route: "/api/veiculos", payload: "{ placa, marca, modelo, ano, kmAtual, planoManutencaoId, ... }", response: "201 Created" },
+          { comp: "Botão 'Salvar Alterações' (Edição)", action: "Envio do formulário", method: "PUT", route: "/api/veiculos/:id", payload: "Dados atualizados", response: "200 OK" }
+        ]
+      },
+      4: {
+        title: "Tela 4 — Abertura e Composição de Ordem de Serviço (O.S.)",
+        desc: "Tela operacional do perfil Mecânico (Admin) para registrar manutenção, adicionar itens de peças e horas de mão de obra com cálculo de totais em tempo real.",
+        img: "/wireframes-docs/04-ordens-servico.svg",
+        mappings: [
+          { comp: "Select de Veículos", action: "Carregamento", method: "GET", route: "/api/veiculos", payload: "Nenhum", response: "200 OK com lista de veículos" },
+          { comp: "Botão 'Salvar O.S.'", action: "Envio do form de OS", method: "POST", route: "/api/ordens-servico", payload: "{ veiculoId, tipo, mecanicoResponsavel, pecas: [...], maoDeObra: {...} }", response: "201 Created com código da OS" },
+          { comp: "Botão 'Concluir e Liberar'", action: "Finalização do serviço", method: "PATCH", route: "/api/ordens-servico/:id/status", payload: "{ 'status': 'CONCLUIDA' }", response: "200 OK e recalcula ciclo de revisão do veículo" }
+        ]
+      },
+      5: {
+        title: "Tela 5 — Ficha do Veículo & Histórico de Manutenções",
+        desc: "Visualização detalhada de um veículo e a linha do tempo completa de todas as ordens de serviço já realizadas com discriminação de peças e mão de obra.",
+        img: "/wireframes-docs/05-detalhes-historico-veiculo.svg",
+        mappings: [
+          { comp: "Cabeçalho do Veículo", action: "Ao carregar detalhes", method: "GET", route: "/api/veiculos/:id", payload: "req.params.id", response: "200 OK com dados cadastrais e alertas" },
+          { comp: "Timeline de Manutenções", action: "Ao carregar histórico", method: "GET", route: "/api/veiculos/:id/historico", payload: "req.params.id", response: "200 OK com array histórico de ordens de serviço" }
+        ]
+      }
+    };
+
+    function switchTab(screenNum) {
+      document.querySelectorAll(".tab-btn").forEach((btn, index) => {
+        btn.classList.toggle("active", index + 1 === screenNum);
+      });
+
+      const s = screens[screenNum];
+      document.getElementById("wireframe-img").src = s.img;
+      document.getElementById("screen-info").innerHTML = `
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">${s.title}</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">${s.desc}</p>
+      `;
+
+      let tableRows = s.mappings.map(m => {
+        let badgeClass = "badge-get";
+        if (m.method === "POST") badgeClass = "badge-post";
+        if (m.method === "PUT") badgeClass = "badge-put";
+        if (m.method === "PATCH") badgeClass = "badge-patch";
+        if (m.method === "DELETE") badgeClass = "badge-delete";
+
+        return `
+          <tr>
+            <td><strong>${m.comp}</strong></td>
+            <td>${m.action}</td>
+            <td><span class="badge-method ${badgeClass}">${m.method}</span></td>
+            <td><code>${m.route}</code></td>
+            <td><code style="font-size: 0.8rem;">${m.payload}</code></td>
+            <td>${m.response}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("mapping-info").innerHTML = `
+        <h3 style="font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--accent-blue);">🔗 Mapeamento de Componentes &harr; Endpoints da API Node.js</h3>
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th>COMPONENTE</th>
+              <th>AÇÃO DO USUÁRIO</th>
+              <th>MÉTODO</th>
+              <th>ENDPOINT DA API</th>
+              <th>PAYLOAD (BODY / PARAMS)</th>
+              <th>RESPOSTA ESPERADA</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Initialize with screen 1
+    switchTab(1);
+  </script>
+</body>
+</html>

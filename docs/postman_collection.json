@@ -1,0 +1,373 @@
+{
+  "info": {
+    "_postman_id": "9f8a7b6c-1234-5678-9abc-def012345678",
+    "name": "Controle de Manutenção de Frotas API - P1",
+    "description": "Coleção completa de endpoints para a API de Controle de Manutenção de Frotas e Ordens de Serviço (P1 Desenvolvimento Web).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Status & Dashboard",
+      "item": [
+        {
+          "name": "Status da API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["status"]
+            }
+          }
+        },
+        {
+          "name": "Resumo Geral do Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/resumo",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "resumo"]
+            }
+          }
+        },
+        {
+          "name": "Listar Alertas de Revisão (Críticos e Atenção)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/alertas",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "alertas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Veículos",
+      "item": [
+        {
+          "name": "Listar Todos os Veículos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veiculos",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos"]
+            }
+          }
+        },
+        {
+          "name": "Listar Veículos com Revisão Imediata",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/revisao-imediata",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "revisao-imediata"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Veículo por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cadastrar Novo Veículo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"MER3A89\",\n  \"marca\": \"Mercedes-Benz\",\n  \"modelo\": \"Actros 2651\",\n  \"ano\": 2023,\n  \"kmAtual\": 60000,\n  \"planoManutencaoId\": 1,\n  \"categoria\": \"Pesado\",\n  \"capacidadeCargaKg\": 36000,\n  \"motoristaResponsavel\": \"Antônio Prado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/veiculos",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Veículo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"BRA2E19\",\n  \"marca\": \"Volvo\",\n  \"modelo\": \"FH 540 Globetrotter\",\n  \"ano\": 2022,\n  \"kmAtual\": 92400,\n  \"planoManutencaoId\": 1,\n  \"motoristaResponsavel\": \"Marcos Oliveira Jr\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Quilometragem (KM) do Veículo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kmAtual\": 93500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/1/km",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "1", "km"]
+            }
+          }
+        },
+        {
+          "name": "Histórico de Manutenções do Veículo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/1/historico",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "1", "historico"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Veículo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veiculos/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos", "2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Ordens de Serviço (O.S.)",
+      "item": [
+        {
+          "name": "Listar Todas as Ordens de Serviço",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Ordem de Serviço por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico", "1"]
+            }
+          }
+        },
+        {
+          "name": "Abrir Nova Ordem de Serviço",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veiculoId\": 1,\n  \"tipo\": \"PREVENTIVA\",\n  \"mecanicoResponsavel\": \"Carlos Silva (Mecânico Chefe)\",\n  \"kmNoMomento\": 92400,\n  \"descricao\": \"Revisão periódica preventiva de 90.000 KM\",\n  \"pecas\": [\n    {\n      \"item\": \"Óleo de Motor 15W40 20L\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 380.00\n    },\n    {\n      \"item\": \"Filtro de Óleo e Ar\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 150.00\n    }\n  ],\n  \"maoDeObra\": {\n    \"descricao\": \"Revisão geral, troca de filtros e sangria\",\n    \"horas\": 5,\n    \"valorHora\": 90.00\n  },\n  \"observacoes\": \"Veículo deu entrada na oficina pela manhã.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Ordem de Serviço",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Revisão preventiva completa com troca de fluidos\",\n  \"mecanicoResponsavel\": \"Carlos Silva e José Mendes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico", "3"]
+            }
+          }
+        },
+        {
+          "name": "Alterar Status da OS (Concluir e Recalcular Revisão)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONCLUIDA\",\n  \"observacoes\": \"Serviço concluído com sucesso. Veículo testado e liberado.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico/3/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico", "3", "status"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Ordem de Serviço",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico", "2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Planos de Manutenção",
+      "item": [
+        {
+          "name": "Listar Planos de Manutenção",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/planos-manutencao",
+              "host": ["{{baseUrl}}"],
+              "path": ["planos-manutencao"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Plano por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/planos-manutencao/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["planos-manutencao", "1"]
+            }
+          }
+        },
+        {
+          "name": "Criar Novo Plano de Manutenção",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Plano Frota Elétrica / Híbrida\",\n  \"descricao\": \"Revisão especializada em baterias de tração e inversores\",\n  \"intervaloKm\": 20000,\n  \"intervaloMeses\": 12,\n  \"itensChecagem\": [\n    \"Inspeção de isolamento de alta tensão\",\n    \"Checagem do sistema de arrefecimento da bateria\",\n    \"Verificação de freios regenerativos\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/planos-manutencao",
+              "host": ["{{baseUrl}}"],
+              "path": ["planos-manutencao"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Plano de Manutenção",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"intervaloKm\": 12000,\n  \"intervaloMeses\": 6\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/planos-manutencao/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["planos-manutencao", "2"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Plano de Manutenção",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/planos-manutencao/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["planos-manutencao", "3"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

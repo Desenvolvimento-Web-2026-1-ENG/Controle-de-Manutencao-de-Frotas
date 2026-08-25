@@ -1,0 +1,115 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-08-25T18:20:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_frota_p1",
+      "_type": "workspace",
+      "name": "Controle de Manutenção de Frotas (P1)",
+      "description": "API REST de Controle de Manutenção de Frotas e Ordens de Serviço"
+    },
+    {
+      "_id": "env_frota_dev",
+      "_type": "environment",
+      "parentId": "wrk_frota_p1",
+      "name": "Desenvolvimento Local",
+      "data": {
+        "base_url": "http://localhost:3000/api"
+      }
+    },
+    {
+      "_id": "req_status",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Status da API",
+      "method": "GET",
+      "url": "{{ _.base_url }}/status"
+    },
+    {
+      "_id": "req_dashboard_resumo",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Dashboard - Resumo Geral",
+      "method": "GET",
+      "url": "{{ _.base_url }}/dashboard/resumo"
+    },
+    {
+      "_id": "req_dashboard_alertas",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Dashboard - Alertas de Revisão",
+      "method": "GET",
+      "url": "{{ _.base_url }}/dashboard/alertas"
+    },
+    {
+      "_id": "req_veiculos_listar",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Veículos - Listar Todos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/veiculos"
+    },
+    {
+      "_id": "req_veiculos_revisao_imediata",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Veículos - Revisão Imediata (Crítico)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/veiculos/revisao-imediata"
+    },
+    {
+      "_id": "req_veiculos_criar",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Veículos - Cadastrar Novo",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"placa\": \"MER3A89\",\n  \"marca\": \"Mercedes-Benz\",\n  \"modelo\": \"Actros 2651\",\n  \"ano\": 2023,\n  \"kmAtual\": 60000,\n  \"planoManutencaoId\": 1,\n  \"categoria\": \"Pesado\",\n  \"motoristaResponsavel\": \"Antônio Prado\"\n}"
+      },
+      "url": "{{ _.base_url }}/veiculos"
+    },
+    {
+      "_id": "req_veiculos_historico",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "Veículos - Histórico de Manutenções",
+      "method": "GET",
+      "url": "{{ _.base_url }}/veiculos/1/historico"
+    },
+    {
+      "_id": "req_os_listar",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "OS - Listar Todas",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ordens-servico"
+    },
+    {
+      "_id": "req_os_criar",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "OS - Abrir Nova Ordem de Serviço",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"veiculoId\": 1,\n  \"tipo\": \"PREVENTIVA\",\n  \"mecanicoResponsavel\": \"Carlos Silva (Mecânico Chefe)\",\n  \"kmNoMomento\": 92400,\n  \"descricao\": \"Revisão periódica preventiva de 90.000 KM\",\n  \"pecas\": [\n    {\n      \"item\": \"Óleo de Motor 15W40 20L\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 380.00\n    }\n  ],\n  \"maoDeObra\": {\n    \"descricao\": \"Troca de filtros e óleos\",\n    \"horas\": 5,\n    \"valorHora\": 90.00\n  }\n}"
+      },
+      "url": "{{ _.base_url }}/ordens-servico"
+    },
+    {
+      "_id": "req_os_concluir",
+      "_type": "request",
+      "parentId": "wrk_frota_p1",
+      "name": "OS - Concluir Status e Recalcular Revisão",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"CONCLUIDA\",\n  \"observacoes\": \"Revisão finalizada e veículo liberado para operação.\"\n}"
+      },
+      "url": "{{ _.base_url }}/ordens-servico/1/status"
+    }
+  ]
+}

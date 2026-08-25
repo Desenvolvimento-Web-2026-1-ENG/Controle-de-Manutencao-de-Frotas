@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Manutenção de Frotas — API & Wireframes (P1)</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚛</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <a href="/" class="brand">
+        <span class="brand-icon">🚛</span>
+        <div>
+          <div class="brand-title">FrotaGestão</div>
+          <div class="brand-subtitle">Manutenção Preventiva & Logística</div>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="nav-link active">Início</a>
+        <a href="/wireframes.html" class="nav-link">🎨 Wireframes & Telas</a>
+        <a href="/api-docs" class="nav-link">📄 Swagger UI</a>
+        <a href="/api/status" target="_blank" class="nav-link">🔍 Status API</a>
+        <a href="https://github.com/Gabriel-lns" target="_blank" class="btn-primary">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="badge-tag">Avaliação Parcial (P1) — Desenvolvimento Web Fullstack</div>
+      <h1>Controle de Manutenção de Frotas</h1>
+      <p>
+        Sistema completo em <strong>Node.js &amp; Express</strong> para gestão preventiva da frota, acompanhamento de ordens de serviço (peças e mão de obra) e geração inteligente de alertas por <strong>Quilometragem (KM)</strong> e <strong>Data Limite</strong> de revisão.
+      </p>
+      <div class="hero-actions">
+        <a href="/api-docs" class="btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+          📄 Acessar Documentação Swagger Interativa
+        </a>
+        <a href="/wireframes.html" class="tab-btn" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+          🎨 Explorar Wireframes &amp; Mapeamento de Rotas
+        </a>
+      </div>
+    </section>
+
+    <!-- Cards Grid -->
+    <div class="grid-cards">
+      <!-- Card 1 -->
+      <div class="card">
+        <div class="card-icon">🚨</div>
+        <h3 class="card-title">Lógica de Alertas Inteligente</h3>
+        <p class="card-desc">
+          O sistema monitora a frota em tempo real e emite alertas <strong>Críticos</strong> (quando a KM ou data da revisão são atingidas/ultrapassadas) e de <strong>Atenção</strong> (quando restam &lt; 1.000 km ou &lt; 15 dias).
+        </p>
+        <div class="code-box">GET /api/dashboard/alertas</div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <div class="card-icon">🛠️</div>
+        <h3 class="card-title">Ordens de Serviço (O.S.)</h3>
+        <p class="card-desc">
+          Controle de manutenção preventiva e corretiva vinculando <strong>peças com quantidade/valor unitário</strong> e <strong>mão de obra por horas</strong>. Ao concluir, recalcula o próximo ciclo de revisão automaticamente!
+        </p>
+        <div class="code-box">POST /api/ordens-servico</div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3 class="card-title">Dashboard &amp; Métricas</h3>
+        <p class="card-desc">
+          Painel analítico consolidando o status dos veículos (em operação, manutenção ou alerta), número de ordens ativas e custo financeiro acumulado.
+        </p>
+        <div class="code-box">GET /api/dashboard/resumo</div>
+      </div>
+    </div>
+
+    <!-- Quick API Reference Table -->
+    <div class="card" style="margin-top: 2rem;">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">⚡ Principais Endpoints da API REST</h2>
+      <table class="mapping-table">
+        <thead>
+          <tr>
+            <th>MÉTODO</th>
+            <th>ROTA</th>
+            <th>DESCRIÇÃO</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td><code>/api/dashboard/resumo</code></td>
+            <td>Métricas consolidadas da frota e custos</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td><code>/api/dashboard/alertas</code></td>
+            <td>Lista de alertas de revisão (críticos e atenção)</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td><code>/api/veiculos</code></td>
+            <td>Listagem geral de veículos com filtros</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td><code>/api/veiculos/revisao-imediata</code></td>
+            <td>Veículos com necessidade urgente de revisão</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-post">POST</span></td>
+            <td><code>/api/veiculos</code></td>
+            <td>Cadastro de novo veículo vinculado a plano</td>
+            <td>201 Created</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-get">GET</span></td>
+            <td><code>/api/veiculos/:id/historico</code></td>
+            <td>Histórico completo de manutenções do veículo</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-patch">PATCH</span></td>
+            <td><code>/api/veiculos/:id/km</code></td>
+            <td>Atualização rápida de quilometragem (KM)</td>
+            <td>200 OK</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-post">POST</span></td>
+            <td><code>/api/ordens-servico</code></td>
+            <td>Abertura de O.S. (peças + mão de obra)</td>
+            <td>201 Created</td>
+          </tr>
+          <tr>
+            <td><span class="badge-method badge-patch">PATCH</span></td>
+            <td><code>/api/ordens-servico/:id/status</code></td>
+            <td>Finaliza O.S. e recalcula próxima revisão</td>
+            <td>200 OK</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Projeto de Avaliação Parcial (P1) — Disciplina de Desenvolvimento Web | Aluno: Gabriel | Node.js, Express &amp; REST</p>
+  </footer>
+
+</body>
+</html>

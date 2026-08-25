@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#0f172a"/>
+  
+  <!-- Sidebar -->
+  <rect width="240" height="800" fill="#1e293b"/>
+  <text x="24" y="45" fill="#38bdf8" font-size="20" font-weight="bold">🚛 FrotaGestão</text>
+  <text x="24" y="70" fill="#94a3b8" font-size="12">Controle de Manutenção</text>
+  
+  <!-- Menu Items -->
+  <text x="32" y="125" fill="#94a3b8" font-size="14">📊 Dashboard &amp; Alertas</text>
+  <rect x="12" y="140" width="216" height="40" rx="8" fill="#3b82f6" fill-opacity="0.2"/>
+  <text x="32" y="165" fill="#60a5fa" font-size="14" font-weight="bold">🚚 Veículos da Frota</text>
+  <text x="32" y="205" fill="#94a3b8" font-size="14">📋 Ordens de Serviço (O.S.)</text>
+  <text x="32" y="245" fill="#94a3b8" font-size="14">⚙️ Planos Preventivos</text>
+  
+  <!-- Header Bar -->
+  <rect x="240" width="960" height="70" fill="#1e293b"/>
+  <text x="270" y="42" fill="#f8fafc" font-size="20" font-weight="bold">Formulário de Cadastro / Edição de Veículo</text>
+  
+  <!-- Content Area -->
+  <!-- API Banner Indicator -->
+  <rect x="270" y="90" width="900" height="32" rx="6" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-dasharray="4"/>
+  <text x="285" y="111" fill="#38bdf8" font-size="12" font-weight="600">🔗 INTEGRAÇÃO API: POST /api/veiculos (Novo) ou PUT /api/veiculos/:id (Edição)</text>
+  
+  <!-- Form Container -->
+  <rect x="270" y="140" width="900" height="620" rx="10" fill="#1e293b" stroke="#334155"/>
+  <text x="300" y="180" fill="#f8fafc" font-size="18" font-weight="bold">Informações do Veículo e Vínculo com Plano Preventivo</text>
+  
+  <!-- Campo: Placa -->
+  <text x="300" y="220" fill="#cbd5e1" font-size="13" font-weight="600">Placa do Veículo *</text>
+  <rect x="300" y="230" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="315" y="255" fill="#ffffff" font-size="14">MER3A89</text>
+  
+  <!-- Campo: Marca -->
+  <text x="590" y="220" fill="#cbd5e1" font-size="13" font-weight="600">Marca *</text>
+  <rect x="590" y="230" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="605" y="255" fill="#ffffff" font-size="14">Mercedes-Benz</text>
+  
+  <!-- Campo: Modelo -->
+  <text x="880" y="220" fill="#cbd5e1" font-size="13" font-weight="600">Modelo *</text>
+  <rect x="880" y="230" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="895" y="255" fill="#ffffff" font-size="14">Actros 2651 6x4</text>
+  
+  <!-- Campo: Ano -->
+  <text x="300" y="310" fill="#cbd5e1" font-size="13" font-weight="600">Ano de Fabricação *</text>
+  <rect x="300" y="320" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="315" y="345" fill="#ffffff" font-size="14">2023</text>
+  
+  <!-- Campo: KM Atual -->
+  <text x="590" y="310" fill="#cbd5e1" font-size="13" font-weight="600">Quilometragem (KM) Atual *</text>
+  <rect x="590" y="320" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="605" y="345" fill="#ffffff" font-size="14">60.000 km</text>
+  
+  <!-- Campo: Categoria -->
+  <text x="880" y="310" fill="#cbd5e1" font-size="13" font-weight="600">Categoria da Frota</text>
+  <rect x="880" y="320" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="895" y="345" fill="#cbd5e1" font-size="14">Pesado (Caminhão) ▾</text>
+  
+  <!-- Campo: Plano de Manutenção -->
+  <text x="300" y="400" fill="#cbd5e1" font-size="13" font-weight="600">Plano de Manutenção Preventiva Vinculado *</text>
+  <rect x="300" y="410" width="550" height="40" rx="6" fill="#0f172a" stroke="#3b82f6"/>
+  <text x="315" y="435" fill="#60a5fa" font-size="14">Plano Frota Pesada (Revisão a cada 15.000 km ou 6 meses) ▾</text>
+  
+  <!-- Campo: Motorista Responsável -->
+  <text x="880" y="400" fill="#cbd5e1" font-size="13" font-weight="600">Motorista Responsável</text>
+  <rect x="880" y="410" width="260" height="40" rx="6" fill="#0f172a" stroke="#475569"/>
+  <text x="895" y="435" fill="#ffffff" font-size="14">Antônio Prado</text>
+  
+  <!-- Auto-calculation Banner -->
+  <rect x="300" y="480" width="840" height="90" rx="8" fill="#0f172a" stroke="#334155"/>
+  <text x="320" y="510" fill="#38bdf8" font-size="14" font-weight="bold">⚡ Cálculo Automático da Próxima Revisão:</text>
+  <text x="320" y="535" fill="#94a3b8" font-size="13">Com base no KM Atual (60.000) + Intervalo (15.000 km) ➔ <tspan fill="#ffffff" font-weight="bold">KM Próx. Revisão: 75.000 km</tspan></text>
+  <text x="320" y="555" fill="#94a3b8" font-size="13">Com base na Data Atual + Intervalo (6 meses) ➔ <tspan fill="#ffffff" font-weight="bold">Data Próx. Revisão: 25/02/2027</tspan></text>
+  
+  <!-- Action Buttons -->
+  <rect x="300" y="690" width="140" height="44" rx="6" fill="#334155"/>
+  <text x="345" y="717" fill="#cbd5e1" font-size="14" font-weight="600">Cancelar</text>
+  
+  <rect x="940" y="690" width="200" height="44" rx="6" fill="#10b981"/>
+  <text x="975" y="717" fill="#ffffff" font-size="14" font-weight="bold">💾 Salvar Veículo</text>
+</svg>
