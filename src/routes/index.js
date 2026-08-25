@@ -1,5 +1,5 @@
 /**
- * Roteador Principal da API
+ * Roteador Principal da API - WEBDEV FROTAS
  */
 
 const { Router } = require("express");
@@ -7,6 +7,7 @@ const veiculosRoutes = require("./veiculosRoutes");
 const planosManutencaoRoutes = require("./planosManutencaoRoutes");
 const ordensServicoRoutes = require("./ordensServicoRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
+const mecanicosRoutes = require("./mecanicosRoutes");
 
 const router = Router();
 
@@ -14,12 +15,13 @@ const router = Router();
 router.get("/status", (req, res) => {
   res.status(200).json({
     success: true,
-    projeto: "Sistema de Controle de Manutenção de Frotas",
+    projeto: "WEBDEV FROTAS — Controle de Manutenção de Frotas",
     versao: "1.0.0-p1",
+    usuarioPadrao: "Gabriel Nunes (Gestor)",
     status: "online",
     timestamp: new Date().toISOString(),
     documentacao: "/api-docs",
-    wireframes: "/wireframes"
+    wireframes: "/wireframes.html"
   });
 });
 
@@ -28,5 +30,6 @@ router.use("/veiculos", veiculosRoutes);
 router.use("/planos-manutencao", planosManutencaoRoutes);
 router.use("/ordens-servico", ordensServicoRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/mecanicos", mecanicosRoutes);
 
 module.exports = router;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GABRIEL FROTAS — Dashboard de Manutenção</title>
+  <title>WEBDEV FROTAS — Dashboard de Manutenção</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -35,7 +35,7 @@
         <svg class="logo-icon-svg" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
-        <span class="logo-text">GABRIEL FROTAS</span>
+        <span class="logo-text">WEBDEV FROTAS</span>
       </div>
 
       <nav class="sidebar-nav">
@@ -59,7 +59,7 @@
           <span>Ordens de Serviço (O.S.)</span>
         </button>
 
-        <button class="nav-link" onclick="mostrarToast('Módulo de Mecânicos cadastrado no sistema.', 'info')">
+        <button class="nav-link" data-tab="mecanicos">
           <span class="nav-link-icon">👥</span>
           <span>Mecânicos</span>
         </button>
@@ -81,7 +81,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button class="nav-link" style="color: #ef4444;" onclick="mostrarToast('Sessão encerrada com segurança.', 'info')">
+        <button class="nav-link" style="color: #ef4444;" onclick="mostrarToast('Sessão de Gabriel Nunes encerrada.', 'info')">
           <span class="nav-link-icon">🚪</span>
           <span>Sair</span>
         </button>
@@ -105,13 +105,13 @@
             <span class="badge-notification"></span>
           </button>
 
-          <!-- User Profile -->
+          <!-- User Profile: Gabriel Nunes -->
           <div class="user-profile">
             <div class="user-avatar flex items-center justify-center font-bold text-slate-800 text-xs bg-slate-200">
-              GA
+              GN
             </div>
             <div class="user-info">
-              <span class="user-name">Gabriel Almeida</span>
+              <span class="user-name">Gabriel Nunes</span>
               <span class="user-role">(Gestor)</span>
             </div>
           </div>
@@ -126,7 +126,7 @@
       <!-- BODY VIEWS -->
       <main class="content-body">
 
-        <!-- ==================== 1. ABA DASHBOARD (LAYOUT EXATO DA IMAGEM) ==================== -->
+        <!-- ==================== 1. ABA DASHBOARD ==================== -->
         <section id="section-dashboard" class="app-view active">
           
           <div class="view-header">
@@ -191,10 +191,10 @@
             </div>
           </div>
 
-          <!-- DASHBOARD 2-COLUMN GRID (Table Left 66% + Side Widgets 33%) -->
+          <!-- DASHBOARD 2-COLUMN GRID -->
           <div class="dashboard-main-grid">
 
-            <!-- LEFT COLUMN: Alertas de Revisão Imediata (Tabela Completa) -->
+            <!-- LEFT COLUMN: Alertas de Revisão Imediata -->
             <div class="card">
               <h3 class="card-title">Alertas de Revisão Imediata</h3>
 
@@ -266,7 +266,7 @@
                 </div>
               </div>
 
-              <!-- Widget 2: Visão Geral da Frota (Gráfico de Barras Estilizado) -->
+              <!-- Widget 2: Visão Geral da Frota (Gráfico de Barras) -->
               <div class="card">
                 <h3 class="card-title">Visão Geral da Frota</h3>
                 
@@ -315,7 +315,6 @@
           </div>
 
           <div class="card">
-            <!-- Toolbar de Busca e Filtros -->
             <div class="table-toolbar">
               <div class="search-box-wrapper">
                 <span class="search-icon-inside">🔍</span>
@@ -341,7 +340,6 @@
               </button>
             </div>
 
-            <!-- Tabela Completa de Veículos -->
             <div class="overflow-x-auto">
               <table class="custom-table">
                 <thead>
@@ -428,11 +426,41 @@
           </div>
         </section>
 
+        <!-- ==================== 5. ABA MECÂNICOS ==================== -->
+        <section id="section-mecanicos" class="app-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">👥 Quadro de Mecânicos &amp; Especialistas</h2>
+              <p class="view-desc">Profissionais capacitados para execução e supervisão das manutenções preventivas e corretivas.</p>
+            </div>
+            <button class="btn btn-primary" onclick="abrirModalNovoMecanico()">+ Cadastrar Mecânico</button>
+          </div>
+
+          <div class="card">
+            <div class="overflow-x-auto">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Nome do Mecânico</th>
+                    <th>Cargo / Nível</th>
+                    <th>Especialidade Principal</th>
+                    <th>Contato / Telefone</th>
+                    <th>Status na Oficina</th>
+                  </tr>
+                </thead>
+                <tbody id="mecanicos-table-body">
+                  <!-- Renderizado via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <!-- FOOTER -->
       <footer class="app-footer">
-        GABRIEL FROTAS &copy; 2026 — Sistema de Logística &amp; Controle de Manutenção
+        WEBDEV FROTAS &copy; 2026 — Sistema de Logística &amp; Controle de Manutenção | Gestor: Gabriel Nunes
       </footer>
 
     </div>
@@ -564,8 +592,10 @@
               <input type="number" id="os-km" class="form-input font-bold" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="os-mecanico">Mecânico Responsável *</label>
-              <input type="text" id="os-mecanico" class="form-input" value="Carlos Silva (Mecânico Chefe)" required>
+              <label class="form-label" for="os-mecanico-select">Mecânico Responsável *</label>
+              <select id="os-mecanico-select" class="form-select" required>
+                <!-- Preenchido dinamicamente via JS com os mecânicos cadastrados -->
+              </select>
             </div>
           </div>
 
@@ -618,6 +648,40 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-os')">Cancelar</button>
           <button type="submit" class="btn btn-primary">Abrir Ordem de Serviço</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CADASTRO DE NOVO MECÂNICO ==================== -->
+  <div id="modal-mecanico" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 Cadastrar Novo Mecânico</h3>
+        <button class="modal-close" onclick="fecharModal('modal-mecanico')">&times;</button>
+      </div>
+      <form id="form-mecanico" onsubmit="salvarMecanico(event)">
+        <div class="modal-body">
+          <div class="form-group mb-3">
+            <label class="form-label" for="mecanico-nome">Nome Completo *</label>
+            <input type="text" id="mecanico-nome" class="form-input" placeholder="Ex: Roberto Nascimento" required>
+          </div>
+          <div class="form-group mb-3">
+            <label class="form-label" for="mecanico-cargo">Cargo / Função *</label>
+            <input type="text" id="mecanico-cargo" class="form-input" placeholder="Ex: Mecânico Especialista" value="Mecânico" required>
+          </div>
+          <div class="form-group mb-3">
+            <label class="form-label" for="mecanico-esp">Especialidade Principal *</label>
+            <input type="text" id="mecanico-esp" class="form-input" placeholder="Ex: Suspensão, Motores, Injeção..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mecanico-tel">Telefone / Ramal</label>
+            <input type="text" id="mecanico-tel" class="form-input" placeholder="(11) 98888-7777">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-mecanico')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Mecânico</button>
         </div>
       </form>
     </div>

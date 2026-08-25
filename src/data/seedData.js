@@ -1,6 +1,45 @@
 /**
- * Dados Iniciais (Seed Data) do Sistema de Controle de Manutenção de Frotas
+ * Dados Iniciais (Seed Data) do Sistema WEBDEV FROTAS
  */
+
+const mecanicos = [
+  {
+    id: 1,
+    nome: "Carlos Silva",
+    cargo: "Mecânico Chefe",
+    especialidade: "Motores a Diesel & Transmissão Pesada",
+    telefone: "(11) 98765-4321",
+    status: "DISPONIVEL",
+    criadoEm: "2026-01-05T08:00:00.000Z"
+  },
+  {
+    id: 2,
+    nome: "José Mendes",
+    cargo: "Mecânico Especialista",
+    especialidade: "Sistemas de Freios Pneumáticos & Suspensão",
+    telefone: "(11) 98123-4567",
+    status: "DISPONIVEL",
+    criadoEm: "2026-01-05T08:30:00.000Z"
+  },
+  {
+    id: 3,
+    nome: "Pedro Alcantara",
+    cargo: "Mecânico Eletricista",
+    especialidade: "Diagnóstico Eletrônico, Injeção & Baterias",
+    telefone: "(11) 97654-3210",
+    status: "EM_SERVICO",
+    criadoEm: "2026-01-10T09:00:00.000Z"
+  },
+  {
+    id: 4,
+    nome: "Mariana Rocha",
+    cargo: "Técnica de Manutenção",
+    especialidade: "Sistemas de Arrefecimento, Fluidos & Lubrificação",
+    telefone: "(11) 99887-7665",
+    status: "DISPONIVEL",
+    criadoEm: "2026-01-15T08:00:00.000Z"
+  }
+];
 
 const planosManutencao = [
   {
@@ -205,7 +244,7 @@ const ordensServico = [
     veiculoId: 5,
     tipo: "PREVENTIVA",
     status: "EM_ANDAMENTO",
-    mecanicoResponsavel: "Carlos Silva (Mecânico Chefe)",
+    mecanicoResponsavel: "Pedro Alcantara (Mecânico Eletricista)",
     kmNoMomento: 145000,
     dataAbertura: "2026-08-24T08:00:00.000Z",
     dataPrevisao: "2026-08-26T18:00:00.000Z",
@@ -231,6 +270,7 @@ const ordensServico = [
 ];
 
 module.exports = {
+  mecanicos,
   planosManutencao,
   veiculos,
   ordensServico

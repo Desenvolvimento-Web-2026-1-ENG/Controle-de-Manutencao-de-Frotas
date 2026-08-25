@@ -5,7 +5,7 @@
   <!-- Sidebar -->
   <rect width="240" height="800" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
   <rect x="0" y="0" width="240" height="64" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-  <text x="24" y="40" fill="#0f172a" font-size="16" font-weight="bold">🚛 GABRIEL FROTAS</text>
+  <text x="24" y="40" fill="#0f172a" font-size="16" font-weight="bold">🚛 WEBDEV FROTAS</text>
   
   <!-- Sidebar Items -->
   <rect x="12" y="80" width="216" height="38" rx="8" fill="#e0edff"/>
@@ -26,8 +26,8 @@
   <circle cx="1060" cy="32" r="14" fill="#3b82f6"/>
   <text x="1055" y="36" fill="#ffffff" font-size="12">🔔</text>
   <circle cx="1100" cy="32" r="16" fill="#e2e8f0"/>
-  <text x="1093" y="36" fill="#1e293b" font-size="11" font-weight="bold">GA</text>
-  <text x="1125" y="28" fill="#ffffff" font-size="12" font-weight="bold">Gabriel Almeida</text>
+  <text x="1093" y="36" fill="#1e293b" font-size="11" font-weight="bold">GN</text>
+  <text x="1125" y="28" fill="#ffffff" font-size="12" font-weight="bold">Gabriel Nunes</text>
   <text x="1125" y="42" fill="#bfdbfe" font-size="10">(Gestor)</text>
   
   <!-- Page Title -->
@@ -144,5 +144,5 @@
   <rect x="1125" y="660" width="35" height="30" rx="3" fill="#22c55e"/>
   
   <!-- Footer text -->
-  <text x="480" y="785" fill="#94a3b8" font-size="11">GABRIEL FROTAS © 2026 - Sistema de Logística</text>
+  <text x="480" y="785" fill="#94a3b8" font-size="11">WEBDEV FROTAS © 2026 - Sistema de Logística</text>
 </svg>

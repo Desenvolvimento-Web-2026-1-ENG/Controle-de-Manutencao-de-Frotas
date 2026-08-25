@@ -5,7 +5,7 @@
   <!-- Sidebar -->
   <rect width="240" height="800" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
   <rect x="0" y="0" width="240" height="64" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-  <text x="24" y="40" fill="#0f172a" font-size="16" font-weight="bold">🚛 GABRIEL FROTAS</text>
+  <text x="24" y="40" fill="#0f172a" font-size="16" font-weight="bold">🚛 WEBDEV FROTAS</text>
   
   <text x="32" y="104" fill="#64748b" font-size="13">📊 Dashboard</text>
   <rect x="12" y="120" width="216" height="38" rx="8" fill="#e0edff"/>
@@ -86,5 +86,5 @@
   <text x="1080" y="380" fill="#1d4ed8" font-size="12">👁️ ⚡ ✏️ 🗑️</text>
 
   <!-- Footer -->
-  <text x="480" y="785" fill="#94a3b8" font-size="11">GABRIEL FROTAS © 2026 - Sistema de Logística</text>
+  <text x="480" y="785" fill="#94a3b8" font-size="11">WEBDEV FROTAS © 2026 - Sistema de Logística</text>
 </svg>

@@ -1,9 +1,8 @@
 /**
- * Gerenciador de Banco de Dados em Memória
- * Fornece métodos CRUD e lógica de persistência para Veículos, Planos e Ordens de Serviço
+ * Gerenciador de Banco de Dados em Memória - WEBDEV FROTAS
  */
 
-const { planosManutencao: seedPlanos, veiculos: seedVeiculos, ordensServico: seedOS } = require("./seedData");
+const { mecanicos: seedMecanicos, planosManutencao: seedPlanos, veiculos: seedVeiculos, ordensServico: seedOS } = require("./seedData");
 
 class Database {
   constructor() {
@@ -11,9 +10,34 @@ class Database {
   }
 
   reset() {
+    this.mecanicos = JSON.parse(JSON.stringify(seedMecanicos));
     this.planos = JSON.parse(JSON.stringify(seedPlanos));
     this.veiculos = JSON.parse(JSON.stringify(seedVeiculos));
     this.ordensServico = JSON.parse(JSON.stringify(seedOS));
+  }
+
+  // --- MECÂNICOS ---
+  listarMecanicos() {
+    return this.mecanicos;
+  }
+
+  buscarMecanicoPorId(id) {
+    return this.mecanicos.find((m) => m.id === Number(id));
+  }
+
+  criarMecanico(dados) {
+    const novoId = this.mecanicos.length > 0 ? Math.max(...this.mecanicos.map((m) => m.id)) + 1 : 1;
+    const novoMecanico = {
+      id: novoId,
+      nome: dados.nome,
+      cargo: dados.cargo || "Mecânico",
+      especialidade: dados.especialidade || "Geral",
+      telefone: dados.telefone || "",
+      status: dados.status || "DISPONIVEL",
+      criadoEm: new Date().toISOString()
+    };
+    this.mecanicos.push(novoMecanico);
+    return novoMecanico;
   }
 
   // --- PLANOS DE MANUTENÇÃO ---
@@ -115,7 +139,6 @@ class Database {
     const novoId = this.veiculos.length > 0 ? Math.max(...this.veiculos.map((v) => v.id)) + 1 : 1;
     const plano = this.buscarPlanoPorId(dados.planoManutencaoId);
 
-    // Calcular automaticamente próxima revisão se não fornecida
     const kmAtual = Number(dados.kmAtual) || 0;
     let kmProximaRevisao = dados.kmProximaRevisao ? Number(dados.kmProximaRevisao) : null;
     let dataProximaRevisao = dados.dataProximaRevisao || null;
@@ -238,7 +261,6 @@ class Database {
     const anoAtual = new Date().getFullYear();
     const codigoOS = `OS-${anoAtual}-${String(novoId).padStart(3, "0")}`;
 
-    // Calcular valores das peças
     const pecasProcessadas = (dados.pecas || []).map((p) => {
       const qtd = Number(p.quantidade) || 1;
       const unit = Number(p.valorUnitario) || 0;
@@ -251,8 +273,7 @@ class Database {
     });
     const valorTotalPecas = pecasProcessadas.reduce((acc, p) => acc + p.valorTotal, 0);
 
-    // Calcular valor da mão de obra
-    let maoDeObra = { descricao: "Serviço mecânico padrão", horas: 0, valorHora: 0, valorTotal: 0 };
+    let maoDeObra = { descricao: "Serviço mecânico", horas: 0, valorHora: 0, valorTotal: 0 };
     if (dados.maoDeObra) {
       const horas = Number(dados.maoDeObra.horas) || 0;
       const valorHora = Number(dados.maoDeObra.valorHora) || 0;
@@ -275,7 +296,7 @@ class Database {
       veiculoId: Number(dados.veiculoId),
       tipo: dados.tipo || "PREVENTIVA",
       status: dados.status || "ABERTA",
-      mecanicoResponsavel: dados.mecanicoResponsavel || "Não designado",
+      mecanicoResponsavel: dados.mecanicoResponsavel || "Carlos Silva (Mecânico Chefe)",
       kmNoMomento: Number(dados.kmNoMomento) || 0,
       dataAbertura: dados.dataAbertura || new Date().toISOString(),
       dataPrevisao: dados.dataPrevisao || null,
@@ -292,7 +313,6 @@ class Database {
 
     this.ordensServico.push(novaOS);
 
-    // Se a OS for iniciada como EM_ANDAMENTO, atualiza status do veículo
     if (novaOS.status === "EM_ANDAMENTO") {
       const veiculoIdx = this.veiculos.findIndex((v) => v.id === novaOS.veiculoId);
       if (veiculoIdx !== -1) {
@@ -301,68 +321,6 @@ class Database {
     }
 
     return this._enriquecerOS(novaOS);
-  }
-
-  atualizarOS(id, dados) {
-    const index = this.ordensServico.findIndex((o) => o.id === Number(id));
-    if (index === -1) return null;
-
-    const osAtual = this.ordensServico[index];
-
-    let pecasProcessadas = osAtual.pecas;
-    let valorTotalPecas = osAtual.valorTotalPecas;
-    if (dados.pecas !== undefined) {
-      pecasProcessadas = dados.pecas.map((p) => {
-        const qtd = Number(p.quantidade) || 1;
-        const unit = Number(p.valorUnitario) || 0;
-        return {
-          item: p.item,
-          quantidade: qtd,
-          valorUnitario: unit,
-          valorTotal: qtd * unit
-        };
-      });
-      valorTotalPecas = pecasProcessadas.reduce((acc, p) => acc + p.valorTotal, 0);
-    }
-
-    let maoDeObra = osAtual.maoDeObra;
-    let valorTotalMaoDeObra = osAtual.valorTotalMaoDeObra;
-    if (dados.maoDeObra !== undefined) {
-      const horas = Number(dados.maoDeObra.horas) || 0;
-      const valorHora = Number(dados.maoDeObra.valorHora) || 0;
-      const valorFixo = Number(dados.maoDeObra.valorTotal) || 0;
-      const totalMo = valorFixo > 0 ? valorFixo : horas * valorHora;
-
-      maoDeObra = {
-        descricao: dados.maoDeObra.descricao || (osAtual.maoDeObra && osAtual.maoDeObra.descricao) || "Mão de obra",
-        horas: horas,
-        valorHora: valorHora,
-        valorTotal: totalMo
-      };
-      valorTotalMaoDeObra = totalMo;
-    }
-
-    const valorTotalGeral = valorTotalPecas + valorTotalMaoDeObra;
-
-    this.ordensServico[index] = {
-      ...osAtual,
-      veiculoId: dados.veiculoId !== undefined ? Number(dados.veiculoId) : osAtual.veiculoId,
-      tipo: dados.tipo !== undefined ? dados.tipo : osAtual.tipo,
-      status: dados.status !== undefined ? dados.status : osAtual.status,
-      mecanicoResponsavel: dados.mecanicoResponsavel !== undefined ? dados.mecanicoResponsavel : osAtual.mecanicoResponsavel,
-      kmNoMomento: dados.kmNoMomento !== undefined ? Number(dados.kmNoMomento) : osAtual.kmNoMomento,
-      dataPrevisao: dados.dataPrevisao !== undefined ? dados.dataPrevisao : osAtual.dataPrevisao,
-      dataConclusao: dados.dataConclusao !== undefined ? dados.dataConclusao : osAtual.dataConclusao,
-      descricao: dados.descricao !== undefined ? dados.descricao : osAtual.descricao,
-      pecas: pecasProcessadas,
-      maoDeObra: maoDeObra,
-      valorTotalPecas: valorTotalPecas,
-      valorTotalMaoDeObra: valorTotalMaoDeObra,
-      valorTotalGeral: valorTotalGeral,
-      observacoes: dados.observacoes !== undefined ? dados.observacoes : osAtual.observacoes
-    };
-
-    return this._enriquecerOS(this.ordensServico[index]);
   }
 
   alterarStatusOS(id, novoStatus, observacoesAdicionais = "") {
@@ -388,12 +346,10 @@ class Database {
       os.dataConclusao = new Date().toISOString();
 
       if (veiculo) {
-        // Atualizar KM do veículo se o KM da OS for maior
         if (os.kmNoMomento && os.kmNoMomento > veiculo.kmAtual) {
           veiculo.kmAtual = os.kmNoMomento;
         }
 
-        // Se a OS for preventiva, calcular próximo ciclo de manutenção
         if (os.tipo === "PREVENTIVA" && veiculo.planoManutencaoId) {
           const plano = this.buscarPlanoPorId(veiculo.planoManutencaoId);
           if (plano) {
@@ -404,7 +360,6 @@ class Database {
           }
         }
 
-        // Retorna status para EM_OPERACAO
         veiculo.status = "EM_OPERACAO";
         veiculo.atualizadoEm = new Date().toISOString();
       }
@@ -424,7 +379,7 @@ class Database {
     return true;
   }
 
-  // --- HELPERS E ENRIQUECIMENTO DE DADOS COM LÓGICA DE ALERTAS ---
+  // --- HELPERS ---
   _enriquecerVeiculo(veiculo) {
     const plano = this.planos.find((p) => p.id === veiculo.planoManutencaoId) || null;
     const alerta = this._calcularAlertaRevisao(veiculo);

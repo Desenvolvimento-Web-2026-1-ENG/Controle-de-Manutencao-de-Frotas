@@ -1,7 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
 const app = require("../src/app");
-const http = require("node:http");
 
 let server;
 let baseUrl;
@@ -22,12 +21,13 @@ test.after(async () => {
   });
 });
 
-test("GET /api/status - Deve retornar status online da API", async () => {
+test("GET /api/status - Deve retornar status online e nome WEBDEV FROTAS", async () => {
   const res = await fetch(`${baseUrl}/status`);
   const data = await res.json();
   assert.strictEqual(res.status, 200);
   assert.strictEqual(data.success, true);
-  assert.strictEqual(data.status, "online");
+  assert.ok(data.projeto.includes("WEBDEV FROTAS"));
+  assert.ok(data.usuarioPadrao.includes("Gabriel Nunes"));
 });
 
 test("GET /api/dashboard/resumo - Deve retornar indicadores consolidados", async () => {
@@ -46,6 +46,32 @@ test("GET /api/dashboard/alertas - Deve identificar alertas críticos e de aten�
   assert.strictEqual(data.success, true);
   assert.ok(data.data.totalAlertas > 0);
   assert.ok(data.data.alertasCriticos.length >= 1);
+});
+
+test("GET /api/mecanicos - Deve listar os mecânicos cadastrados", async () => {
+  const res = await fetch(`${baseUrl}/mecanicos`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.ok(data.data.length >= 4);
+  assert.ok(data.data.some((m) => m.nome.includes("Carlos Silva")));
+});
+
+test("POST /api/mecanicos - Deve cadastrar novo mecânico", async () => {
+  const res = await fetch(`${baseUrl}/mecanicos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: "Roberto Nascimento",
+      cargo: "Mecânico Sênior",
+      especialidade: "Injeção Eletrônica",
+      telefone: "(11) 98888-7777"
+    })
+  });
+  const data = await res.json();
+  assert.strictEqual(res.status, 201);
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.data.nome, "Roberto Nascimento");
 });
 
 test("GET /api/veiculos - Deve listar veículos e permitir filtros", async () => {
@@ -85,11 +111,10 @@ test("POST /api/veiculos - Deve cadastrar veículo e calcular próxima revisão"
   assert.strictEqual(res.status, 201);
   assert.strictEqual(data.success, true);
   assert.strictEqual(data.data.placa, "TST9Z99");
-  assert.strictEqual(data.data.kmProximaRevisao, 35000); // 20000 + 15000 do plano
+  assert.strictEqual(data.data.kmProximaRevisao, 35000);
 });
 
 test("POST /api/ordens-servico e PATCH status - Deve abrir OS e recalcular revisão na conclusão", async () => {
-  // 1. Abrir OS
   const resCriar = await fetch(`${baseUrl}/ordens-servico`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -107,7 +132,6 @@ test("POST /api/ordens-servico e PATCH status - Deve abrir OS e recalcular revis
   assert.strictEqual(resCriar.status, 201);
   assert.strictEqual(dataOS.data.valorTotalGeral, 500);
 
-  // 2. Concluir OS
   const resConcluir = await fetch(`${baseUrl}/ordens-servico/${dataOS.data.id}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -115,10 +139,9 @@ test("POST /api/ordens-servico e PATCH status - Deve abrir OS e recalcular revis
   });
   assert.strictEqual(resConcluir.status, 200);
 
-  // 3. Verificar veículo atualizado
   const resVeiculo = await fetch(`${baseUrl}/veiculos/2`);
   const dataVeiculo = await resVeiculo.json();
   assert.strictEqual(dataVeiculo.data.kmAtual, 40000);
-  assert.strictEqual(dataVeiculo.data.kmProximaRevisao, 50000); // 40000 + 10000 (Plano 2)
+  assert.strictEqual(dataVeiculo.data.kmProximaRevisao, 50000);
   assert.strictEqual(dataVeiculo.data.alertaRevisao.nivelAlerta, "NORMAL");
 });

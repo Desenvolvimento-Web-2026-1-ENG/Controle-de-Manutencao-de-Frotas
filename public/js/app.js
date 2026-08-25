@@ -1,6 +1,6 @@
 /**
- * GABRIEL FROTAS — Frontend Controller (SPA)
- * Padrão Sóbrio Corporativo & Integração Direta com API REST
+ * WEBDEV FROTAS — Frontend Controller (SPA)
+ * Gestor: Gabriel Nunes
  */
 
 const API_BASE = "/api";
@@ -11,6 +11,7 @@ const state = {
   veiculos: [],
   planos: [],
   ordensServico: [],
+  mecanicos: [],
   alertas: [],
   resumo: null,
   filtrosVeiculos: {
@@ -87,23 +88,25 @@ function trocarAba(tabName) {
     dashboard: "Dashboard de Manutenção",
     veiculos: "Gestão da Frota de Veículos",
     os: "Ordens de Serviço (O.S.)",
-    planos: "Planos de Manutenção Preventiva"
+    planos: "Planos de Manutenção Preventiva",
+    mecanicos: "Quadro de Mecânicos & Especialistas"
   };
   const topTitle = document.getElementById("top-bar-title");
   if (topTitle && titles[tabName]) {
     topTitle.textContent = titles[tabName];
   }
 
-  // Atualizar dados da aba
   if (tabName === "dashboard") carregarDashboard();
   if (tabName === "veiculos") carregarVeiculos();
   if (tabName === "os") carregarOrdensServico();
   if (tabName === "planos") carregarPlanos();
+  if (tabName === "mecanicos") carregarMecanicos();
 }
 
-// 3. Carga de Dados
+// 3. Carga de Dados Inicial
 async function carregarDadosIniciais() {
   await Promise.all([
+    carregarMecanicos(),
     carregarPlanos(),
     carregarDashboard(),
     carregarVeiculos(),
@@ -111,7 +114,7 @@ async function carregarDadosIniciais() {
   ]);
 }
 
-// --- DASHBOARD & ALERTAS (Layout do Modelo Visual) ---
+// --- DASHBOARD & ALERTAS ---
 async function carregarDashboard() {
   try {
     const [resResumo, resAlertas, resVeiculos, resOS] = await Promise.all([
@@ -158,7 +161,6 @@ function renderizarKPIs(resumo) {
   document.getElementById("kpi-alertas-criticos").textContent = frota.revisaoCritica;
   document.getElementById("kpi-alertas-atencao").textContent = `${frota.revisaoAtencao} em atenção preventiva`;
 
-  // Próxima Revisão Crítica
   const veiculosCriticos = (state.veiculos || []).filter((v) => v.alertaRevisao && v.alertaRevisao.nivelAlerta === "CRITICO");
   if (veiculosCriticos.length > 0) {
     const vc = veiculosCriticos[0];
@@ -167,7 +169,6 @@ function renderizarKPIs(resumo) {
   } else {
     document.getElementById("kpi-critico-placa").textContent = "Nenhum";
     document.getElementById("kpi-critico-desc").textContent = "Frota 100% em dia";
-    document.getElementById("kpi-critico-desc").className = "text-xs font-semibold text-emerald-600 mt-1";
   }
 }
 
@@ -518,6 +519,91 @@ function popularSelectPlanos(planos) {
   `;
 }
 
+// --- ABA 5: MECÂNICOS ---
+async function carregarMecanicos() {
+  try {
+    const res = await fetch(`${API_BASE}/mecanicos`);
+    const data = await res.json();
+    if (data.success) {
+      state.mecanicos = data.data;
+      renderizarTabelaMecanicos(data.data);
+      popularSelectMecanicos(data.data);
+    }
+  } catch (err) {
+    mostrarToast("Erro ao carregar lista de mecânicos", "error");
+  }
+}
+
+function renderizarTabelaMecanicos(mecanicos) {
+  const tbody = document.getElementById("mecanicos-table-body");
+  if (!tbody) return;
+
+  if (mecanicos.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Nenhum mecânico cadastrado.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = mecanicos.map((m) => `
+    <tr>
+      <td style="font-weight: 700; color: #0f172a">${m.nome}</td>
+      <td style="font-weight: 600; color: var(--color-primary)">${m.cargo}</td>
+      <td>${m.especialidade}</td>
+      <td>${m.telefone || "(11) 98888-0000"}</td>
+      <td>
+        <span class="status-pill ${m.status === 'EM_SERVICO' ? 'pill-andamento' : 'pill-concluida'}">
+          ${m.status === 'EM_SERVICO' ? 'Em Serviço' : 'Disponível'}
+        </span>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function popularSelectMecanicos(mecanicos) {
+  const select = document.getElementById("os-mecanico-select");
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">Selecione o mecânico responsável...</option>
+    ${mecanicos.map((m) => `
+      <option value="${m.nome} (${m.cargo})">
+        ${m.nome} — ${m.cargo} (${m.especialidade})
+      </option>
+    `).join("")}
+  `;
+}
+
+function abrirModalNovoMecanico() {
+  document.getElementById("form-mecanico").reset();
+  abrirModal("modal-mecanico");
+}
+
+async function salvarMecanico(event) {
+  event.preventDefault();
+  const payload = {
+    nome: document.getElementById("mecanico-nome").value.trim(),
+    cargo: document.getElementById("mecanico-cargo").value.trim(),
+    especialidade: document.getElementById("mecanico-esp").value.trim(),
+    telefone: document.getElementById("mecanico-tel").value.trim(),
+    status: "DISPONIVEL"
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/mecanicos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    fecharModal("modal-mecanico");
+    mostrarToast("Mecânico cadastrado com sucesso!", "success");
+    await carregarMecanicos();
+  } catch (err) {
+    mostrarToast(err.message, "error");
+  }
+}
+
 // --- MODAIS E OPERAÇÕES CRUD ---
 
 // Modal Veículo
@@ -762,7 +848,7 @@ async function salvarOS(event) {
   const payload = {
     veiculoId: Number(document.getElementById("os-veiculo-select").value),
     tipo: document.getElementById("os-tipo").value,
-    mecanicoResponsavel: document.getElementById("os-mecanico").value.trim(),
+    mecanicoResponsavel: document.getElementById("os-mecanico-select").value || "Carlos Silva (Mecânico Chefe)",
     kmNoMomento: Number(document.getElementById("os-km").value),
     descricao: document.getElementById("os-descricao").value.trim(),
     pecas: pecas,
@@ -873,7 +959,7 @@ async function abrirHistoricoVeiculo(veiculoId) {
   }
 }
 
-// Configuração de Eventos de Busca e Filtro
+// Configuração de Eventos
 function configurarEventos() {
   const dashSearch = document.getElementById("dash-search-input");
   const dashStatus = document.getElementById("dash-status-select");
