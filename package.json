@@ -1,0 +1,31 @@
+{
+  "name": "controle-manutencao-frotas",
+  "version": "1.0.0",
+  "description": "API REST e Wireframes para Sistema de Gestão e Controle de Manutenção Preventiva de Frotas (P1 Desenvolvimento Web)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "frota",
+    "manutencao-preventiva",
+    "ordem-servico",
+    "api-rest",
+    "swagger"
+  ],
+  "author": "Gabriel",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
