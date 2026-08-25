@@ -11,5 +11,7 @@ const router = Router();
 router.get("/", (req, res, next) => mecanicosController.listar(req, res, next));
 router.post("/", (req, res, next) => mecanicosController.criar(req, res, next));
 router.get("/:id", validarIdParam, (req, res, next) => mecanicosController.buscarPorId(req, res, next));
+router.put("/:id", validarIdParam, (req, res, next) => mecanicosController.atualizar(req, res, next));
+router.delete("/:id", validarIdParam, (req, res, next) => mecanicosController.deletar(req, res, next));
 
 module.exports = router;

@@ -446,6 +446,7 @@
                     <th>Especialidade Principal</th>
                     <th>Contato / Telefone</th>
                     <th>Status na Oficina</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="mecanicos-table-body">
@@ -653,14 +654,15 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: CADASTRO DE NOVO MECÂNICO ==================== -->
+  <!-- ==================== MODAL: CADASTRO / EDIÇÃO DE MECÂNICO ==================== -->
   <div id="modal-mecanico" class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-card" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title">👥 Cadastrar Novo Mecânico</h3>
+        <h3 id="modal-mecanico-title" class="modal-title">👥 Cadastrar Novo Mecânico</h3>
         <button class="modal-close" onclick="fecharModal('modal-mecanico')">&times;</button>
       </div>
       <form id="form-mecanico" onsubmit="salvarMecanico(event)">
+        <input type="hidden" id="mecanico-id-hidden">
         <div class="modal-body">
           <div class="form-group mb-3">
             <label class="form-label" for="mecanico-nome">Nome Completo *</label>
@@ -674,9 +676,16 @@
             <label class="form-label" for="mecanico-esp">Especialidade Principal *</label>
             <input type="text" id="mecanico-esp" class="form-input" placeholder="Ex: Suspensão, Motores, Injeção..." required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label class="form-label" for="mecanico-tel">Telefone / Ramal</label>
             <input type="text" id="mecanico-tel" class="form-input" placeholder="(11) 98888-7777">
+          </div>
+          <div class="form-group" id="mecanico-status-group">
+            <label class="form-label" for="mecanico-status-select">Status na Oficina</label>
+            <select id="mecanico-status-select" class="form-select">
+              <option value="DISPONIVEL">Disponível</option>
+              <option value="EM_SERVICO">Em Serviço</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">

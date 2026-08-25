@@ -50,7 +50,7 @@ test("GET /api/dashboard/alertas - Deve identificar alertas críticos e de aten�
   assert.ok(data.data.alertasCriticos.length >= 1);
 });
 
-// --- CASOS DE MECÂNICOS ---
+// --- CASOS DE MECÂNICOS (CRUD COMPLETO) ---
 
 test("GET /api/mecanicos - Deve listar os mecânicos cadastrados (200 OK)", async () => {
   const res = await fetch(`${baseUrl}/mecanicos`);
@@ -78,6 +78,39 @@ test("POST /api/mecanicos - Deve cadastrar novo mecânico (201 Created)", async 
   assert.strictEqual(data.data.nome, "Roberto Nascimento");
 });
 
+test("PUT /api/mecanicos/:id - Deve editar dados do mecânico (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/mecanicos/1`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: "Carlos Silva Atualizado",
+      cargo: "Mecânico Chefe Sênior",
+      especialidade: "Motores Pesados e Diagnóstico",
+      status: "EM_SERVICO"
+    })
+  });
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.data.nome, "Carlos Silva Atualizado");
+  assert.strictEqual(data.data.status, "EM_SERVICO");
+});
+
+test("DELETE /api/mecanicos/:id - Deve excluir mecânico (200 OK)", async () => {
+  // Cadastrar um para deletar
+  const resCad = await fetch(`${baseUrl}/mecanicos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome: "Mecânico Temporário" })
+  });
+  const dataCad = await resCad.json();
+
+  const resDel = await fetch(`${baseUrl}/mecanicos/${dataCad.data.id}`, { method: "DELETE" });
+  const dataDel = await resDel.json();
+  assert.strictEqual(resDel.status, 200);
+  assert.strictEqual(dataDel.success, true);
+});
+
 test("POST /api/mecanicos - Deve rejeitar sem nome (400 Bad Request)", async () => {
   const res = await fetch(`${baseUrl}/mecanicos`, {
     method: "POST",
@@ -86,6 +119,13 @@ test("POST /api/mecanicos - Deve rejeitar sem nome (400 Bad Request)", async () 
   });
   const data = await res.json();
   assert.strictEqual(res.status, 400);
+  assert.strictEqual(data.success, false);
+});
+
+test("GET /api/mecanicos/:id - Deve retornar 404 para mecânico inexistente", async () => {
+  const res = await fetch(`${baseUrl}/mecanicos/9999`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 404);
   assert.strictEqual(data.success, false);
 });
 
@@ -176,6 +216,14 @@ test("PATCH /api/veiculos/:id/km - Deve recusar KM menor que o atual (400 Bad Re
   assert.strictEqual(res.status, 400);
   assert.strictEqual(data.success, false);
   assert.ok(data.error.includes("não pode ser inferior"));
+});
+
+test("DELETE /api/veiculos/:id - Deve recusar exclusão de veículo com OS ativa (400 Bad Request)", async () => {
+  const res = await fetch(`${baseUrl}/veiculos/5`, { method: "DELETE" }); // Veículo 5 tem OS 3 em andamento
+  const data = await res.json();
+  assert.strictEqual(res.status, 400);
+  assert.strictEqual(data.success, false);
+  assert.ok(data.error.includes("Ordens de Serviço"));
 });
 
 // --- CASOS DE ORDENS DE SERVIÇO ---

@@ -34,10 +34,34 @@ class Database {
       especialidade: dados.especialidade || "Geral",
       telefone: dados.telefone || "",
       status: dados.status || "DISPONIVEL",
-      criadoEm: new Date().toISOString()
+      criadoEm: new Date().toISOString(),
+      atualizadoEm: new Date().toISOString()
     };
     this.mecanicos.push(novoMecanico);
     return novoMecanico;
+  }
+
+  atualizarMecanico(id, dados) {
+    const index = this.mecanicos.findIndex((m) => m.id === Number(id));
+    if (index === -1) return null;
+
+    this.mecanicos[index] = {
+      ...this.mecanicos[index],
+      nome: dados.nome !== undefined ? dados.nome : this.mecanicos[index].nome,
+      cargo: dados.cargo !== undefined ? dados.cargo : this.mecanicos[index].cargo,
+      especialidade: dados.especialidade !== undefined ? dados.especialidade : this.mecanicos[index].especialidade,
+      telefone: dados.telefone !== undefined ? dados.telefone : this.mecanicos[index].telefone,
+      status: dados.status !== undefined ? dados.status : this.mecanicos[index].status,
+      atualizadoEm: new Date().toISOString()
+    };
+    return this.mecanicos[index];
+  }
+
+  deletarMecanico(id) {
+    const index = this.mecanicos.findIndex((m) => m.id === Number(id));
+    if (index === -1) return false;
+    this.mecanicos.splice(index, 1);
+    return true;
   }
 
   // --- PLANOS DE MANUTENÇÃO ---

@@ -43,6 +43,33 @@ class MecanicosController {
       next(error);
     }
   }
+
+  atualizar(req, res, next) {
+    try {
+      const { id } = req.params;
+      const mecanicoAtualizado = mecanicosService.atualizar(id, req.body);
+      return res.status(200).json({
+        success: true,
+        message: "Mecânico atualizado com sucesso!",
+        data: mecanicoAtualizado
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  deletar(req, res, next) {
+    try {
+      const { id } = req.params;
+      mecanicosService.deletar(id);
+      return res.status(200).json({
+        success: true,
+        message: `Mecânico #${id} removido com sucesso.`
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new MecanicosController();

@@ -743,7 +743,7 @@ Todas as respostas de erro seguem o formato:
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
         responses: {
           200: {
-            description: "Mecânico recuperado",
+            description: "Mecânico recuperado com sucesso",
             content: {
               "application/json": {
                 schema: {
@@ -756,6 +756,64 @@ Todas as respostas de erro seguem o formato:
               }
             }
           },
+          400: { $ref: "#/components/responses/BadRequestError" },
+          404: { $ref: "#/components/responses/NotFoundError" },
+          500: { $ref: "#/components/responses/InternalServerError" }
+        }
+      },
+      put: {
+        tags: ["Mecânicos"],
+        summary: "Atualiza os dados e especialidade do mecânico",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/MecanicoInput" }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "Mecânico atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    message: { type: "string", example: "Mecânico atualizado com sucesso!" },
+                    data: { $ref: "#/components/schemas/Mecanico" }
+                  }
+                }
+              }
+            }
+          },
+          400: { $ref: "#/components/responses/BadRequestError" },
+          404: { $ref: "#/components/responses/NotFoundError" },
+          500: { $ref: "#/components/responses/InternalServerError" }
+        }
+      },
+      delete: {
+        tags: ["Mecânicos"],
+        summary: "Remove um mecânico do quadro da oficina",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+        responses: {
+          200: {
+            description: "Mecânico removido com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    message: { type: "string", example: "Mecânico #1 removido com sucesso." }
+                  }
+                }
+              }
+            }
+          },
+          400: { $ref: "#/components/responses/BadRequestError" },
           404: { $ref: "#/components/responses/NotFoundError" },
           500: { $ref: "#/components/responses/InternalServerError" }
         }

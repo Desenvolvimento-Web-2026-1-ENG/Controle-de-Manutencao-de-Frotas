@@ -539,7 +539,7 @@ function renderizarTabelaMecanicos(mecanicos) {
   if (!tbody) return;
 
   if (mecanicos.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Nenhum mecânico cadastrado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Nenhum mecânico cadastrado.</td></tr>`;
     return;
   }
 
@@ -553,6 +553,12 @@ function renderizarTabelaMecanicos(mecanicos) {
         <span class="status-pill ${m.status === 'EM_SERVICO' ? 'pill-andamento' : 'pill-concluida'}">
           ${m.status === 'EM_SERVICO' ? 'Em Serviço' : 'Disponível'}
         </span>
+      </td>
+      <td>
+        <div class="action-links">
+          <button class="action-btn-link" title="Editar Mecânico" onclick="abrirModalEditarMecanico(${m.id})">✏️ Editar</button>
+          <button class="action-btn-link action-btn-danger" title="Excluir Mecânico" onclick="deletarMecanico(${m.id})">🗑️ Excluir</button>
+        </div>
       </td>
     </tr>
   `).join("");
@@ -573,23 +579,53 @@ function popularSelectMecanicos(mecanicos) {
 }
 
 function abrirModalNovoMecanico() {
+  document.getElementById("modal-mecanico-title").textContent = "👥 Cadastrar Novo Mecânico";
   document.getElementById("form-mecanico").reset();
+  document.getElementById("mecanico-id-hidden").value = "";
+  document.getElementById("mecanico-status-select").value = "DISPONIVEL";
   abrirModal("modal-mecanico");
+}
+
+async function abrirModalEditarMecanico(id) {
+  try {
+    const res = await fetch(`${API_BASE}/mecanicos/${id}`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    const m = data.data;
+    document.getElementById("modal-mecanico-title").textContent = `✏️ Editar Mecânico (${m.nome})`;
+    document.getElementById("mecanico-id-hidden").value = m.id;
+    document.getElementById("mecanico-nome").value = m.nome;
+    document.getElementById("mecanico-cargo").value = m.cargo;
+    document.getElementById("mecanico-esp").value = m.especialidade;
+    document.getElementById("mecanico-tel").value = m.telefone || "";
+    document.getElementById("mecanico-status-select").value = m.status || "DISPONIVEL";
+
+    abrirModal("modal-mecanico");
+  } catch (err) {
+    mostrarToast(err.message || "Erro ao carregar dados do mecânico", "error");
+  }
 }
 
 async function salvarMecanico(event) {
   event.preventDefault();
+  const id = document.getElementById("mecanico-id-hidden").value;
+  const isEdicao = Boolean(id);
+
   const payload = {
     nome: document.getElementById("mecanico-nome").value.trim(),
     cargo: document.getElementById("mecanico-cargo").value.trim(),
     especialidade: document.getElementById("mecanico-esp").value.trim(),
     telefone: document.getElementById("mecanico-tel").value.trim(),
-    status: "DISPONIVEL"
+    status: document.getElementById("mecanico-status-select").value
   };
 
   try {
-    const res = await fetch(`${API_BASE}/mecanicos`, {
-      method: "POST",
+    const url = isEdicao ? `${API_BASE}/mecanicos/${id}` : `${API_BASE}/mecanicos`;
+    const method = isEdicao ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
@@ -597,7 +633,22 @@ async function salvarMecanico(event) {
     if (!data.success) throw new Error(data.error);
 
     fecharModal("modal-mecanico");
-    mostrarToast("Mecânico cadastrado com sucesso!", "success");
+    mostrarToast(isEdicao ? "Mecânico atualizado com sucesso!" : "Mecânico cadastrado com sucesso!", "success");
+    await carregarMecanicos();
+  } catch (err) {
+    mostrarToast(err.message, "error");
+  }
+}
+
+async function deletarMecanico(id) {
+  if (!confirm(`Deseja realmente remover o mecânico #${id}?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/mecanicos/${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    mostrarToast("Mecânico removido com sucesso!", "success");
     await carregarMecanicos();
   } catch (err) {
     mostrarToast(err.message, "error");

@@ -37,7 +37,7 @@
       </nav>
 
       <div class="sidebar-footer text-xs text-slate-500">
-        Avaliação Parcial P1
+        Avaliação Parcial P1 | Gestor: Gabriel Nunes
       </div>
     </aside>
 
@@ -54,7 +54,7 @@
         <div class="view-header">
           <div>
             <h2 class="view-title">Protótipos de Interface &amp; Mapeamento de Rotas REST</h2>
-            <p class="view-desc">Selecione uma das 5 telas abaixo para visualizar o protótipo e a correlação direta de cada botão e formulário com os endpoints da API Node.js.</p>
+            <p class="view-desc">Selecione uma das 5 telas abaixo para visualizar o protótipo e o mapeamento detalhado de respostas de <strong>Sucesso (200/201)</strong> e <strong>Tratamento de Erros e Validações (400, 404, 409, 500)</strong>.</p>
           </div>
         </div>
 
@@ -97,9 +97,33 @@
         desc: "Apresenta métricas consolidadas (Total de Veículos, Em Manutenção, Revisões Pendentes, Próxima Revisão Crítica), tabela de alertas com pills (ATRASADO, EM BREVE, OK) e gráfico de distribuição da frota.",
         img: "/wireframes-docs/01-dashboard-alertas.svg",
         mappings: [
-          { comp: "KPIs Consolidados", action: "Carregamento inicial", method: "GET", route: "/api/dashboard/resumo", payload: "Nenhum", response: "200 OK com métricas totais e financeiras" },
-          { comp: "Tabela de Alertas", action: "Carregamento e busca", method: "GET", route: "/api/dashboard/alertas", payload: "Nenhum", response: "200 OK com array de alertas críticos e atenção" },
-          { comp: "Botão 'Criar O.S.'", action: "Clique na linha do veículo", method: "POST", route: "/api/ordens-servico", payload: "{ veiculoId, tipo: 'PREVENTIVA' }", response: "201 Created (Abre modal de OS)" }
+          {
+            comp: "KPIs Consolidados",
+            action: "Carregamento inicial (DOMContentLoaded)",
+            method: "GET",
+            route: "/api/dashboard/resumo",
+            payload: "Nenhum",
+            success: "200 OK — Retorna { frota: {...}, ordensServico: {...}, financeiro: {...} }",
+            errors: "500 — Erro interno no cálculo ou agregação das métricas"
+          },
+          {
+            comp: "Tabela de Alertas de Revisão",
+            action: "Filtro por status / busca por placa",
+            method: "GET",
+            route: "/api/dashboard/alertas",
+            payload: "Nenhum",
+            success: "200 OK — Retorna { totalAlertas, alertasCriticos: [...], alertasAtencao: [...] }",
+            errors: "500 — Falha ao processar lista de alertas"
+          },
+          {
+            comp: "Botão 'Criar O.S.'",
+            action: "Clique na linha do veículo",
+            method: "POST",
+            route: "/api/ordens-servico",
+            payload: "{ veiculoId, tipo: 'PREVENTIVA' }",
+            success: "201 Created — Cria a O.S. e retorna dados enriquecidos",
+            errors: "400 — Dados obrigatórios ausentes | 404 — Veículo inexistente"
+          }
         ]
       },
       2: {
@@ -107,10 +131,42 @@
         desc: "Tabela administrativa com busca instantânea, filtros por status/categoria e ações rápidas (Ficha, Atualizar KM, Editar, Excluir).",
         img: "/wireframes-docs/02-listagem-veiculos.svg",
         mappings: [
-          { comp: "Tabela de Veículos", action: "Carregamento e filtros", method: "GET", route: "/api/veiculos?busca=...&status=...", payload: "Query params", response: "200 OK com veículos enriquecidos" },
-          { comp: "Botão 'Apenas Alertas'", action: "Clique no toggle", method: "GET", route: "/api/veiculos?apenasAlertas=true", payload: "Query param", response: "200 OK apenas com veículos críticos/atenção" },
-          { comp: "Atualização de KM ⚡", action: "Modal rápido", method: "PATCH", route: "/api/veiculos/:id/km", payload: "{ kmAtual: 95000 }", response: "200 OK com novos alertas calculados" },
-          { comp: "Excluir 🗑️", action: "Clique + Confirmação", method: "DELETE", route: "/api/veiculos/:id", payload: "req.params.id", response: "200 OK (ou 400 se houver OS em aberto)" }
+          {
+            comp: "Tabela de Veículos",
+            action: "Carregamento e filtros por status/categoria",
+            method: "GET",
+            route: "/api/veiculos?busca=...&status=...",
+            payload: "Query params opcionais",
+            success: "200 OK — Retorna array de veículos enriquecidos com alertaRevisao",
+            errors: "400 — Query param inválido | 500 — Erro interno"
+          },
+          {
+            comp: "Botão 'Apenas Alertas'",
+            action: "Clique no toggle de alertas",
+            method: "GET",
+            route: "/api/veiculos?apenasAlertas=true",
+            payload: "Query param",
+            success: "200 OK — Retorna somente veículos em estado CRÍTICO ou ATENÇÃO",
+            errors: "500 — Erro interno"
+          },
+          {
+            comp: "Atualização Rápida de KM ⚡",
+            action: "Envio do formulário de novo odômetro",
+            method: "PATCH",
+            route: "/api/veiculos/:id/km",
+            payload: "{ kmAtual: 95000 }",
+            success: "200 OK — Atualiza KM e recalcula alertas instantaneamente",
+            errors: "400 — KM menor que o atual ou negativo | 404 — Veículo não encontrado"
+          },
+          {
+            comp: "Excluir Veículo 🗑️",
+            action: "Clique no ícone + Confirmação",
+            method: "DELETE",
+            route: "/api/veiculos/:id",
+            payload: "req.params.id",
+            success: "200 OK — Remove o veículo e confirma exclusão",
+            errors: "400 — Veículo com O.S. aberta ou em andamento vinculada | 404 — ID inexistente"
+          }
         ]
       },
       3: {
@@ -118,9 +174,33 @@
         desc: "Formulário cadastral completo vinculado a um Plano de Manutenção Preventiva, exibindo projeção em tempo real da data e KM da primeira revisão.",
         img: "/wireframes-docs/03-cadastro-veiculo.svg",
         mappings: [
-          { comp: "Select de Planos", action: "Carregamento do form", method: "GET", route: "/api/planos-manutencao", payload: "Nenhum", response: "200 OK com lista de planos disponíveis" },
-          { comp: "Salvar (Novo)", action: "Submit do form", method: "POST", route: "/api/veiculos", payload: "{ placa, marca, modelo, ano, kmAtual, planoManutencaoId, ... }", response: "201 Created" },
-          { comp: "Salvar (Edição)", action: "Submit do form", method: "PUT", route: "/api/veiculos/:id", payload: "Dados atualizados", response: "200 OK" }
+          {
+            comp: "Select de Planos Preventivos",
+            action: "Carregamento do formulário",
+            method: "GET",
+            route: "/api/planos-manutencao",
+            payload: "Nenhum",
+            success: "200 OK — Retorna planos com intervalos em KM e meses",
+            errors: "500 — Erro interno ao listar planos"
+          },
+          {
+            comp: "Salvar Novo Veículo",
+            action: "Submit do formulário de cadastro",
+            method: "POST",
+            route: "/api/veiculos",
+            payload: "{ placa, marca, modelo, ano, kmAtual, planoManutencaoId, categoria, motoristaResponsavel }",
+            success: "201 Created — Cria o veículo e calcula automaticamente próxima revisão",
+            errors: "400 — Campos obrigatórios ausentes | 409 — Placa já existente no sistema"
+          },
+          {
+            comp: "Salvar Edição de Veículo",
+            action: "Submit do formulário de edição",
+            method: "PUT",
+            route: "/api/veiculos/:id",
+            payload: "{ placa, marca, modelo, ano, kmAtual, planoManutencaoId, ... }",
+            success: "200 OK — Dados atualizados e revisões recalculadas",
+            errors: "400 — Inconsistência cadastral | 404 — Veículo não encontrado | 409 — Placa em conflito com outro veículo"
+          }
         ]
       },
       4: {
@@ -128,9 +208,42 @@
         desc: "Registro operacional utilizado pelo mecânico para abertura de OS, adição dinâmica de itens de peças (quantidade e valor unitário) e cálculo de mão de obra.",
         img: "/wireframes-docs/04-ordens-servico.svg",
         mappings: [
-          { comp: "Select de Veículos", action: "Carregamento", method: "GET", route: "/api/veiculos", payload: "Nenhum", response: "200 OK" },
-          { comp: "Criar O.S.", action: "Submit do form", method: "POST", route: "/api/ordens-servico", payload: "{ veiculoId, tipo, pecas: [...], maoDeObra: {...} }", response: "201 Created" },
-          { comp: "Concluir O.S. ✓", action: "Clique do Mecânico", method: "PATCH", route: "/api/ordens-servico/:id/status", payload: "{ status: 'CONCLUIDA' }", response: "200 OK (Recalcula ciclo preventivo no backend)" }
+          {
+            comp: "Select de Veículos e Mecânicos",
+            action: "Abertura do modal de OS",
+            method: "GET",
+            route: "/api/veiculos & /api/mecanicos",
+            payload: "Nenhum",
+            success: "200 OK — Popula seletores com frotas e quadro de mecânicos",
+            errors: "500 — Erro interno de carga"
+          },
+          {
+            comp: "Abrir Ordem de Serviço",
+            action: "Submit do formulário com peças e mão de obra",
+            method: "POST",
+            route: "/api/ordens-servico",
+            payload: "{ veiculoId, tipo, mecanicoResponsavel, kmNoMomento, descricao, pecas: [...], maoDeObra: {...} }",
+            success: "201 Created — Gera código da OS (ex: OS-2026-004) e calcula totais",
+            errors: "400 — veiculoId ou descricao ausentes | 404 — Veículo inexistente"
+          },
+          {
+            comp: "Concluir O.S. Preventiva ✓",
+            action: "Clique em 'Concluir' na linha da OS",
+            method: "PATCH",
+            route: "/api/ordens-servico/:id/status",
+            payload: "{ status: 'CONCLUIDA', observacoes: '...' }",
+            success: "200 OK — Finaliza a O.S., atualiza odômetro e projeta próximo ciclo preventivo",
+            errors: "400 — Status inválido | 404 — O.S. não encontrada"
+          },
+          {
+            comp: "Excluir O.S. 🗑️",
+            action: "Clique no ícone de exclusão",
+            method: "DELETE",
+            route: "/api/ordens-servico/:id",
+            payload: "req.params.id",
+            success: "200 OK — O.S. removida do sistema",
+            errors: "400 — O.S. em andamento não pode ser excluída (cancele primeiro) | 404 — ID inexistente"
+          }
         ]
       },
       5: {
@@ -138,8 +251,24 @@
         desc: "Visão consolidada de um veículo com a linha do tempo (timeline) de todas as manutenções realizadas e somatório do custo total acumulado.",
         img: "/wireframes-docs/05-detalhes-historico-veiculo.svg",
         mappings: [
-          { comp: "Ficha do Veículo", action: "Abertura do modal", method: "GET", route: "/api/veiculos/:id", payload: "req.params.id", response: "200 OK com dados cadastrais e alertas" },
-          { comp: "Timeline de Manutenções", action: "Abertura do modal", method: "GET", route: "/api/veiculos/:id/historico", payload: "req.params.id", response: "200 OK com histórico de OS ordenadas" }
+          {
+            comp: "Cabeçalho e Ficha do Veículo",
+            action: "Abertura do modal de detalhes",
+            method: "GET",
+            route: "/api/veiculos/:id",
+            payload: "req.params.id",
+            success: "200 OK — Retorna placa, motorista, categoria, KM atual e status de revisão",
+            errors: "400 — ID inválido | 404 — Veículo não encontrado"
+          },
+          {
+            comp: "Linha do Tempo de Manutenções",
+            action: "Carregamento do histórico cronológico",
+            method: "GET",
+            route: "/api/veiculos/:id/historico",
+            payload: "req.params.id",
+            success: "200 OK — Array de OS ordenadas por data decrescente com peças e custos",
+            errors: "404 — Veículo não encontrado | 500 — Erro interno"
+          }
         ]
       }
     };
@@ -165,28 +294,31 @@
 
         return `
           <tr class="border-b border-slate-200 hover:bg-slate-50 text-xs">
-            <td class="p-2.5 font-bold text-slate-900">${m.comp}</td>
-            <td class="p-2.5 text-slate-600">${m.action}</td>
+            <td class="p-2.5 font-bold text-slate-900">
+              <div>${m.comp}</div>
+              <div class="text-[11px] font-normal text-slate-500">${m.action}</div>
+            </td>
             <td class="p-2.5"><span class="px-2 py-0.5 rounded font-mono font-bold ${badgeColor}">${m.method}</span></td>
             <td class="p-2.5 font-mono text-slate-800 font-semibold">${m.route}</td>
             <td class="p-2.5 font-mono text-slate-500">${m.payload}</td>
-            <td class="p-2.5 text-slate-700">${m.response}</td>
+            <td class="p-2.5 text-emerald-800 font-medium bg-emerald-50/50">${m.success}</td>
+            <td class="p-2.5 text-rose-800 font-medium bg-rose-50/50">${m.errors}</td>
           </tr>
         `;
       }).join("");
 
       document.getElementById("screen-mapping-table").innerHTML = `
-        <h4 class="font-bold text-sm text-blue-800 mb-2">🔗 Mapeamento de Integração com a API Node.js</h4>
+        <h4 class="font-bold text-sm text-blue-800 mb-2">🔗 Mapeamento Completo de Integração com a API Node.js (Sucesso &amp; Tratamento de Erros)</h4>
         <div class="overflow-x-auto border border-slate-200 rounded-lg">
           <table class="w-full text-left">
             <thead class="bg-slate-100 text-slate-600 text-[11px] uppercase font-bold border-b border-slate-200">
               <tr>
-                <th class="p-2.5">Componente</th>
-                <th class="p-2.5">Ação do Usuário</th>
+                <th class="p-2.5">Componente / Disparo</th>
                 <th class="p-2.5">Método</th>
                 <th class="p-2.5">Endpoint</th>
                 <th class="p-2.5">Payload</th>
-                <th class="p-2.5">Resposta Esperada</th>
+                <th class="p-2.5 text-emerald-800">Resposta Sucesso (200 / 201)</th>
+                <th class="p-2.5 text-rose-800">Tratamento de Erros (400, 404, 409, 500)</th>
               </tr>
             </thead>
             <tbody>
