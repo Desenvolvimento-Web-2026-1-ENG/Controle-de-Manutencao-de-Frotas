@@ -17,7 +17,7 @@
     "api-rest",
     "swagger"
   ],
-  "author": "Gabriel",
+  "author": "Gabriel Nunes",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",

@@ -8,7 +8,7 @@ const mecanicos = [
     nome: "Carlos Silva",
     cargo: "Mecânico Chefe",
     especialidade: "Motores a Diesel & Transmissão Pesada",
-    telefone: "(11) 98765-4321",
+    telefone: "(21) 98765-4321",
     status: "DISPONIVEL",
     criadoEm: "2026-01-05T08:00:00.000Z"
   },
@@ -17,7 +17,7 @@ const mecanicos = [
     nome: "José Mendes",
     cargo: "Mecânico Especialista",
     especialidade: "Sistemas de Freios Pneumáticos & Suspensão",
-    telefone: "(11) 98123-4567",
+    telefone: "(22) 98123-4567",
     status: "DISPONIVEL",
     criadoEm: "2026-01-05T08:30:00.000Z"
   },
@@ -26,16 +26,16 @@ const mecanicos = [
     nome: "Pedro Alcantara",
     cargo: "Mecânico Eletricista",
     especialidade: "Diagnóstico Eletrônico, Injeção & Baterias",
-    telefone: "(11) 97654-3210",
+    telefone: "(22) 97654-3210",
     status: "EM_SERVICO",
     criadoEm: "2026-01-10T09:00:00.000Z"
   },
   {
     id: 4,
     nome: "Mariana Rocha",
-    cargo: "Técnica de Manutenção",
+    cargo: "Técnica em Mecânica Automotiva",
     especialidade: "Sistemas de Arrefecimento, Fluidos & Lubrificação",
-    telefone: "(11) 99887-7665",
+    telefone: "(22) 99887-7665",
     status: "DISPONIVEL",
     criadoEm: "2026-01-15T08:00:00.000Z"
   }

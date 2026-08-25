@@ -29,7 +29,7 @@ app.use("/wireframes-docs", express.static(path.join(__dirname, "../docs/wirefra
 
 // Documentação Interativa Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: "Documentação API - Controle de Manutenção de Frotas",
+  customSiteTitle: "WEBDEV FROTAS — Documentação da API (OpenAPI/Swagger)",
   customCss: ".swagger-ui .topbar { background-color: #1e293b; }",
   swaggerOptions: {
     persistAuthorization: true
