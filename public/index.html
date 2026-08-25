@@ -3,227 +3,445 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FrotaGestão — Sistema de Manutenção de Frotas (P1)</title>
+  <title>GABRIEL FROTAS — Dashboard de Manutenção</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#1d4ed8',
+              navy: '#1e40af',
+              light: '#f1f5f9'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Custom Design Tokens & Stylesheet -->
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚛</text></svg>">
 </head>
 <body>
 
-  <!-- Header & Top Navigation -->
-  <header>
-    <div class="header-inner">
-      <a href="#" class="brand-container" onclick="trocarAba('dashboard')">
-        <span class="brand-icon">🚛</span>
-        <div>
-          <div class="brand-title">FrotaGestão</div>
-          <span class="brand-badge">Manutenção Preventiva</span>
-        </div>
-      </a>
+  <div class="app-wrapper">
 
-      <nav class="main-nav" aria-label="Navegação Principal">
-        <button class="nav-item active" data-tab="dashboard">📊 Dashboard</button>
-        <button class="nav-item" data-tab="veiculos">🚚 Frota de Veículos</button>
-        <button class="nav-item" data-tab="os">📋 Ordens de Serviço</button>
-        <button class="nav-item" data-tab="planos">⚙️ Planos Preventivos</button>
-        <a href="/wireframes.html" class="nav-item" style="color: var(--accent-blue)">🎨 Wireframes</a>
-        <a href="/api-docs" target="_blank" class="nav-item" style="color: #34d399">📄 Swagger UI</a>
+    <!-- ==================== SIDEBAR DE NAVEGAÇÃO ==================== -->
+    <aside class="sidebar" aria-label="Navegação Lateral">
+      <div class="sidebar-logo">
+        <svg class="logo-icon-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="logo-text">GABRIEL FROTAS</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-link active" data-tab="dashboard">
+          <span class="nav-link-icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-link" data-tab="veiculos">
+          <span class="nav-link-icon">🚗</span>
+          <span>Veículos</span>
+        </button>
+
+        <button class="nav-link" data-tab="planos">
+          <span class="nav-link-icon">📅</span>
+          <span>Planos de Manutenção</span>
+        </button>
+
+        <button class="nav-link" data-tab="os">
+          <span class="nav-link-icon">📋</span>
+          <span>Ordens de Serviço (O.S.)</span>
+        </button>
+
+        <button class="nav-link" onclick="mostrarToast('Módulo de Mecânicos cadastrado no sistema.', 'info')">
+          <span class="nav-link-icon">👥</span>
+          <span>Mecânicos</span>
+        </button>
+
+        <button class="nav-link" onclick="trocarAba('dashboard')">
+          <span class="nav-link-icon">📈</span>
+          <span>Relatórios</span>
+        </button>
+
+        <a href="/wireframes.html" class="nav-link" style="color: #0284c7">
+          <span class="nav-link-icon">🎨</span>
+          <span>Wireframes P1</span>
+        </a>
+
+        <a href="/api-docs" target="_blank" class="nav-link" style="color: #16a34a">
+          <span class="nav-link-icon">📄</span>
+          <span>Swagger OpenAPI</span>
+        </a>
       </nav>
 
-      <div id="api-status-container">
-        <!-- Preenchido dinamicamente via JS -->
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Application Body -->
-  <main class="app-container">
-
-    <!-- ==================== SEÇÃO 1: DASHBOARD & ALERTAS ==================== -->
-    <section id="section-dashboard" class="app-section active">
-      <div class="section-header">
-        <div>
-          <h1 class="section-title">📊 Painel Operacional &amp; Alertas</h1>
-          <p class="section-desc">Visão consolidada da frota, custos de manutenção e alertas preventivos em tempo real.</p>
-        </div>
-        <div style="display: flex; gap: 0.5rem">
-          <button class="btn btn-primary" onclick="abrirModalNovoVeiculo()">+ Novo Veículo</button>
-          <button class="btn btn-success" onclick="abrirModalNovaOS()">+ Abrir O.S.</button>
-        </div>
-      </div>
-
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-title">Total da Frota</span>
-            <span class="kpi-icon">🚚</span>
-          </div>
-          <div class="kpi-value" id="kpi-total-veiculos">-</div>
-          <div class="kpi-subtext" id="kpi-veiculos-operacao">-</div>
-        </div>
-
-        <div class="kpi-card critical-alert">
-          <div class="kpi-header">
-            <span class="kpi-title" style="color: #f87171">Revisão Imediata (Crítico)</span>
-            <span class="kpi-icon">🚨</span>
-          </div>
-          <div class="kpi-value" id="kpi-alertas-criticos" style="color: var(--accent-red)">-</div>
-          <div class="kpi-subtext" id="kpi-alertas-atencao">-</div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-title">Em Manutenção</span>
-            <span class="kpi-icon">🔧</span>
-          </div>
-          <div class="kpi-value" id="kpi-veiculos-manutencao" style="color: var(--accent-blue)">-</div>
-          <div class="kpi-subtext" id="kpi-os-ativas">-</div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-title">Investimento Total</span>
-            <span class="kpi-icon">💰</span>
-          </div>
-          <div class="kpi-value" id="kpi-total-investido" style="color: var(--accent-green); font-size: 1.6rem">-</div>
-          <div class="kpi-subtext" id="kpi-os-concluidas">-</div>
-        </div>
-      </div>
-
-      <!-- Alertas Ativos -->
-      <h2 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem">
-        🚨 Veículos com Necessidade de Revisão Preventiva
-      </h2>
-      <div id="dashboard-alerts-list" class="alerts-container">
-        <!-- Renderizado dinamicamente via JS -->
-      </div>
-    </section>
-
-    <!-- ==================== SEÇÃO 2: FROTA DE VEÍCULOS ==================== -->
-    <section id="section-veiculos" class="app-section">
-      <div class="section-header">
-        <div>
-          <h1 class="section-title">🚚 Gestão da Frota de Veículos</h1>
-          <p class="section-desc">Controle cadastral, monitoramento de quilometragem e status de revisão.</p>
-        </div>
-        <button class="btn btn-primary" onclick="abrirModalNovoVeiculo()">+ Cadastrar Veículo</button>
-      </div>
-
-      <!-- Filtros e Busca -->
-      <div class="filter-bar">
-        <div class="search-input-wrapper">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-veiculos" class="search-input" placeholder="Buscar por placa, modelo, marca ou motorista...">
-        </div>
-
-        <select id="filter-status-veiculo" class="filter-select">
-          <option value="">Status: Todos</option>
-          <option value="EM_OPERACAO">Em Operação</option>
-          <option value="EM_MANUTENCAO">Em Manutenção</option>
-          <option value="ALERTA_REVISAO">Alerta Revisão</option>
-        </select>
-
-        <select id="filter-cat-veiculo" class="filter-select">
-          <option value="">Categoria: Todas</option>
-          <option value="Pesado">Pesado (Caminhões)</option>
-          <option value="Médio">Médio (Urbanos 3/4)</option>
-          <option value="Leve">Leve (Vans/Furgões)</option>
-        </select>
-
-        <button id="btn-toggle-apenas-alertas" class="btn btn-secondary">
-          ⚠️ Apenas com Alertas
+      <div class="sidebar-footer">
+        <button class="nav-link" style="color: #ef4444;" onclick="mostrarToast('Sessão encerrada com segurança.', 'info')">
+          <span class="nav-link-icon">🚪</span>
+          <span>Sair</span>
         </button>
       </div>
+    </aside>
 
-      <!-- Tabela de Veículos -->
-      <div class="table-container">
-        <table class="responsive-table">
-          <thead>
-            <tr>
-              <th>Placa / Modelo</th>
-              <th>KM Atual</th>
-              <th>Próxima Revisão</th>
-              <th>Status Operacional</th>
-              <th>Status Revisão</th>
-              <th>Plano Vinculado</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="veiculos-table-body">
-            <!-- Linhas geradas dinamicamente -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <!-- ==================== CONTEÚDO PRINCIPAL (MAIN WRAPPER) ==================== -->
+    <div class="main-wrapper">
 
-    <!-- ==================== SEÇÃO 3: ORDENS DE SERVIÇO ==================== -->
-    <section id="section-os" class="app-section">
-      <div class="section-header">
-        <div>
-          <h1 class="section-title">📋 Ordens de Serviço (O.S.)</h1>
-          <p class="section-desc">Abertura e controle de manutenções com detalhamento de peças e mão de obra mecânica.</p>
+      <!-- TOP HEADER (Solid Blue Bar) -->
+      <header class="top-header">
+        <h1 class="header-page-title" id="top-bar-title">Dashboard de Manutenção</h1>
+
+        <div class="header-user-menu">
+          <!-- Status API indicator -->
+          <div id="api-status-container"></div>
+
+          <!-- Notification Bell -->
+          <button class="header-btn-icon" title="Notificações de Alertas" onclick="trocarAba('dashboard')">
+            🔔
+            <span class="badge-notification"></span>
+          </button>
+
+          <!-- User Profile -->
+          <div class="user-profile">
+            <div class="user-avatar flex items-center justify-center font-bold text-slate-800 text-xs bg-slate-200">
+              GA
+            </div>
+            <div class="user-info">
+              <span class="user-name">Gabriel Almeida</span>
+              <span class="user-role">(Gestor)</span>
+            </div>
+          </div>
+
+          <!-- Settings Gear -->
+          <button class="header-btn-icon" title="Configurações" onclick="mostrarToast('Painel de configurações da frota.', 'info')">
+            ⚙️
+          </button>
         </div>
-        <button class="btn btn-primary" onclick="abrirModalNovaOS()">+ Abrir Nova O.S.</button>
-      </div>
+      </header>
 
-      <!-- Filtros de OS -->
-      <div class="filter-bar">
-        <select id="filter-status-os" class="filter-select">
-          <option value="">Status: Todos</option>
-          <option value="ABERTA">Aberta</option>
-          <option value="EM_ANDAMENTO">Em Andamento</option>
-          <option value="CONCLUIDA">Concluída</option>
-          <option value="CANCELADA">Cancelada</option>
-        </select>
+      <!-- BODY VIEWS -->
+      <main class="content-body">
 
-        <select id="filter-tipo-os" class="filter-select">
-          <option value="">Tipo: Todos</option>
-          <option value="PREVENTIVA">Preventiva</option>
-          <option value="CORRETIVA">Corretiva</option>
-          <option value="EMERGENCIAL">Emergencial</option>
-        </select>
-      </div>
+        <!-- ==================== 1. ABA DASHBOARD (LAYOUT EXATO DA IMAGEM) ==================== -->
+        <section id="section-dashboard" class="app-view active">
+          
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Dashboard de Manutenção</h2>
+              <p class="view-desc">Monitoramento proativo da frota e controle de intervenções preventivas.</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-primary shadow-sm" onclick="abrirModalNovoVeiculo()">+ Novo Veículo</button>
+              <button class="btn btn-secondary shadow-sm" onclick="abrirModalNovaOS()">+ Criar O.S.</button>
+            </div>
+          </div>
 
-      <!-- Tabela de OS -->
-      <div class="table-container">
-        <table class="responsive-table">
-          <thead>
-            <tr>
-              <th>Código / Veículo</th>
-              <th>Tipo</th>
-              <th>Descrição / Mecânico</th>
-              <th>Peças</th>
-              <th>Valor Total</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="os-table-body">
-            <!-- Linhas geradas dinamicamente -->
-          </tbody>
-        </table>
-      </div>
-    </section>
+          <!-- 4 KPI CARDS -->
+          <div class="kpi-row">
+            <!-- Card 1: Total de Veículos -->
+            <div class="kpi-box">
+              <div class="kpi-content">
+                <span class="kpi-label">Total de Veículos</span>
+                <span class="kpi-number" id="kpi-total-veiculos">5</span>
+                <span class="kpi-subdetail" id="kpi-veiculos-operacao">3 em operação normal</span>
+              </div>
+              <div class="kpi-icon-badge kpi-icon-blue">
+                🚗
+              </div>
+            </div>
 
-    <!-- ==================== SEÇÃO 4: PLANOS DE MANUTENÇÃO ==================== -->
-    <section id="section-planos" class="app-section">
-      <div class="section-header">
-        <div>
-          <h1 class="section-title">⚙️ Planos de Manutenção Preventiva</h1>
-          <p class="section-desc">Modelos de revisão periódica com intervalos de quilometragem e tempo para cálculo automatizado.</p>
-        </div>
-      </div>
+            <!-- Card 2: Em Manutenção -->
+            <div class="kpi-box">
+              <div class="kpi-content">
+                <span class="kpi-label">Em Manutenção</span>
+                <span class="kpi-number" id="kpi-veiculos-manutencao">1</span>
+                <span class="kpi-subdetail" id="kpi-os-ativas">1 O.S. em andamento</span>
+              </div>
+              <div class="kpi-icon-badge kpi-icon-green">
+                🔧
+              </div>
+            </div>
 
-      <div id="planos-cards-container" class="grid-cards" style="margin: 1rem 0;">
-        <!-- Cards gerados dinamicamente -->
-      </div>
-    </section>
+            <!-- Card 3: Revisões Pendentes -->
+            <div class="kpi-box">
+              <div class="kpi-content">
+                <span class="kpi-label">Revisões Pendentes</span>
+                <span class="kpi-number" id="kpi-alertas-criticos" style="color: var(--color-danger)">2</span>
+                <span class="kpi-subdetail" id="kpi-alertas-atencao">1 em atenção</span>
+              </div>
+              <div class="kpi-icon-badge kpi-icon-orange">
+                📋
+              </div>
+            </div>
 
-  </main>
+            <!-- Card 4: Próxima Revisão Crítica -->
+            <div class="kpi-box">
+              <div class="kpi-content">
+                <span class="kpi-label">Próxima Revisão Crítica</span>
+                <span class="text-base font-bold text-slate-900" id="kpi-critico-placa">BRA2E19</span>
+                <span class="text-xs font-semibold text-rose-600 mt-1" id="kpi-critico-desc">92.400 KM - Atrasado</span>
+              </div>
+              <div class="kpi-icon-badge kpi-icon-red">
+                ⚠️
+              </div>
+            </div>
+          </div>
+
+          <!-- DASHBOARD 2-COLUMN GRID (Table Left 66% + Side Widgets 33%) -->
+          <div class="dashboard-main-grid">
+
+            <!-- LEFT COLUMN: Alertas de Revisão Imediata (Tabela Completa) -->
+            <div class="card">
+              <h3 class="card-title">Alertas de Revisão Imediata</h3>
+
+              <!-- Toolbar -->
+              <div class="table-toolbar">
+                <div class="search-box-wrapper">
+                  <span class="search-icon-inside">🔍</span>
+                  <input type="text" id="dash-search-input" class="input-search" placeholder="Buscar por placa, modelo...">
+                </div>
+
+                <select id="dash-status-select" class="select-filter">
+                  <option value="">Todos os Status</option>
+                  <option value="CRITICO">Atrasado</option>
+                  <option value="ATENCAO">Em Breve</option>
+                  <option value="NORMAL">OK</option>
+                </select>
+
+                <button class="btn btn-secondary btn-sm" onclick="carregarDashboard()">
+                  🔄 Atualizar
+                </button>
+              </div>
+
+              <!-- Tabela de Alertas -->
+              <div class="overflow-x-auto">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Placa</th>
+                      <th>Modelo</th>
+                      <th>KM Atual</th>
+                      <th>Plano de Manutenção</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-alerts-tbody">
+                    <!-- Preenchido via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Ordens de Serviço Recentes + Visão Geral da Frota -->
+            <div class="dashboard-side-column">
+
+              <!-- Widget 1: Ordens de Serviço Recentes -->
+              <div class="card">
+                <div class="flex justify-between items-center mb-3">
+                  <h3 class="card-title mb-0">Ordens de Serviço Recentes</h3>
+                  <button class="text-xs text-blue-600 font-semibold hover:underline" onclick="trocarAba('os')">Ver todas &rarr;</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <table class="custom-table" style="font-size: 0.8rem;">
+                    <thead>
+                      <tr>
+                        <th>O.S. #</th>
+                        <th>Veículo</th>
+                        <th>Serviço</th>
+                        <th>Mecânico</th>
+                        <th>Custo</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dash-os-tbody">
+                      <!-- Preenchido via JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Widget 2: Visão Geral da Frota (Gráfico de Barras Estilizado) -->
+              <div class="card">
+                <h3 class="card-title">Visão Geral da Frota</h3>
+                
+                <div class="fleet-chart-container">
+                  <div class="chart-bar-group">
+                    <div class="chart-bar chart-bar-1" style="height: 100px;" title="Em Operação: 3"></div>
+                    <span class="chart-label">Operação</span>
+                  </div>
+
+                  <div class="chart-bar-group">
+                    <div class="chart-bar chart-bar-3" style="height: 60px;" title="Crítico: 2"></div>
+                    <span class="chart-label">Crítico</span>
+                  </div>
+
+                  <div class="chart-bar-group">
+                    <div class="chart-bar chart-bar-2" style="height: 40px;" title="Atenção: 1"></div>
+                    <span class="chart-label">Atenção</span>
+                  </div>
+
+                  <div class="chart-bar-group">
+                    <div class="chart-bar chart-bar-4" style="height: 40px;" title="Manutenção: 1"></div>
+                    <span class="chart-label">Oficina</span>
+                  </div>
+                </div>
+                
+                <div class="flex justify-between text-xs text-slate-500 mt-3 px-2">
+                  <span>Total Frota: <strong id="chart-total-text" class="text-slate-800">5 veículos</strong></span>
+                  <span>Custo Total: <strong id="chart-custo-text" class="text-emerald-700">R$ 3.190,00</strong></span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ==================== 2. ABA VEÍCULOS ==================== -->
+        <section id="section-veiculos" class="app-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Frota de Veículos</h2>
+              <p class="view-desc">Gestão completa, atualização de quilometragem e status de revisão.</p>
+            </div>
+            <button class="btn btn-primary" onclick="abrirModalNovoVeiculo()">+ Cadastrar Novo Veículo</button>
+          </div>
+
+          <div class="card">
+            <!-- Toolbar de Busca e Filtros -->
+            <div class="table-toolbar">
+              <div class="search-box-wrapper">
+                <span class="search-icon-inside">🔍</span>
+                <input type="text" id="search-veiculos" class="input-search" placeholder="Buscar por placa, modelo, marca ou motorista...">
+              </div>
+
+              <select id="filter-status-veiculo" class="select-filter">
+                <option value="">Status: Todos</option>
+                <option value="EM_OPERACAO">Em Operação</option>
+                <option value="EM_MANUTENCAO">Em Manutenção</option>
+                <option value="ALERTA_REVISAO">Alerta Revisão</option>
+              </select>
+
+              <select id="filter-cat-veiculo" class="select-filter">
+                <option value="">Categoria: Todas</option>
+                <option value="Pesado">Pesado (Caminhões)</option>
+                <option value="Médio">Médio (Urbanos 3/4)</option>
+                <option value="Leve">Leve (Vans/Furgões)</option>
+              </select>
+
+              <button id="btn-toggle-apenas-alertas" class="btn btn-secondary btn-sm">
+                ⚠️ Apenas Alertas
+              </button>
+            </div>
+
+            <!-- Tabela Completa de Veículos -->
+            <div class="overflow-x-auto">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Placa</th>
+                    <th>Modelo / Marca</th>
+                    <th>KM Atual</th>
+                    <th>Próxima Revisão</th>
+                    <th>Status Operacional</th>
+                    <th>Status Revisão</th>
+                    <th>Plano Vinculado</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="veiculos-table-body">
+                  <!-- Renderizado via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 3. ABA ORDENS DE SERVIÇO ==================== -->
+        <section id="section-os" class="app-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Ordens de Serviço (O.S.)</h2>
+              <p class="view-desc">Abertura, acompanhamento de peças aplicadas e conclusão com recálculo preventivo.</p>
+            </div>
+            <button class="btn btn-primary" onclick="abrirModalNovaOS()">+ Abrir Nova O.S.</button>
+          </div>
+
+          <div class="card">
+            <div class="table-toolbar">
+              <select id="filter-status-os" class="select-filter">
+                <option value="">Status: Todos</option>
+                <option value="ABERTA">Aberta</option>
+                <option value="EM_ANDAMENTO">Em Andamento</option>
+                <option value="CONCLUIDA">Concluída</option>
+                <option value="CANCELADA">Cancelada</option>
+              </select>
+
+              <select id="filter-tipo-os" class="select-filter">
+                <option value="">Tipo: Todos</option>
+                <option value="PREVENTIVA">Preventiva</option>
+                <option value="CORRETIVA">Corretiva</option>
+                <option value="EMERGENCIAL">Emergencial</option>
+              </select>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Código / Veículo</th>
+                    <th>Tipo</th>
+                    <th>Descrição do Serviço</th>
+                    <th>Mecânico</th>
+                    <th>Total Peças</th>
+                    <th>Total Geral</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="os-table-body">
+                  <!-- Renderizado via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 4. ABA PLANOS DE MANUTENÇÃO ==================== -->
+        <section id="section-planos" class="app-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Planos de Manutenção Preventiva</h2>
+              <p class="view-desc">Configuração de periodicidade por quilometragem e intervalo de meses para cada categoria.</p>
+            </div>
+          </div>
+
+          <div id="planos-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Cards de Planos via JS -->
+          </div>
+        </section>
+
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        GABRIEL FROTAS &copy; 2026 — Sistema de Logística &amp; Controle de Manutenção
+      </footer>
+
+    </div>
+
+  </div>
 
   <!-- ==================== MODAL: CADASTRO / EDIÇÃO DE VEÍCULO ==================== -->
   <div id="modal-veiculo" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-content">
+    <div class="modal-card">
       <div class="modal-header">
         <h3 id="modal-veiculo-title" class="modal-title">Cadastrar Novo Veículo</h3>
         <button class="modal-close" onclick="fecharModal('modal-veiculo')">&times;</button>
@@ -234,27 +452,27 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label" for="veiculo-placa">Placa do Veículo *</label>
-              <input type="text" id="veiculo-placa" class="form-control" placeholder="Ex: BRA2E19" maxlength="8" required>
+              <input type="text" id="veiculo-placa" class="form-input uppercase font-bold" placeholder="ABC-1234" maxlength="8" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="veiculo-marca">Marca *</label>
-              <input type="text" id="veiculo-marca" class="form-control" placeholder="Ex: Volvo, Scania, Mercedes" required>
+              <input type="text" id="veiculo-marca" class="form-input" placeholder="Volvo, Scania, Mercedes..." required>
             </div>
             <div class="form-group">
               <label class="form-label" for="veiculo-modelo">Modelo *</label>
-              <input type="text" id="veiculo-modelo" class="form-control" placeholder="Ex: FH 540 6x4" required>
+              <input type="text" id="veiculo-modelo" class="form-input" placeholder="FH 540 6x4, Delivery..." required>
             </div>
             <div class="form-group">
               <label class="form-label" for="veiculo-ano">Ano de Fabricação *</label>
-              <input type="number" id="veiculo-ano" class="form-control" min="1980" max="2030" value="2023" required>
+              <input type="number" id="veiculo-ano" class="form-input" min="1980" max="2030" value="2023" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="veiculo-km">KM Atual Registrado *</label>
-              <input type="number" id="veiculo-km" class="form-control" min="0" placeholder="Ex: 50000" required>
+              <input type="number" id="veiculo-km" class="form-input font-bold" min="0" placeholder="50000" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="veiculo-categoria">Categoria</label>
-              <select id="veiculo-categoria" class="form-control">
+              <select id="veiculo-categoria" class="form-select">
                 <option value="Pesado">Pesado (Caminhão / Cavalo Mecânico)</option>
                 <option value="Médio">Médio (Urbano 3/4)</option>
                 <option value="Leve">Leve (Van / Furgão)</option>
@@ -262,60 +480,56 @@
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 1.25rem;">
+          <div class="form-group mb-3">
             <label class="form-label" for="veiculo-motorista">Motorista Responsável</label>
-            <input type="text" id="veiculo-motorista" class="form-control" placeholder="Nome do motorista">
+            <input type="text" id="veiculo-motorista" class="form-input" placeholder="Nome do motorista">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="veiculo-plano-select">Plano de Manutenção Preventiva Vinculado *</label>
-            <select id="veiculo-plano-select" class="form-control" required>
-              <!-- Preenchido via JS -->
+            <label class="form-label" for="veiculo-plano-select">Plano de Manutenção Preventiva *</label>
+            <select id="veiculo-plano-select" class="form-select" required>
+              <!-- Opções carregadas via JS -->
             </select>
           </div>
 
-          <!-- Banner de Projeção de Revisão -->
-          <div id="veiculo-auto-calc-banner" style="display: none; background: #07101f; border: 1px solid var(--accent-blue-dark); border-radius: 8px; padding: 0.85rem 1rem; margin-top: 1rem;">
-            <div style="font-weight: 700; color: var(--accent-blue); font-size: 0.85rem; margin-bottom: 0.25rem;">
-              ⚡ Projeção Automática da Primeira Revisão:
-            </div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">
-              KM da Revisão: <strong id="calc-prox-km" style="color: #ffffff">-</strong> | Data Limite: <strong id="calc-prox-data" style="color: #ffffff">-</strong>
-            </div>
+          <!-- Auto-calc box -->
+          <div id="veiculo-auto-calc-banner" class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3 text-xs text-blue-900 hidden">
+            <div class="font-bold mb-1">⚡ Projeção Automática do Próximo Ciclo:</div>
+            <div>KM da Revisão: <strong id="calc-prox-km">-</strong> | Data Estimada: <strong id="calc-prox-data">-</strong></div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-veiculo')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">💾 Salvar Veículo</button>
+          <button type="submit" class="btn btn-primary">Salvar Veículo</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ==================== MODAL: ATUALIZAR KM RÁPIDO ==================== -->
+  <!-- ==================== MODAL: ATUALIZAR KM ==================== -->
   <div id="modal-atualizar-km" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-card" style="max-width: 420px;">
       <div class="modal-header">
-        <h3 class="modal-title">⚡ Atualizar Quilometragem (KM)</h3>
+        <h3 class="modal-title">⚡ Atualizar KM do Veículo</h3>
         <button class="modal-close" onclick="fecharModal('modal-atualizar-km')">&times;</button>
       </div>
       <form onsubmit="salvarNovoKm(event)">
         <input type="hidden" id="km-veiculo-id-hidden">
         <div class="modal-body">
-          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem">
-            Informe o novo KM registrado no odômetro. O sistema recalculará imediatamente os alertas preventivos.
+          <p class="text-sm text-slate-600 mb-3">
+            Informe o novo valor do odômetro. O sistema atualizará os alertas de revisão automaticamente.
           </p>
-          <div style="margin-bottom: 1rem; font-size: 0.9rem;">
-            KM Atual no Sistema: <strong id="km-atual-display" style="color: var(--accent-blue)">-</strong>
+          <div class="text-sm mb-3">
+            KM Atual no Sistema: <strong id="km-atual-display" class="text-blue-700">-</strong>
           </div>
           <div class="form-group">
-            <label class="form-label" for="novo-km-input">Novo KM do Veículo *</label>
-            <input type="number" id="novo-km-input" class="form-control" style="font-size: 1.1rem; font-weight: bold;" required>
+            <label class="form-label" for="novo-km-input">Novo KM *</label>
+            <input type="number" id="novo-km-input" class="form-input font-bold text-lg" required>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="fecharModal('modal-atualizar-km')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Confirmar Atualização</button>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
         </div>
       </form>
     </div>
@@ -323,7 +537,7 @@
 
   <!-- ==================== MODAL: ABERTURA DE ORDEM DE SERVIÇO (O.S.) ==================== -->
   <div id="modal-os" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 750px;">
+    <div class="modal-card" style="max-width: 720px;">
       <div class="modal-header">
         <h3 class="modal-title">📋 Abertura de Ordem de Serviço (O.S.)</h3>
         <button class="modal-close" onclick="fecharModal('modal-os')">&times;</button>
@@ -332,41 +546,41 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label" for="os-veiculo-select">Veículo da Frota *</label>
-              <select id="os-veiculo-select" class="form-control" onchange="aoTrocarVeiculoOS()" required>
+              <label class="form-label" for="os-veiculo-select">Veículo *</label>
+              <select id="os-veiculo-select" class="form-select" onchange="aoTrocarVeiculoOS()" required>
                 <!-- Preenchido via JS -->
               </select>
             </div>
             <div class="form-group">
               <label class="form-label" for="os-tipo">Tipo de Manutenção *</label>
-              <select id="os-tipo" class="form-control" required>
-                <option value="PREVENTIVA">PREVENTIVA (Recalcula ciclo na conclusão)</option>
-                <option value="CORRETIVA">CORRETIVA (Reparo de falhas)</option>
+              <select id="os-tipo" class="form-select" required>
+                <option value="PREVENTIVA">PREVENTIVA (Recalcula ciclo ao concluir)</option>
+                <option value="CORRETIVA">CORRETIVA (Reparo)</option>
                 <option value="EMERGENCIAL">EMERGENCIAL (Socorro em rota)</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="os-km">KM no Momento da Manutenção *</label>
-              <input type="number" id="os-km" class="form-control" required>
+              <label class="form-label" for="os-km">KM no Momento *</label>
+              <input type="number" id="os-km" class="form-input font-bold" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="os-mecanico">Mecânico Responsável (Admin) *</label>
-              <input type="text" id="os-mecanico" class="form-control" placeholder="Ex: Carlos Silva (Chefe de Oficina)" value="Carlos Silva" required>
+              <label class="form-label" for="os-mecanico">Mecânico Responsável *</label>
+              <input type="text" id="os-mecanico" class="form-input" value="Carlos Silva (Mecânico Chefe)" required>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 1.25rem;">
-            <label class="form-label" for="os-descricao">Descrição Detalhada dos Serviços *</label>
-            <input type="text" id="os-descricao" class="form-control" placeholder="Ex: Revisão periódica de 90.000 KM com troca de filtros e fluídos" required>
+          <div class="form-group mb-3">
+            <label class="form-label" for="os-descricao">Descrição dos Serviços *</label>
+            <input type="text" id="os-descricao" class="form-input" placeholder="Ex: Revisão periódica de freios e suspensão" required>
           </div>
 
-          <!-- Construtor Dinâmico de Peças -->
+          <!-- Peças Builder -->
           <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label class="form-label" style="color: var(--accent-blue); font-weight: 700;">📦 Peças e Materiais Utilizados</label>
-              <button type="button" class="btn btn-sm btn-secondary" onclick="adicionarLinhaPeca()">+ Adicionar Peça</button>
+            <div class="flex justify-between items-center mb-1">
+              <label class="form-label font-bold text-slate-800">📦 Peças e Materiais Utilizados</label>
+              <button type="button" class="btn btn-secondary btn-sm text-xs" onclick="adicionarLinhaPeca()">+ Adicionar Peça</button>
             </div>
-            <div class="parts-builder">
+            <div class="parts-builder-container">
               <div id="os-parts-container">
                 <!-- Linhas dinâmicas -->
               </div>
@@ -374,36 +588,31 @@
           </div>
 
           <!-- Mão de Obra -->
-          <div class="form-grid" style="margin-top: 1.25rem;">
+          <div class="form-grid mt-3">
             <div class="form-group" style="grid-column: span 2;">
-              <label class="form-label" for="os-mo-desc">Descrição da Mão de Obra</label>
-              <input type="text" id="os-mo-desc" class="form-control" value="Serviço mecânico especializado">
+              <label class="form-label" for="os-mo-desc">Descrição Mão de Obra</label>
+              <input type="text" id="os-mo-desc" class="form-input" value="Mão de obra especializada">
             </div>
             <div class="form-group">
-              <label class="form-label" for="os-mo-horas">Horas de Mão de Obra</label>
-              <input type="number" id="os-mo-horas" class="form-control" min="0" step="0.5" value="4">
+              <label class="form-label" for="os-mo-horas">Horas Trabalhadas</label>
+              <input type="number" id="os-mo-horas" class="form-input" min="0" step="0.5" value="4">
             </div>
             <div class="form-group">
               <label class="form-label" for="os-mo-valor-hora">Valor Hora (R$)</label>
-              <input type="number" id="os-mo-valor-hora" class="form-control" min="0" step="5" value="90">
+              <input type="number" id="os-mo-valor-hora" class="form-input" min="0" step="5" value="90">
             </div>
           </div>
 
-          <!-- Resumo Financeiro da OS -->
-          <div class="totals-summary-card">
+          <!-- Resumo de Custos -->
+          <div class="bg-slate-100 border border-slate-300 rounded-lg p-3 mt-3 flex justify-between items-center text-sm">
             <div>
-              <div style="font-size: 0.8rem; color: var(--text-secondary)">Total Peças: <span id="os-total-pecas-display" style="color: #ffffff">R$ 0,00</span></div>
-              <div style="font-size: 0.8rem; color: var(--text-secondary)">Total Mão de Obra: <span id="os-total-mo-display" style="color: #ffffff">R$ 0,00</span></div>
+              <div class="text-slate-600">Peças: <strong id="os-total-pecas-display" class="text-slate-900">R$ 0,00</strong></div>
+              <div class="text-slate-600">Mão de Obra: <strong id="os-total-mo-display" class="text-slate-900">R$ 0,00</strong></div>
             </div>
-            <div style="text-align: right">
-              <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 700; text-transform: uppercase;">Valor Total da O.S.</div>
-              <div id="os-total-geral-display" style="font-size: 1.4rem; font-weight: 800; color: var(--accent-green)">R$ 0,00</div>
+            <div class="text-right">
+              <span class="text-xs text-slate-500 font-semibold uppercase">Total da O.S.:</span>
+              <div id="os-total-geral-display" class="text-lg font-black text-emerald-700">R$ 0,00</div>
             </div>
-          </div>
-
-          <div class="form-group" style="margin-top: 1rem;">
-            <label class="form-label" for="os-obs">Observações Adicionais</label>
-            <textarea id="os-obs" class="form-control" rows="2" placeholder="Ex: Box 02 liberado após alinhamento"></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -416,32 +625,30 @@
 
   <!-- ==================== MODAL: HISTÓRICO & FICHA DO VEÍCULO ==================== -->
   <div id="modal-historico" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 750px;">
+    <div class="modal-card" style="max-width: 680px;">
       <div class="modal-header">
         <h3 class="modal-title">Ficha e Histórico de Manutenções</h3>
         <button class="modal-close" onclick="fecharModal('modal-historico')">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
-            <span id="hist-veiculo-placa" style="font-size: 1.4rem; font-weight: 800; color: var(--accent-blue)">-</span>
-            <span id="hist-veiculo-info" style="color: var(--text-primary); font-weight: 600;">-</span>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
+          <div class="flex justify-between items-center mb-1">
+            <span id="hist-veiculo-placa" class="text-xl font-black text-blue-700">-</span>
+            <span id="hist-veiculo-info" class="text-sm font-semibold text-slate-800">-</span>
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); flex-wrap: wrap; gap: 0.5rem;">
-            <div>Quilometragem: <strong id="hist-veiculo-km" style="color: #ffffff">-</strong></div>
-            <div>Plano: <strong id="hist-veiculo-plano" style="color: var(--accent-blue)">-</strong></div>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h4 style="font-size: 1.1rem; color: var(--text-primary);">📜 Linha do Tempo de Manutenções</h4>
-          <div style="font-size: 0.9rem; color: var(--text-secondary)">
-            Total Acumulado: <strong id="hist-total-gasto" style="color: var(--accent-green)">R$ 0,00</strong>
+          <div class="flex justify-between text-xs text-slate-600">
+            <span>KM Atual: <strong id="hist-veiculo-km" class="text-slate-900">-</strong></span>
+            <span>Plano: <strong id="hist-veiculo-plano" class="text-blue-700">-</strong></span>
           </div>
         </div>
 
-        <div id="hist-timeline-container">
-          <!-- Timeline preenchida dinamicamente -->
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-sm text-slate-800">Linha do Tempo de Manutenções</h4>
+          <span class="text-xs text-slate-500">Total Investido: <strong id="hist-total-gasto" class="text-emerald-700">R$ 0,00</strong></span>
+        </div>
+
+        <div id="hist-timeline-container" class="space-y-3">
+          <!-- Timeline dinâmica -->
         </div>
       </div>
       <div class="modal-footer">
@@ -450,13 +657,7 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>
-      <strong>FrotaGestão</strong> — Projeto de Avaliação Parcial (P1) | Disciplina de Desenvolvimento Web Fullstack | Aluno: Gabriel
-    </p>
-  </footer>
-
+  <!-- Script Principal -->
   <script src="/js/app.js"></script>
 </body>
 </html>

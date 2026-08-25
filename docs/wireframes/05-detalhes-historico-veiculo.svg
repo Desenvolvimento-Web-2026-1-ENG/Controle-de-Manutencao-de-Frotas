@@ -1,72 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
   <!-- Background -->
-  <rect width="1200" height="800" fill="#0f172a"/>
+  <rect width="1200" height="800" fill="#f1f5f9"/>
   
   <!-- Sidebar -->
-  <rect width="240" height="800" fill="#1e293b"/>
-  <text x="24" y="45" fill="#38bdf8" font-size="20" font-weight="bold">🚛 FrotaGestão</text>
-  <text x="24" y="70" fill="#94a3b8" font-size="12">Controle de Manutenção</text>
+  <rect width="240" height="800" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="0" y="0" width="240" height="64" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="24" y="40" fill="#0f172a" font-size="16" font-weight="bold">🚛 GABRIEL FROTAS</text>
   
-  <!-- Menu Items -->
-  <text x="32" y="125" fill="#94a3b8" font-size="14">📊 Dashboard &amp; Alertas</text>
-  <rect x="12" y="140" width="216" height="40" rx="8" fill="#3b82f6" fill-opacity="0.2"/>
-  <text x="32" y="165" fill="#60a5fa" font-size="14" font-weight="bold">🚚 Veículos da Frota</text>
-  <text x="32" y="205" fill="#94a3b8" font-size="14">📋 Ordens de Serviço (O.S.)</text>
-  <text x="32" y="245" fill="#94a3b8" font-size="14">⚙️ Planos Preventivos</text>
+  <text x="32" y="104" fill="#64748b" font-size="13">📊 Dashboard</text>
+  <rect x="12" y="120" width="216" height="38" rx="8" fill="#e0edff"/>
+  <text x="32" y="144" fill="#1d4ed8" font-size="13" font-weight="bold">🚗 Veículos</text>
+  <text x="32" y="184" fill="#64748b" font-size="13">📅 Planos de Manutenção</text>
+  <text x="32" y="224" fill="#64748b" font-size="13">📋 Ordens de Serviço (O.S.)</text>
+  <text x="32" y="264" fill="#64748b" font-size="13">👥 Mecânicos</text>
+  <text x="32" y="304" fill="#64748b" font-size="13">📈 Relatórios</text>
+  <text x="32" y="760" fill="#ef4444" font-size="13">🚪 Sair</text>
   
-  <!-- Header Bar -->
-  <rect x="240" width="960" height="70" fill="#1e293b"/>
-  <text x="270" y="42" fill="#f8fafc" font-size="20" font-weight="bold">Ficha do Veículo &amp; Histórico de Manutenções</text>
+  <!-- Header Bar (Solid Blue) -->
+  <rect x="240" width="960" height="64" fill="#1d4ed8"/>
+  <text x="265" y="38" fill="#ffffff" font-size="18" font-weight="bold">Ficha e Histórico de Manutenções</text>
   
-  <!-- Content Area -->
-  <!-- API Banner Indicator -->
-  <rect x="270" y="90" width="900" height="32" rx="6" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-dasharray="4"/>
-  <text x="285" y="111" fill="#38bdf8" font-size="12" font-weight="600">🔗 INTEGRAÇÃO API: GET /api/veiculos/:id e GET /api/veiculos/:id/historico</text>
+  <!-- Modal Window -->
+  <rect x="360" y="95" width="720" height="660" rx="12" fill="#ffffff" stroke="#cbd5e1" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.1))"/>
+  <text x="390" y="135" fill="#0f172a" font-size="18" font-weight="bold">Ficha e Histórico do Veículo</text>
+  <line x1="360" y1="155" x2="1080" y2="155" stroke="#e2e8f0"/>
   
-  <!-- Vehicle Details Card -->
-  <rect x="270" y="135" width="900" height="150" rx="10" fill="#1e293b" stroke="#334155"/>
-  <rect x="290" y="150" width="100" height="30" rx="6" fill="#3b82f6"/>
-  <text x="305" y="170" fill="#ffffff" font-size="14" font-weight="bold">BRA2E19</text>
-  <text x="405" y="172" fill="#f8fafc" font-size="20" font-weight="bold">Volvo FH 540 6x4 (2022)</text>
+  <!-- Header info box -->
+  <rect x="390" y="175" width="660" height="70" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="410" y="205" fill="#1d4ed8" font-size="20" font-weight="bold">BRA2E19</text>
+  <text x="520" y="203" fill="#0f172a" font-size="14" font-weight="bold">Volvo FH 540 6x4 (2022) — Pesado</text>
+  <text x="410" y="230" fill="#64748b" font-size="12">KM Atual: <tspan fill="#0f172a" font-weight="bold">92.400 km</tspan> | Plano: <tspan fill="#1d4ed8" font-weight="bold">Frota Pesada (15.000 km / 6 meses)</tspan></text>
   
-  <text x="290" y="210" fill="#94a3b8" font-size="13">Quilometragem Atual: <tspan fill="#ffffff" font-weight="bold">92.400 km</tspan></text>
-  <text x="520" y="210" fill="#94a3b8" font-size="13">Próxima Revisão: <tspan fill="#ef4444" font-weight="bold">90.000 km (Vencida)</tspan></text>
-  <text x="780" y="210" fill="#94a3b8" font-size="13">Motorista: <tspan fill="#ffffff">Marcos Oliveira</tspan></text>
+  <!-- History Title -->
+  <text x="390" y="275" fill="#0f172a" font-size="14" font-weight="bold">Linha do Tempo de Manutenções Realizadas</text>
+  <text x="900" y="275" fill="#16a34a" font-size="13" font-weight="bold">Total: R$ 3.460,00</text>
   
-  <text x="290" y="240" fill="#94a3b8" font-size="13">Plano Vinculado: <tspan fill="#38bdf8">Plano Frota Pesada (15.000 km / 6 meses)</tspan></text>
-  <text x="780" y="240" fill="#94a3b8" font-size="13">Status Operacional: <tspan fill="#f87171" font-weight="bold">ALERTA REVISÃO</tspan></text>
+  <!-- Timeline Item 1 -->
+  <rect x="390" y="295" width="660" height="100" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="410" y="325" fill="#1d4ed8" font-size="13" font-weight="bold">OS-2026-001 (PREVENTIVA)</text>
+  <text x="940" y="325" fill="#16a34a" font-size="13" font-weight="bold">R$ 1.840,00</text>
+  <text x="410" y="350" fill="#0f172a" font-size="12" font-weight="600">Revisão periódica preventiva de 75.000 km</text>
+  <text x="410" y="375" fill="#64748b" font-size="11">Data: 11/03/2026 | Mecânico: Carlos Silva | Peças: Óleo 15W40, Filtros de Óleo, Ar e Racor</text>
   
-  <rect x="290" y="260" width="860" height="1" fill="#334155"/>
+  <!-- Timeline Item 2 -->
+  <rect x="390" y="415" width="660" height="100" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="410" y="445" fill="#1d4ed8" font-size="13" font-weight="bold">OS-2025-089 (PREVENTIVA)</text>
+  <text x="940" y="445" fill="#16a34a" font-size="13" font-weight="bold">R$ 1.620,00</text>
+  <text x="410" y="470" fill="#0f172a" font-size="12" font-weight="600">Revisão periódica preventiva de 60.000 km</text>
+  <text x="410" y="495" fill="#64748b" font-size="11">Data: 15/10/2025 | Mecânico: José Mendes | Peças: Troca de fluidos e lubrificação</text>
   
-  <!-- History Section -->
-  <rect x="270" y="300" width="900" height="470" rx="10" fill="#1e293b" stroke="#334155"/>
-  <text x="300" y="335" fill="#f8fafc" font-size="18" font-weight="bold">📜 Linha do Tempo de Manutenções Realizadas (Histórico)</text>
-  
-  <!-- History Item 1 -->
-  <rect x="300" y="360" width="840" height="110" rx="8" fill="#0f172a" stroke="#334155"/>
-  <rect x="315" y="375" width="110" height="26" rx="4" fill="#10b981"/>
-  <text x="325" y="393" fill="#ffffff" font-size="11" font-weight="bold">OS-2026-001</text>
-  <text x="435" y="393" fill="#f8fafc" font-size="14" font-weight="bold">Revisão Periódica Preventiva (75.000 KM)</text>
-  <text x="960" y="393" fill="#34d399" font-size="14" font-weight="bold">R$ 1.840,00</text>
-  
-  <text x="315" y="425" fill="#94a3b8" font-size="12">Data de Realização: 11/03/2026 | Mecânico Responsável: Carlos Silva (Mecânico Chefe)</text>
-  <text x="315" y="445" fill="#cbd5e1" font-size="12">Peças: Óleo 15W40, Filtros de Óleo, Ar e Racor (R$ 1.300) | Mão de Obra: 6h (R$ 540)</text>
-  
-  <!-- History Item 2 (Exemplo anterior) -->
-  <rect x="300" y="485" width="840" height="110" rx="8" fill="#0f172a" stroke="#334155"/>
-  <rect x="315" y="500" width="110" height="26" rx="4" fill="#10b981"/>
-  <text x="325" y="518" fill="#ffffff" font-size="11" font-weight="bold">OS-2025-089</text>
-  <text x="435" y="518" fill="#f8fafc" font-size="14" font-weight="bold">Revisão Periódica Preventiva (60.000 KM)</text>
-  <text x="960" y="518" fill="#34d399" font-size="14" font-weight="bold">R$ 1.620,00</text>
-  
-  <text x="315" y="550" fill="#94a3b8" font-size="12">Data de Realização: 15/10/2025 | Mecânico Responsável: José Mendes</text>
-  <text x="315" y="570" fill="#cbd5e1" font-size="12">Peças: Troca de fluidos, lubrificação da quinta roda e alinhamento de eixos</text>
-  
-  <!-- Empty State or Total Info -->
-  <rect x="300" y="615" width="840" height="50" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-dasharray="4"/>
-  <text x="520" y="645" fill="#60a5fa" font-size="13" font-weight="bold">Total Investido em Manutenções deste Veículo: R$ 3.460,00</text>
-  
-  <!-- Back Button -->
-  <rect x="300" y="710" width="180" height="38" rx="6" fill="#334155"/>
-  <text x="330" y="734" fill="#ffffff" font-size="13" font-weight="bold">← Voltar para Lista</text>
+  <!-- Footer -->
+  <line x1="360" y1="695" x2="1080" y2="695" stroke="#e2e8f0"/>
+  <rect x="940" y="710" width="110" height="34" rx="6" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="975" y="732" fill="#0f172a" font-size="12" font-weight="bold">Fechar</text>
 </svg>
