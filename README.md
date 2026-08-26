@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **Avaliação Parcial (P1) — Disciplina de Desenvolvimento Web**  
-> **Aluno / Gestor:** Gabriel Nunes  
+> **Aluno / Gestor:** Gabriel Nunes da Silva  
 > **Tema:** Controle de Manutenção de Frotas (Logística)  
 
 
@@ -19,7 +19,7 @@
 O **WEBDEV FROTAS** é um sistema corporativo completo voltado à gestão logística e operacional de frotas de transporte (caminhões pesados, cavalos mecânicos, caminhões médios 3/4, utilitários e vans), com foco primordial na **manutenção preventiva sistemática**, no controle detalhado de **Ordens de Serviço (O.S.)** — discriminando itens de peças substituídas e horas de mão de obra técnica —, na gestão do **quadro de mecânicos e especialistas** e na prevenção de falhas através de um **mecanismo proativo de alertas de revisão**.
 
 ### 👥 Perfis de Usuário e Casos de Uso:
-1. **Gestor de Frota (Gabriel Nunes):**
+1. **Gestor de Frota (Gabriel Nunes da Silva):**
    - Cadastra, atualiza e gerencia os veículos da empresa.
    - Vincula veículos a planos de manutenção preventiva com periodicidade por quilometragem e intervalo de tempo.
    - Monitora o painel de alertas críticos (veículos com revisão vencida por KM ou data).
@@ -69,7 +69,6 @@ controleManutencaoFrotas/
 ├── .env.example                # Template de variáveis de ambiente
 ├── .gitignore                  # Bloqueio de node_modules, envs e logs
 ├── package.json                # Dependências e scripts npm
-├── README.md                   # Memória técnica e registro de decisões arquiteturais
 ├── README.md                   # Documentação mestre do projeto
 ├── docs/                       # Artefatos técnicos e especificações
 │   ├── WIREFRAMES.md           # Mapeamento completo Wireframes <-> API (Sucesso & Erros)
@@ -134,8 +133,8 @@ controleManutencaoFrotas/
 
 1. **Clonar o repositório:**
    ```bash
-   git clone https://github.com/Gabriel-lns/controleManutencaoFrotas.git
-   cd controleManutencaoFrotas
+   git clone https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas.git
+   cd Controle-de-Manutencao-de-Frotas
    ```
 
 2. **Instalar as dependências:**
@@ -293,25 +292,13 @@ Todos os wireframes e o mapeamento dos componentes de tela com cada endpoint da 
 
 ---
 
-## 🏷️ 8. Geração da Release no GitHub (`v1.0.0-p1`)
+## 🏷️ 8. Versionamento Semântico e Release Oficial (`v1.0.0-p1`)
 
-Para cumprir formalmente a entrega da avaliação P1:
+O projeto adota o padrão de versionamento semântico ([SemVer](https://semver.org/)). O congelamento oficial do código referente à entrega da Avaliação Parcial (P1) foi publicado e documentado:
 
-1. **Commit e Push de todo o código para a branch `main`:**
-   ```bash
-   git add .
-   git commit -m "feat: finaliza escopo da avaliacao P1"
-   git push origin main
-   ```
-
-2. **Criação da Tag e Publicação da Release:**
-   ```bash
-   git tag -a v1.0.0-p1 -m "Release v1.0.0-p1: Avaliacao Parcial P1 - Controle de Manutencao de Frotas"
-   git push origin v1.0.0-p1
-   ```
-   - Ou via GitHub Web em **Releases** &rarr; **Draft a new release**:
-     - **Tag:** `v1.0.0-p1`
-     - **Title:** `Avaliação Parcial P1 — Entrega da API, Front-end SPA, Wireframes e Testes`
+- **Versão / Tag:** [`v1.0.0-p1`](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v1.0.0-p1)
+- **Status da Versão:** Entregue e Congelada 
+- **Release Notes:** Resumo das funcionalidades, cobertura de testes e endpoints disponível na aba [Releases](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v1.0.0-p1).
 
 ---
 
@@ -325,10 +312,10 @@ Para cumprir formalmente a entrega da avaliação P1:
 - [x] Wireframes visuais em SVG de todas as 5 telas principais com mapeamento de rotas de sucesso e erro.
 - [x] Front-end SPA moderno e funcional (Dashboard, Veículos, OS com Peças/Mão de Obra, Mecânicos e Histórico).
 - [x] Arquivo `README.md` detalhado com requisitos, regras de negócio, tabelas de rotas e guia de execução.
-- [x] `README.md` mantido atualizado com todas as decisões técnicas.
+- [x] Banco de dados in-memory estruturado com regras de integridade e cálculos dinâmicos.
 - [x] Tag e Release `v1.0.0-p1` preparada.
 
 ---
 
 ### 👨‍💻 Autor
-Desenvolvido por **Gabriel Nunes** — Projeto de Avaliação Parcial (P1) | Disciplina de Desenvolvimento Web.
+Desenvolvido por **Gabriel Nunes da Silva** — Projeto de Avaliação Parcial (P1) | Disciplina de Desenvolvimento Web.

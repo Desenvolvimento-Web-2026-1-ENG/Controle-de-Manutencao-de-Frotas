@@ -29,3 +29,9 @@ coverage/
 .vscode/
 *.sublime-project
 *.sublime-workspace
+
+# Evaluation artifacts & test runs
+*.pdf
+*.test_run.json
+
+
