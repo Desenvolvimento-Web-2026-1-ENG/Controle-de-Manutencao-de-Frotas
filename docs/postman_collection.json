@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "9f8a7b6c-1234-5678-9abc-def012345678",
-    "name": "Controle de Manutenção de Frotas API - P1",
-    "description": "Coleção completa de endpoints para a API de Controle de Manutenção de Frotas e Ordens de Serviço (P1 Desenvolvimento Web).",
+    "name": "WEBDEV FROTAS — Controle de Manutenção de Frotas (P1)",
+    "description": "Coleção completa com testes automatizados para a API de Controle de Manutenção de Frotas e Ordens de Serviço.\n\nAluno: Gabriel Nunes da Silva\nDisciplina: Desenvolvimento Web\nAvaliação: P1 (v1.0.0-p1)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -18,6 +18,34 @@
       "item": [
         {
           "name": "Status da API",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém success: true', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('Projeto é WEBDEV FROTAS', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.projeto).to.include('WEBDEV FROTAS');",
+                  "});",
+                  "",
+                  "pm.test('Status é online', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('online');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -30,6 +58,35 @@
         },
         {
           "name": "Resumo Geral do Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém success: true', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('Retorna dados do dashboard com totalVeiculos', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('totalVeiculos');",
+                  "    pm.expect(json.data.totalVeiculos).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Retorna custos financeiros', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('custos');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -41,7 +98,38 @@
           }
         },
         {
-          "name": "Listar Alertas de Revisão (Críticos e Atenção)",
+          "name": "Listar Alertas de Revisão",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém success: true', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('Retorna array de alertas', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('alertas');",
+                  "    pm.expect(json.data.alertas).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Alertas possuem nível CRITICO ou ATENCAO', function () {",
+                  "    var json = pm.response.json();",
+                  "    json.data.alertas.forEach(function(a) {",
+                  "        pm.expect(['CRITICO', 'ATENCAO']).to.include(a.nivelAlerta);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -59,6 +147,34 @@
       "item": [
         {
           "name": "Listar Todos os Veículos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna array de veículos', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test('Cada veículo possui placa e statusAlerta', function () {",
+                  "    var json = pm.response.json();",
+                  "    json.data.forEach(function(v) {",
+                  "        pm.expect(v).to.have.property('placa');",
+                  "        pm.expect(v).to.have.property('statusAlerta');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -71,6 +187,27 @@
         },
         {
           "name": "Listar Veículos com Revisão Imediata",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Todos os veículos retornados são CRITICO', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    json.data.forEach(function(v) {",
+                  "        pm.expect(v.statusAlerta).to.eql('CRITICO');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -83,6 +220,27 @@
         },
         {
           "name": "Buscar Veículo por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna veículo com ID 1', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data.id).to.eql(1);",
+                  "    pm.expect(json.data).to.have.property('placa');",
+                  "    pm.expect(json.data).to.have.property('marca');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -94,14 +252,38 @@
           }
         },
         {
-          "name": "Cadastrar Novo Veículo",
+          "name": "Cadastrar Novo Veículo (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Veículo criado com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.placa).to.eql('MER3A89');",
+                  "});",
+                  "",
+                  "pm.test('Projeção da próxima revisão foi calculada', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('kmProximaRevisao');",
+                  "    pm.expect(json.data).to.have.property('dataProximaRevisao');",
+                  "    pm.expect(json.data.kmProximaRevisao).to.be.greaterThan(json.data.kmAtual);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -115,14 +297,30 @@
           }
         },
         {
-          "name": "Atualizar Veículo",
+          "name": "Atualizar Veículo (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Veículo atualizado com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data.motoristaResponsavel).to.eql('Marcos Oliveira Jr');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -136,14 +334,30 @@
           }
         },
         {
-          "name": "Atualizar Quilometragem (KM) do Veículo",
+          "name": "Atualizar KM do Veículo (PATCH)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('KM atualizado e alerta recalculado', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('statusAlerta');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -158,6 +372,26 @@
         },
         {
           "name": "Histórico de Manutenções do Veículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna histórico com array de manutenções', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('historico');",
+                  "    pm.expect(json.data.historico).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -169,14 +403,69 @@
           }
         },
         {
-          "name": "Deletar Veículo",
+          "name": "Veículo Inexistente (404 Not Found)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Retorna success: false com mensagem de erro', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "    pm.expect(json.error).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/veiculos/2",
+              "raw": "{{baseUrl}}/veiculos/9999",
               "host": ["{{baseUrl}}"],
-              "path": ["veiculos", "2"]
+              "path": ["veiculos", "9999"]
+            }
+          }
+        },
+        {
+          "name": "Cadastro sem campos obrigatórios (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Retorna success: false com detalhes de validação', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Teste\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/veiculos",
+              "host": ["{{baseUrl}}"],
+              "path": ["veiculos"]
             }
           }
         }
@@ -187,6 +476,25 @@
       "item": [
         {
           "name": "Listar Todas as Ordens de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna array de ordens de serviço', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -199,6 +507,25 @@
         },
         {
           "name": "Buscar Ordem de Serviço por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna OS com código e totais', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('codigoOS');",
+                  "    pm.expect(json.data).to.have.property('totais');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -210,18 +537,40 @@
           }
         },
         {
-          "name": "Abrir Nova Ordem de Serviço",
+          "name": "Abrir Nova Ordem de Serviço (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('OS criada com peças e mão de obra', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('codigoOS');",
+                  "    pm.expect(json.data).to.have.property('pecas');",
+                  "    pm.expect(json.data.pecas).to.be.an('array');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('novaOsId', pm.response.json().data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"veiculoId\": 1,\n  \"tipo\": \"PREVENTIVA\",\n  \"mecanicoResponsavel\": \"Carlos Silva (Mecânico Chefe)\",\n  \"kmNoMomento\": 92400,\n  \"descricao\": \"Revisão periódica preventiva de 90.000 KM\",\n  \"pecas\": [\n    {\n      \"item\": \"Óleo de Motor 15W40 20L\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 380.00\n    },\n    {\n      \"item\": \"Filtro de Óleo e Ar\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 150.00\n    }\n  ],\n  \"maoDeObra\": {\n    \"descricao\": \"Revisão geral, troca de filtros e sangria\",\n    \"horas\": 5,\n    \"valorHora\": 90.00\n  },\n  \"observacoes\": \"Veículo deu entrada na oficina pela manhã.\"\n}"
+              "raw": "{\n  \"veiculoId\": 2,\n  \"tipo\": \"PREVENTIVA\",\n  \"mecanicoResponsavel\": \"Carlos Silva (Mecânico Chefe)\",\n  \"kmNoMomento\": 78500,\n  \"descricao\": \"Revisão periódica preventiva\",\n  \"pecas\": [\n    {\n      \"item\": \"Óleo de Motor 15W40 20L\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 380.00\n    },\n    {\n      \"item\": \"Filtro de Óleo e Ar\",\n      \"quantidade\": 2,\n      \"valorUnitario\": 150.00\n    }\n  ],\n  \"maoDeObra\": {\n    \"descricao\": \"Revisão geral, troca de filtros e sangria\",\n    \"horas\": 5,\n    \"valorHora\": 90.00\n  },\n  \"observacoes\": \"Veículo deu entrada na oficina pela manhã.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/ordens-servico",
@@ -231,14 +580,29 @@
           }
         },
         {
-          "name": "Atualizar Ordem de Serviço",
+          "name": "Atualizar Ordem de Serviço (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('OS atualizada com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -252,14 +616,30 @@
           }
         },
         {
-          "name": "Alterar Status da OS (Concluir e Recalcular Revisão)",
+          "name": "Concluir OS e Recalcular Revisão (PATCH)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('OS concluída com recálculo de revisão', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data.status).to.eql('CONCLUIDA');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -274,6 +654,24 @@
         },
         {
           "name": "Deletar Ordem de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('OS removida com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -281,6 +679,42 @@
               "raw": "{{baseUrl}}/ordens-servico/2",
               "host": ["{{baseUrl}}"],
               "path": ["ordens-servico", "2"]
+            }
+          }
+        },
+        {
+          "name": "OS para Veículo Inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Retorna success: false', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veiculoId\": 9999,\n  \"tipo\": \"CORRETIVA\",\n  \"mecanicoResponsavel\": \"Teste\",\n  \"kmNoMomento\": 10000,\n  \"descricao\": \"Teste veículo inexistente\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ordens-servico",
+              "host": ["{{baseUrl}}"],
+              "path": ["ordens-servico"]
             }
           }
         }
@@ -291,6 +725,26 @@
       "item": [
         {
           "name": "Listar Planos de Manutenção",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna array de planos', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -303,6 +757,25 @@
         },
         {
           "name": "Buscar Plano por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Plano contém intervaloKm e itensChecagem', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('intervaloKm');",
+                  "    pm.expect(json.data).to.have.property('itensChecagem');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -314,14 +787,31 @@
           }
         },
         {
-          "name": "Criar Novo Plano de Manutenção",
+          "name": "Criar Novo Plano de Manutenção (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Plano criado com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.nome).to.include('Elétrica');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -335,14 +825,29 @@
           }
         },
         {
-          "name": "Atualizar Plano de Manutenção",
+          "name": "Atualizar Plano de Manutenção (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Plano atualizado com novos intervalos', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -357,6 +862,24 @@
         },
         {
           "name": "Deletar Plano de Manutenção",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Plano removido com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
@@ -364,6 +887,153 @@
               "raw": "{{baseUrl}}/planos-manutencao/3",
               "host": ["{{baseUrl}}"],
               "path": ["planos-manutencao", "3"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Mecânicos",
+      "item": [
+        {
+          "name": "Listar Mecânicos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna array de mecânicos', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos",
+              "host": ["{{baseUrl}}"],
+              "path": ["mecanicos"]
+            }
+          }
+        },
+        {
+          "name": "Cadastrar Novo Mecânico (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Mecânico criado com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.nome).to.eql('Roberto Nascimento');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Roberto Nascimento\",\n  \"cargo\": \"Mecânico Especialista\",\n  \"especialidade\": \"Injeção Eletrônica e Scanner Diesel\",\n  \"telefone\": \"(11) 98888-7777\",\n  \"status\": \"DISPONIVEL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos",
+              "host": ["{{baseUrl}}"],
+              "path": ["mecanicos"]
+            }
+          }
+        },
+        {
+          "name": "Editar Mecânico (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Mecânico editado com sucesso', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Carlos Silva Atualizado\",\n  \"cargo\": \"Mecânico Chefe Sênior\",\n  \"especialidade\": \"Motor Diesel e Câmbio Automatizado\",\n  \"telefone\": \"(21) 99999-0001\",\n  \"status\": \"DISPONIVEL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["mecanicos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Mecânico sem nome (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code é 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Retorna success: false com erro de validação', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cargo\": \"Teste\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos",
+              "host": ["{{baseUrl}}"],
+              "path": ["mecanicos"]
             }
           }
         }
