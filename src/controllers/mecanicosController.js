@@ -1,13 +1,13 @@
 /**
- * Controller de Mecânicos
+ * Controller de Mecânicos (Async / Prisma)
  */
 
 const mecanicosService = require("../services/mecanicosService");
 
 class MecanicosController {
-  listar(req, res, next) {
+  async listar(req, res, next) {
     try {
-      const mecanicos = mecanicosService.listar();
+      const mecanicos = await mecanicosService.listar();
       return res.status(200).json({
         success: true,
         total: mecanicos.length,
@@ -18,10 +18,10 @@ class MecanicosController {
     }
   }
 
-  buscarPorId(req, res, next) {
+  async buscarPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const mecanico = mecanicosService.buscarPorId(id);
+      const mecanico = await mecanicosService.buscarPorId(id);
       return res.status(200).json({
         success: true,
         data: mecanico
@@ -31,9 +31,9 @@ class MecanicosController {
     }
   }
 
-  criar(req, res, next) {
+  async criar(req, res, next) {
     try {
-      const novoMecanico = mecanicosService.criar(req.body);
+      const novoMecanico = await mecanicosService.criar(req.body);
       return res.status(201).json({
         success: true,
         message: "Mecânico cadastrado com sucesso!",
@@ -44,10 +44,10 @@ class MecanicosController {
     }
   }
 
-  atualizar(req, res, next) {
+  async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const mecanicoAtualizado = mecanicosService.atualizar(id, req.body);
+      const mecanicoAtualizado = await mecanicosService.atualizar(id, req.body);
       return res.status(200).json({
         success: true,
         message: "Mecânico atualizado com sucesso!",
@@ -58,10 +58,10 @@ class MecanicosController {
     }
   }
 
-  deletar(req, res, next) {
+  async deletar(req, res, next) {
     try {
       const { id } = req.params;
-      mecanicosService.deletar(id);
+      await mecanicosService.deletar(id);
       return res.status(200).json({
         success: true,
         message: `Mecânico #${id} removido com sucesso.`

@@ -1,5 +1,5 @@
 /**
- * Controller de Ordens de Serviço (O.S.)
+ * Controller de Ordens de Serviço (O.S.) (Async / Prisma)
  * Gerencia as operações de registro, atualização, aprovação e conclusão de O.S.
  */
 
@@ -7,10 +7,10 @@ const ordensServicoService = require("../services/ordensServicoService");
 
 class OrdensServicoController {
   // GET /api/ordens-servico
-  listar(req, res, next) {
+  async listar(req, res, next) {
     try {
       const { status, tipo, veiculoId, mecanico } = req.query;
-      const ordens = ordensServicoService.listar({ status, tipo, veiculoId, mecanico });
+      const ordens = await ordensServicoService.listar({ status, tipo, veiculoId, mecanico });
 
       return res.status(200).json({
         success: true,
@@ -23,10 +23,10 @@ class OrdensServicoController {
   }
 
   // GET /api/ordens-servico/:id
-  buscarPorId(req, res, next) {
+  async buscarPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const os = ordensServicoService.buscarPorId(id);
+      const os = await ordensServicoService.buscarPorId(id);
 
       return res.status(200).json({
         success: true,
@@ -38,9 +38,9 @@ class OrdensServicoController {
   }
 
   // POST /api/ordens-servico
-  criar(req, res, next) {
+  async criar(req, res, next) {
     try {
-      const novaOS = ordensServicoService.criar(req.body);
+      const novaOS = await ordensServicoService.criar(req.body);
 
       return res.status(201).json({
         success: true,
@@ -53,10 +53,10 @@ class OrdensServicoController {
   }
 
   // PUT /api/ordens-servico/:id
-  atualizar(req, res, next) {
+  async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const osAtualizada = ordensServicoService.atualizar(id, req.body);
+      const osAtualizada = await ordensServicoService.atualizar(id, req.body);
 
       return res.status(200).json({
         success: true,
@@ -69,7 +69,7 @@ class OrdensServicoController {
   }
 
   // PATCH /api/ordens-servico/:id/status
-  alterarStatus(req, res, next) {
+  async alterarStatus(req, res, next) {
     try {
       const { id } = req.params;
       const { status, observacoes } = req.body;
@@ -81,7 +81,7 @@ class OrdensServicoController {
         });
       }
 
-      const osAtualizada = ordensServicoService.alterarStatus(id, status, observacoes);
+      const osAtualizada = await ordensServicoService.alterarStatus(id, status, observacoes);
 
       return res.status(200).json({
         success: true,
@@ -94,10 +94,10 @@ class OrdensServicoController {
   }
 
   // DELETE /api/ordens-servico/:id
-  deletar(req, res, next) {
+  async deletar(req, res, next) {
     try {
       const { id } = req.params;
-      ordensServicoService.deletar(id);
+      await ordensServicoService.deletar(id);
 
       return res.status(200).json({
         success: true,

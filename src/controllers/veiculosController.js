@@ -1,5 +1,5 @@
 /**
- * Controller de Veículos
+ * Controller de Veículos (Async / Prisma)
  * Gerencia as requisições HTTP RESTful para os veículos da frota
  */
 
@@ -7,10 +7,10 @@ const veiculosService = require("../services/veiculosService");
 
 class VeiculosController {
   // GET /api/veiculos
-  listar(req, res, next) {
+  async listar(req, res, next) {
     try {
       const { status, marca, modelo, categoria, busca, apenasAlertas } = req.query;
-      const veiculos = veiculosService.listar({
+      const veiculos = await veiculosService.listar({
         status,
         marca,
         modelo,
@@ -30,10 +30,10 @@ class VeiculosController {
   }
 
   // GET /api/veiculos/:id
-  buscarPorId(req, res, next) {
+  async buscarPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const veiculo = veiculosService.buscarPorId(id);
+      const veiculo = await veiculosService.buscarPorId(id);
 
       return res.status(200).json({
         success: true,
@@ -45,9 +45,9 @@ class VeiculosController {
   }
 
   // GET /api/veiculos/revisao-imediata
-  listarRevisaoImediata(req, res, next) {
+  async listarRevisaoImediata(req, res, next) {
     try {
-      const veiculos = veiculosService.listarRevisaoImediata();
+      const veiculos = await veiculosService.listarRevisaoImediata();
 
       return res.status(200).json({
         success: true,
@@ -61,10 +61,10 @@ class VeiculosController {
   }
 
   // GET /api/veiculos/:id/historico
-  buscarHistorico(req, res, next) {
+  async buscarHistorico(req, res, next) {
     try {
       const { id } = req.params;
-      const historico = veiculosService.buscarHistorico(id);
+      const historico = await veiculosService.buscarHistorico(id);
 
       return res.status(200).json({
         success: true,
@@ -78,9 +78,9 @@ class VeiculosController {
   }
 
   // POST /api/veiculos
-  criar(req, res, next) {
+  async criar(req, res, next) {
     try {
-      const novoVeiculo = veiculosService.criar(req.body);
+      const novoVeiculo = await veiculosService.criar(req.body);
 
       return res.status(201).json({
         success: true,
@@ -93,10 +93,10 @@ class VeiculosController {
   }
 
   // PUT /api/veiculos/:id
-  atualizar(req, res, next) {
+  async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const veiculoAtualizado = veiculosService.atualizar(id, req.body);
+      const veiculoAtualizado = await veiculosService.atualizar(id, req.body);
 
       return res.status(200).json({
         success: true,
@@ -109,7 +109,7 @@ class VeiculosController {
   }
 
   // PATCH /api/veiculos/:id/km
-  atualizarKm(req, res, next) {
+  async atualizarKm(req, res, next) {
     try {
       const { id } = req.params;
       const { kmAtual } = req.body;
@@ -121,7 +121,7 @@ class VeiculosController {
         });
       }
 
-      const veiculoAtualizado = veiculosService.atualizarKm(id, kmAtual);
+      const veiculoAtualizado = await veiculosService.atualizarKm(id, kmAtual);
 
       return res.status(200).json({
         success: true,
@@ -134,10 +134,10 @@ class VeiculosController {
   }
 
   // DELETE /api/veiculos/:id
-  deletar(req, res, next) {
+  async deletar(req, res, next) {
     try {
       const { id } = req.params;
-      veiculosService.deletar(id);
+      await veiculosService.deletar(id);
 
       return res.status(200).json({
         success: true,

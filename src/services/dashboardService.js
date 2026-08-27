@@ -1,15 +1,16 @@
 /**
- * Service de Dashboard e Alertas
+ * Service de Dashboard e Alertas (Prisma ORM / SQLite)
  * Fornece métricas consolidadas e relatórios analíticos de manutenção
  */
 
-const db = require("../data/database");
+const prisma = require("../config/prisma");
+const veiculosService = require("./veiculosService");
 
 class DashboardService {
-  obterResumo() {
-    const veiculos = db.listarVeiculos();
-    const ordensServico = db.listarOrdensServico();
-    const planos = db.listarPlanos();
+  async obterResumo() {
+    const veiculos = await veiculosService.listar();
+    const ordensServico = await prisma.ordemServico.findMany();
+    const totalPlanos = await prisma.planoManutencao.count();
 
     const totalVeiculos = veiculos.length;
     const veiculosEmOperacao = veiculos.filter((v) => v.status === "EM_OPERACAO").length;
@@ -45,7 +46,7 @@ class DashboardService {
         revisaoCritica: veiculosRevisaoCritica.length,
         revisaoAtencao: veiculosRevisaoAtencao.length,
         revisaoEmDia: veiculosRevisaoEmDia.length,
-        totalPlanosAtivos: planos.length
+        totalPlanosAtivos: totalPlanos
       },
       ordensServico: {
         total: ordensServico.length,
@@ -63,8 +64,8 @@ class DashboardService {
     };
   }
 
-  obterAlertas() {
-    const veiculos = db.listarVeiculos();
+  async obterAlertas() {
+    const veiculos = await veiculosService.listar();
 
     const criticos = veiculos
       .filter((v) => v.alertaRevisao.nivelAlerta === "CRITICO")

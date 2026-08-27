@@ -1,16 +1,20 @@
 /**
- * Service de Mecânicos
+ * Service de Mecânicos (Prisma ORM / SQLite)
  */
 
-const db = require("../data/database");
+const prisma = require("../config/prisma");
 
 class MecanicosService {
-  listar() {
-    return db.listarMecanicos();
+  async listar() {
+    return prisma.mecanico.findMany({
+      orderBy: { id: "asc" }
+    });
   }
 
-  buscarPorId(id) {
-    const mecanico = db.buscarMecanicoPorId(id);
+  async buscarPorId(id) {
+    const mecanico = await prisma.mecanico.findUnique({
+      where: { id: Number(id) }
+    });
     if (!mecanico) {
       const error = new Error(`Mecânico com ID ${id} não encontrado.`);
       error.statusCode = 404;
@@ -19,17 +23,26 @@ class MecanicosService {
     return mecanico;
   }
 
-  criar(dados) {
+  async criar(dados) {
     if (!dados.nome || typeof dados.nome !== "string" || dados.nome.trim().length < 2) {
       const error = new Error("O campo 'nome' é obrigatório e deve ter no mínimo 2 caracteres.");
       error.statusCode = 400;
       throw error;
     }
-    return db.criarMecanico(dados);
+
+    return prisma.mecanico.create({
+      data: {
+        nome: dados.nome.trim(),
+        cargo: dados.cargo || "Mecânico",
+        especialidade: dados.especialidade || "Geral",
+        telefone: dados.telefone || null,
+        status: dados.status || "DISPONIVEL"
+      }
+    });
   }
 
-  atualizar(id, dados) {
-    this.buscarPorId(id); // Garante 404 se não existir
+  async atualizar(id, dados) {
+    await this.buscarPorId(id);
 
     if (dados.nome !== undefined && (typeof dados.nome !== "string" || dados.nome.trim().length < 2)) {
       const error = new Error("O campo 'nome' não pode ser vazio.");
@@ -37,12 +50,25 @@ class MecanicosService {
       throw error;
     }
 
-    return db.atualizarMecanico(id, dados);
+    const updateData = {};
+    if (dados.nome !== undefined) updateData.nome = dados.nome.trim();
+    if (dados.cargo !== undefined) updateData.cargo = dados.cargo;
+    if (dados.especialidade !== undefined) updateData.especialidade = dados.especialidade;
+    if (dados.telefone !== undefined) updateData.telefone = dados.telefone;
+    if (dados.status !== undefined) updateData.status = dados.status;
+
+    return prisma.mecanico.update({
+      where: { id: Number(id) },
+      data: updateData
+    });
   }
 
-  deletar(id) {
-    this.buscarPorId(id); // Garante 404 se não existir
-    return db.deletarMecanico(id);
+  async deletar(id) {
+    await this.buscarPorId(id);
+    await prisma.mecanico.delete({
+      where: { id: Number(id) }
+    });
+    return true;
   }
 }
 

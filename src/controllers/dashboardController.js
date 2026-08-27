@@ -1,5 +1,5 @@
 /**
- * Controller de Dashboard e Alertas
+ * Controller de Dashboard e Alertas (Async / Prisma)
  * Fornece os endpoints de consolidação da frota e painel de alertas
  */
 
@@ -7,9 +7,9 @@ const dashboardService = require("../services/dashboardService");
 
 class DashboardController {
   // GET /api/dashboard/resumo
-  obterResumo(req, res, next) {
+  async obterResumo(req, res, next) {
     try {
-      const resumo = dashboardService.obterResumo();
+      const resumo = await dashboardService.obterResumo();
       return res.status(200).json({
         success: true,
         data: resumo
@@ -20,9 +20,9 @@ class DashboardController {
   }
 
   // GET /api/dashboard/alertas
-  obterAlertas(req, res, next) {
+  async obterAlertas(req, res, next) {
     try {
-      const alertas = dashboardService.obterAlertas();
+      const alertas = await dashboardService.obterAlertas();
       return res.status(200).json({
         success: true,
         data: alertas

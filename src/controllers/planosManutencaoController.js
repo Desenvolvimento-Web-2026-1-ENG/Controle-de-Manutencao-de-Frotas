@@ -1,5 +1,5 @@
 /**
- * Controller de Planos de Manutenção
+ * Controller de Planos de Manutenção (Async / Prisma)
  * Gerencia as requisições HTTP RESTful para os planos preventivos
  */
 
@@ -7,9 +7,9 @@ const planosService = require("../services/planosManutencaoService");
 
 class PlanosManutencaoController {
   // GET /api/planos-manutencao
-  listar(req, res, next) {
+  async listar(req, res, next) {
     try {
-      const planos = planosService.listar();
+      const planos = await planosService.listar();
       return res.status(200).json({
         success: true,
         total: planos.length,
@@ -21,10 +21,10 @@ class PlanosManutencaoController {
   }
 
   // GET /api/planos-manutencao/:id
-  buscarPorId(req, res, next) {
+  async buscarPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const plano = planosService.buscarPorId(id);
+      const plano = await planosService.buscarPorId(id);
       return res.status(200).json({
         success: true,
         data: plano
@@ -35,9 +35,9 @@ class PlanosManutencaoController {
   }
 
   // POST /api/planos-manutencao
-  criar(req, res, next) {
+  async criar(req, res, next) {
     try {
-      const novoPlano = planosService.criar(req.body);
+      const novoPlano = await planosService.criar(req.body);
       return res.status(201).json({
         success: true,
         message: "Plano de manutenção criado com sucesso!",
@@ -49,10 +49,10 @@ class PlanosManutencaoController {
   }
 
   // PUT /api/planos-manutencao/:id
-  atualizar(req, res, next) {
+  async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const planoAtualizado = planosService.atualizar(id, req.body);
+      const planoAtualizado = await planosService.atualizar(id, req.body);
       return res.status(200).json({
         success: true,
         message: "Plano de manutenção atualizado com sucesso!",
@@ -64,10 +64,10 @@ class PlanosManutencaoController {
   }
 
   // DELETE /api/planos-manutencao/:id
-  deletar(req, res, next) {
+  async deletar(req, res, next) {
     try {
       const { id } = req.params;
-      planosService.deletar(id);
+      await planosService.deletar(id);
       return res.status(200).json({
         success: true,
         message: `Plano de manutenção com ID ${id} removido com sucesso!`

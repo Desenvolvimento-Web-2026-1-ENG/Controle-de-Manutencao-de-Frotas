@@ -2,10 +2,98 @@ const test = require("node:test");
 const assert = require("node:assert");
 const app = require("../src/app");
 
+const prisma = require("../src/config/prisma");
+const seedData = require("../src/data/seedData");
+
 let server;
 let baseUrl;
 
+async function seedDatabase() {
+  await prisma.ordemServico.deleteMany();
+  await prisma.veiculo.deleteMany();
+  await prisma.planoManutencao.deleteMany();
+  await prisma.mecanico.deleteMany();
+
+  for (const plano of seedData.planosManutencao) {
+    await prisma.planoManutencao.create({
+      data: {
+        id: plano.id,
+        nome: plano.nome,
+        descricao: plano.descricao,
+        intervaloKm: plano.intervaloKm,
+        intervaloMeses: plano.intervaloMeses,
+        itensChecagem: JSON.stringify(plano.itensChecagem || []),
+        criadoEm: new Date(plano.criadoEm)
+      }
+    });
+  }
+
+  for (const v of seedData.veiculos) {
+    await prisma.veiculo.create({
+      data: {
+        id: v.id,
+        placa: v.placa,
+        marca: v.marca,
+        modelo: v.modelo,
+        ano: v.ano,
+        kmAtual: v.kmAtual,
+        kmProximaRevisao: v.kmProximaRevisao,
+        dataProximaRevisao: v.dataProximaRevisao ? new Date(v.dataProximaRevisao) : null,
+        status: v.status,
+        categoria: v.categoria,
+        capacidadeCargaKg: v.capacidadeCargaKg,
+        motoristaResponsavel: v.motoristaResponsavel,
+        planoManutencaoId: v.planoManutencaoId,
+        criadoEm: new Date(v.criadoEm),
+        atualizadoEm: new Date(v.atualizadoEm || v.criadoEm)
+      }
+    });
+  }
+
+  for (const os of seedData.ordensServico) {
+    await prisma.ordemServico.create({
+      data: {
+        id: os.id,
+        codigoOS: os.codigoOS,
+        veiculoId: os.veiculoId,
+        tipo: os.tipo,
+        status: os.status,
+        mecanicoResponsavel: os.mecanicoResponsavel,
+        kmNoMomento: os.kmNoMomento,
+        dataAbertura: new Date(os.dataAbertura),
+        dataPrevisao: os.dataPrevisao ? new Date(os.dataPrevisao) : null,
+        dataConclusao: os.dataConclusao ? new Date(os.dataConclusao) : null,
+        descricao: os.descricao,
+        pecasJson: JSON.stringify(os.pecas || []),
+        maoDeObraJson: JSON.stringify(os.maoDeObra || {}),
+        valorTotalPecas: os.valorTotalPecas,
+        valorTotalMaoDeObra: os.valorTotalMaoDeObra,
+        valorTotalGeral: os.valorTotalGeral,
+        observacoes: os.observacoes,
+        criadoEm: new Date(os.criadoEm),
+        atualizadoEm: new Date(os.criadoEm)
+      }
+    });
+  }
+
+  for (const m of seedData.mecanicos) {
+    await prisma.mecanico.create({
+      data: {
+        id: m.id,
+        nome: m.nome,
+        cargo: m.cargo,
+        especialidade: m.especialidade,
+        telefone: m.telefone,
+        status: m.status,
+        criadoEm: new Date(m.criadoEm),
+        atualizadoEm: new Date(m.criadoEm)
+      }
+    });
+  }
+}
+
 test.before(async () => {
+  await seedDatabase();
   return new Promise((resolve) => {
     server = app.listen(0, () => {
       const port = server.address().port;
@@ -16,6 +104,7 @@ test.before(async () => {
 });
 
 test.after(async () => {
+  await prisma.$disconnect();
   return new Promise((resolve) => {
     server.close(resolve);
   });
