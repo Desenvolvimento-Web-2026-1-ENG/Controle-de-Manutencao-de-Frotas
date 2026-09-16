@@ -16,6 +16,13 @@ function adicionarMesesSeguro(dataBase, meses) {
 }
 
 class VeiculosService {
+  // ==============================================================================
+  // [REGRA DE NEGÓCIO PRINCIPAL: MOTOR PROATIVO DE ALERTAS DE REVISÃO]
+  // Avalia o odômetro e calendário preventivo em tempo real:
+  // - CRÍTICO: KM atual >= KM próxima revisão OU Data atual >= Data próxima revisão.
+  // - ATENÇÃO: Faltam <= 1.000 KM OU <= 15 dias para o vencimento preventivo.
+  // - NORMAL: Veículo operando dentro dos parâmetros de conformidade da fábrica.
+  // ==============================================================================
   _calcularAlertaRevisao(veiculo) {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);

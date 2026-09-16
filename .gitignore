@@ -46,3 +46,13 @@ prisma/*.db-shm
 # Frontend build outputs
 frontend/dist/
 dist/
+
+# Local developer & environment notes
+.agents/
+AGENTS.md
+MEMORY.md
+skills/
+.skills/
+*.agent*
+*GUIA_APRESENTACAO*
+*guia-apresentacao*

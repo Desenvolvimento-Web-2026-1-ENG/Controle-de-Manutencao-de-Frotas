@@ -1,6 +1,11 @@
 /**
- * Serviço de Integração com a API RESTful (Fetch API)
- * Centraliza as requisições HTTP para o back-end Node.js / Express
+ * ==============================================================================
+ * [REQUISITO P2: CONSUMO DE API VIA FETCH API]
+ * Camada de abstração de rede que conecta o front-end React à API RESTful Node.js.
+ * - Suporta ambientes de desenvolvimento (proxy Vite) e produção unificada (URL relativa).
+ * - Tratamento padronizado de códigos de status HTTP (200, 201, 400, 404, 409, 500).
+ * - Normalização de erros da API com repasse amigável para notificações Toast.
+ * ==============================================================================
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";

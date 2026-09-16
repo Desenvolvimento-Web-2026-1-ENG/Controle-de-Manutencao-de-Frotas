@@ -8,25 +8,34 @@ import OrdensServicoView from "./components/ordens/OrdensServicoView";
 import PlanosView from "./components/planos/PlanosView";
 import MecanicosView from "./components/mecanicos/MecanicosView";
 
+// ==============================================================================
+// [REQUISITO P2: SPA & GESTÃO DE ESTADO COM REACT HOOKS]
+// - useState: Controla a aba ativa, fila de notificações Toast e parâmetros de navegação cruzada.
+// - useEffect: Sincroniza o histórico e URL com window.location.hash (Zero Page Reload).
+// ==============================================================================
 const TELAS_VALIDAS = ["dashboard", "veiculos", "ordens", "planos", "mecanicos"];
 const TOAST_DURATION_MS = 4500;
 
 export default function App() {
+  // Estado local da tela ativa inicializado a partir da URL (Hash Routing)
   const [telaAtiva, setTelaAtiva] = useState(() => {
     const hash = window.location.hash.replace("#", "");
     return TELAS_VALIDAS.includes(hash) ? hash : "dashboard";
   });
 
+  // Estados de controle de dados reativos e gatilhos de modais
   const [toasts, setToasts] = useState([]);
   const [veiculoPreSelecionadoOS, setVeiculoPreSelecionadoOS] = useState(null);
   const [filtroAlertasVeiculos, setFiltroAlertasVeiculos] = useState(false);
   const [abrirNovaOSGatilho, setAbrirNovaOSGatilho] = useState(false);
   const [abrirNovoVeiculoGatilho, setAbrirNovoVeiculoGatilho] = useState(false);
 
+  // Efeito para sincronizar a URL com a tela ativa sem recarregar o navegador
   useEffect(() => {
     window.location.hash = telaAtiva;
   }, [telaAtiva]);
 
+  // Efeito para escutar o evento nativo de 'hashchange' (botões Voltar/Avançar do navegador)
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");

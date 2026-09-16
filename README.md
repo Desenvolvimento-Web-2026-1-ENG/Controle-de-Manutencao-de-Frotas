@@ -8,7 +8,7 @@
 [![Prisma](https://img.shields.io/badge/Prisma-v6-2d3748.svg)](https://www.prisma.io/)
 [![SQLite](https://img.shields.io/badge/SQLite-v3-003b57.svg)](https://www.sqlite.org/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-brightgreen.svg)](http://localhost:3000/api-docs)
-[![Tests](https://img.shields.io/badge/Tests-20%20passed%20%7C%20100%25-success.svg)](#-7-suíte-de-testes-automatizados)
+[![Tests](https://img.shields.io/badge/Tests-27%20passed%20%7C%20100%25-success.svg)](#-7-suíte-de-testes-automatizados)
 [![Release](https://img.shields.io/badge/Release-v2.0.0--p2-indigo.svg)](#-9-versionamento-semântico-e-release-oficial-v200-p2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -212,7 +212,7 @@ O banco de dados SQLite foi modelado no arquivo `prisma/schema.prisma` seguindo 
 
 ## 🧪 7. Suíte de Testes Automatizados
 
-O projeto possui **20 testes automatizados de integração**, executados diretamente pelo test runner nativo do Node.js (`node --test`), com reset automático do banco de dados SQLite a cada execução:
+O projeto possui **27 testes automatizados de integração**, executados diretamente pelo test runner nativo do Node.js (`node --test`), com banco de dados isolado (`test.db`) para não sobrescrever a base de dados de desenvolvimento (`dev.db`):
 
 ```bash
 npm test
@@ -240,8 +240,15 @@ npm test
 ✔ POST /api/ordens-servico - Deve recusar OS para veículo inexistente (404 Not Found)
 ✔ POST /api/ordens-servico e PATCH status - Deve abrir OS e recalcular revisão na conclusão (201 & 200)
 ✔ PATCH /api/ordens-servico/:id/status - Deve recusar status inválido (400 Bad Request)
+✔ GET /api/planos-manutencao - Deve listar planos preventivos cadastrados (200 OK)
+✔ POST /api/planos-manutencao - Deve cadastrar novo plano de manutenção (201 Created)
+✔ PUT /api/planos-manutencao/:id - Deve atualizar plano de manutenção (200 OK)
+✔ DELETE /api/planos-manutencao/:id - Deve excluir plano de manutenção (200 OK)
+✔ GET /api/veiculos/revisao-imediata - Deve listar veículos com alerta crítico (200 OK)
+✔ GET /api/veiculos/:id/historico - Deve retornar histórico de O.S. de um veículo (200 OK)
+✔ GET /api/ordens-servico/:id - Deve buscar detalhes de uma O.S. por ID (200 OK)
 
-ℹ tests 20 | pass 20 | fail 0 (100% de sucesso)
+ℹ tests 27 | pass 27 | fail 0 (100% de sucesso)
 ```
 
 ---
@@ -293,10 +300,10 @@ O projeto segue as diretrizes do versionamento semântico ([SemVer](https://semv
 - [x] **CORS:** Middleware `cors` configurado e ativo no Express.
 - [x] **CRUDs Funcionais:** Telas completas com listagem, criação, edição e exclusão de Veículos, O.S., Planos e Mecânicos.
 - [x] **Navegação (UX):** Sidebar e Header com navegação fluida por abas e hash routing, sem necessidade de digitação de URL.
-- [x] **Estilização com Framework CSS:** Interface construída com **Tailwind CSS**, design executivo e ícones `lucide-react`.
+- [x] **Estilização com Framework CSS:** Interface construída com **Tailwind CSS** e CSS corporativo fiel à identidade visual da P1.
 - [x] **Persistência Relacional:** Migração e integração com **Prisma ORM v6** e **SQLite**.
 - [x] **Documentação Completa (README.md):** Guia de execução local, galeria com screenshots e link da release.
-- [x] **Suíte de Testes:** 20/20 testes automatizados passando 100%.
+- [x] **Suíte de Testes:** 27/27 testes automatizados passando 100%.
 
 ---
 

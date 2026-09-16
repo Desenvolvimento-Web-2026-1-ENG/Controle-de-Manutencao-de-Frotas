@@ -16,11 +16,18 @@ const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
 
-// Middlewares Globais
+// ==============================================================================
+// [REQUISITO P2: MIDDLEWARE CORS OBRIGATÓRIO]
+// Habilita Cross-Origin Resource Sharing para permitir que a SPA React (ex: porta 5173
+// em desenvolvimento ou qualquer cliente HTTP autorizado) consuma os endpoints REST.
+// ==============================================================================
 app.use(cors());
+
+// Middlewares para parsing de corpo de requisição JSON e formulários URL-encoded
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Logger HTTP Morgan para rastreamento de requisições em ambiente de desenvolvimento
 if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
@@ -51,7 +58,12 @@ app.use(
 // 4. Rotas da API REST
 app.use("/api", routes);
 
-// 5. Fallback para SPA React (Rotas do lado do cliente)
+// ==============================================================================
+// [REQUISITO P2: SUPORTE A SINGLE PAGE APPLICATION (SPA FALLBACK)]
+// Qualquer rota não capturada pelas rotas de API (/api) ou Swagger (/api-docs)
+// é redirecionada para o index.html compilado do React, permitindo que o cliente
+// gerencie a navegação sem recarregar o navegador (Client-side routing).
+// ==============================================================================
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/api-docs")) {
     return next();

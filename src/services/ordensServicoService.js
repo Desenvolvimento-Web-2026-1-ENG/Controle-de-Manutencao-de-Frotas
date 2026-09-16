@@ -304,6 +304,15 @@ class OrdensServicoService {
       updateData.observacoes = os.observacoes ? `${os.observacoes}\n${observacoes}` : observacoes;
     }
 
+    // ==============================================================================
+    // [REGRA DE NEGÓCIO PRINCIPAL: RECÁLCULO DO CICLO PREVENTIVO & TRANSAÇÃO ATÔMICA]
+    // Ao concluir uma O.S. preventiva:
+    // 1. Atualiza odômetro do veículo caso a quilometragem na O.S. seja superior.
+    // 2. Calcula novo ciclo: kmProximaRevisao = kmAtual + intervaloKm.
+    // 3. Projeta nova data de revisão com aritmética de meses segura.
+    // 4. Retorna veículo para status 'EM_OPERACAO'.
+    // Toda a operação roda dentro de prisma.$transaction garantindo atomicidade ACID.
+    // ==============================================================================
     const osResultado = await prisma.$transaction(async (tx) => {
       if (statusNormalizado === "EM_ANDAMENTO" && veiculo) {
         await tx.veiculo.update({
