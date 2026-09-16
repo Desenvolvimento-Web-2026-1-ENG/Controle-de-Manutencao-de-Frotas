@@ -8,12 +8,13 @@ import OrdensServicoView from "./components/ordens/OrdensServicoView";
 import PlanosView from "./components/planos/PlanosView";
 import MecanicosView from "./components/mecanicos/MecanicosView";
 
+const TELAS_VALIDAS = ["dashboard", "veiculos", "ordens", "planos", "mecanicos"];
+const TOAST_DURATION_MS = 4500;
+
 export default function App() {
   const [telaAtiva, setTelaAtiva] = useState(() => {
     const hash = window.location.hash.replace("#", "");
-    return ["dashboard", "veiculos", "ordens", "planos", "mecanicos"].includes(hash)
-      ? hash
-      : "dashboard";
+    return TELAS_VALIDAS.includes(hash) ? hash : "dashboard";
   });
 
   const [toasts, setToasts] = useState([]);
@@ -29,7 +30,7 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["dashboard", "veiculos", "ordens", "planos", "mecanicos"].includes(hash)) {
+      if (TELAS_VALIDAS.includes(hash)) {
         setTelaAtiva(hash);
       }
     };
@@ -43,7 +44,7 @@ export default function App() {
 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
+    }, TOAST_DURATION_MS);
   };
 
   const removeToast = (id) => {

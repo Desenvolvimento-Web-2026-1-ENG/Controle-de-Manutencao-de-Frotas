@@ -160,6 +160,7 @@ export default function VeiculosView({ onShowToast, abrirNovoInicial = false, fi
       if (res.success) setHistoricoOS(res.data);
     } catch (err) {
       setHistoricoOS([]);
+      if (onShowToast) onShowToast("erro", "Erro", "Não foi possível carregar o histórico de O.S.");
     }
   };
 

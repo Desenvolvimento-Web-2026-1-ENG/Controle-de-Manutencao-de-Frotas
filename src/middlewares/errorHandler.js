@@ -5,7 +5,9 @@
 
 function errorHandler(err, req, res, next) {
   const statusCode = err.statusCode || 500;
-  const message = err.message || "Erro interno do servidor.";
+  const message = (statusCode === 500 && process.env.NODE_ENV === "production")
+    ? "Erro interno do servidor."
+    : (err.message || "Erro interno do servidor.");
 
   // Exibir log no console em ambiente de desenvolvimento
   if (process.env.NODE_ENV !== "test") {

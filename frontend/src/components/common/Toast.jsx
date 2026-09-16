@@ -4,7 +4,7 @@ export default function Toast({ toasts, onClose }) {
   if (!toasts || toasts.length === 0) return null;
 
   return (
-    <div className="toast-container">
+    <div className="toast-container" role="status" aria-live="polite">
       {toasts.map((toast) => {
         const tipoClasse =
           toast.tipo === "sucesso"
@@ -28,9 +28,11 @@ export default function Toast({ toasts, onClose }) {
               <span className="text-xs text-slate-600">{toast.mensagem}</span>
             </div>
             <button
+              type="button"
               onClick={() => onClose(toast.id)}
               className="text-slate-400 hover:text-slate-700 ml-2 font-bold cursor-pointer"
-              title="Fechar"
+              title="Fechar notificação"
+              aria-label="Fechar notificação"
             >
               &times;
             </button>

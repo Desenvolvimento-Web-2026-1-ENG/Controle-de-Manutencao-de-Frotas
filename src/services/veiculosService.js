@@ -5,6 +5,16 @@
 
 const prisma = require("../config/prisma");
 
+function adicionarMesesSeguro(dataBase, meses) {
+  const data = new Date(dataBase);
+  const diaEsperado = data.getDate();
+  data.setMonth(data.getMonth() + meses);
+  if (data.getDate() !== diaEsperado) {
+    data.setDate(0);
+  }
+  return data;
+}
+
 class VeiculosService {
   _calcularAlertaRevisao(veiculo) {
     const hoje = new Date();
@@ -184,9 +194,7 @@ class VeiculosService {
         kmProximaRevisao = kmAtual + plano.intervaloKm;
       }
       if (!dataProximaRevisao) {
-        const dataRevisao = new Date();
-        dataRevisao.setMonth(dataRevisao.getMonth() + plano.intervaloMeses);
-        dataProximaRevisao = dataRevisao;
+        dataProximaRevisao = adicionarMesesSeguro(new Date(), plano.intervaloMeses);
       }
     }
 
@@ -300,13 +308,15 @@ class VeiculosService {
       throw error;
     }
 
-    // Remover OS concluídas/canceladas vinculadas antes ou deletar
-    await prisma.ordemServico.deleteMany({
-      where: { veiculoId: Number(id) }
-    });
+    // Remover OS concluídas/canceladas vinculadas antes ou deletar em transação atômica
+    await prisma.$transaction(async (tx) => {
+      await tx.ordemServico.deleteMany({
+        where: { veiculoId: Number(id) }
+      });
 
-    await prisma.veiculo.delete({
-      where: { id: Number(id) }
+      await tx.veiculo.delete({
+        where: { id: Number(id) }
+      });
     });
 
     return true;

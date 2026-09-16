@@ -209,7 +209,13 @@ export default function DashboardView({ onNavegar, onAbrirOSComVeiculo }) {
                 </tr>
               </thead>
               <tbody id="dash-alerts-tbody">
-                {alertasFiltrados.length === 0 ? (
+                {carregando ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-6 text-slate-400">
+                      Carregando alertas de revisão...
+                    </td>
+                  </tr>
+                ) : alertasFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-6 text-slate-400">
                       Nenhum alerta localizado para os filtros informados.
@@ -285,7 +291,13 @@ export default function DashboardView({ onNavegar, onAbrirOSComVeiculo }) {
                   </tr>
                 </thead>
                 <tbody id="dash-os-tbody">
-                  {ordensRecentes.length === 0 ? (
+                  {carregando ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-slate-400">
+                        Carregando ordens de serviço...
+                      </td>
+                    </tr>
+                  ) : ordensRecentes.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-slate-400">
                         Nenhuma ordem de serviço recente.

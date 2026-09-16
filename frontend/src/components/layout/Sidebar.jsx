@@ -18,7 +18,9 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
 
       <nav className="sidebar-nav">
         <button
+          type="button"
           className={`nav-link ${telaAtiva === "dashboard" ? "active" : ""}`}
+          aria-current={telaAtiva === "dashboard" ? "page" : undefined}
           onClick={() => setTelaAtiva("dashboard")}
         >
           <span className="nav-link-icon">📊</span>
@@ -26,7 +28,9 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
         </button>
 
         <button
+          type="button"
           className={`nav-link ${telaAtiva === "veiculos" ? "active" : ""}`}
+          aria-current={telaAtiva === "veiculos" ? "page" : undefined}
           onClick={() => setTelaAtiva("veiculos")}
         >
           <span className="nav-link-icon">🚗</span>
@@ -34,7 +38,9 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
         </button>
 
         <button
+          type="button"
           className={`nav-link ${telaAtiva === "planos" ? "active" : ""}`}
+          aria-current={telaAtiva === "planos" ? "page" : undefined}
           onClick={() => setTelaAtiva("planos")}
         >
           <span className="nav-link-icon">📅</span>
@@ -42,7 +48,9 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
         </button>
 
         <button
+          type="button"
           className={`nav-link ${telaAtiva === "ordens" ? "active" : ""}`}
+          aria-current={telaAtiva === "ordens" ? "page" : undefined}
           onClick={() => setTelaAtiva("ordens")}
         >
           <span className="nav-link-icon">📋</span>
@@ -50,7 +58,9 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
         </button>
 
         <button
+          type="button"
           className={`nav-link ${telaAtiva === "mecanicos" ? "active" : ""}`}
+          aria-current={telaAtiva === "mecanicos" ? "page" : undefined}
           onClick={() => setTelaAtiva("mecanicos")}
         >
           <span className="nav-link-icon">👥</span>
@@ -58,6 +68,7 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
         </button>
 
         <button
+          type="button"
           className="nav-link"
           onClick={() => {
             setTelaAtiva("dashboard");
@@ -93,6 +104,7 @@ export default function Sidebar({ telaAtiva, setTelaAtiva, onShowToast }) {
 
       <div className="sidebar-footer">
         <button
+          type="button"
           className="nav-link"
           style={{ color: "#ef4444" }}
           onClick={handleLogout}

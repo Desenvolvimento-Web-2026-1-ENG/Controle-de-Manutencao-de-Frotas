@@ -75,10 +75,10 @@ export default function PlanosView({ onShowToast }) {
       };
 
       if (planoEditando) {
-        await api.atualizarPlanoManutencao(planoEditando.id, payload);
+        await api.atualizarPlano(planoEditando.id, payload);
         if (onShowToast) onShowToast("sucesso", "Plano Atualizado", `Plano ${payload.nome} atualizado com sucesso!`);
       } else {
-        await api.criarPlanoManutencao(payload);
+        await api.criarPlano(payload);
         if (onShowToast) onShowToast("sucesso", "Plano Criado", `Plano ${payload.nome} cadastrado com sucesso!`);
       }
 
@@ -92,7 +92,7 @@ export default function PlanosView({ onShowToast }) {
   const excluirPlano = async (id, nome) => {
     if (!window.confirm(`Deseja excluir o plano "${nome}"?`)) return;
     try {
-      await api.deletarPlanoManutencao(id);
+      await api.deletarPlano(id);
       if (onShowToast) onShowToast("sucesso", "Plano Excluído", `Plano ${nome} removido.`);
       carregarPlanos();
     } catch (err) {
@@ -107,7 +107,7 @@ export default function PlanosView({ onShowToast }) {
           <h2 className="view-title">Planos de Manutenção Preventiva</h2>
           <p className="view-desc">Configuração de periodicidade por quilometragem e intervalo de meses para cada categoria.</p>
         </div>
-        <button className="btn btn-primary" onClick={abNovo => abrirNovo()}>
+        <button type="button" className="btn btn-primary" onClick={abrirNovo}>
           + Novo Plano Preventivo
         </button>
       </div>

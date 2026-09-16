@@ -34,4 +34,15 @@ coverage/
 *.pdf
 *.test_run.json
 
+# SQLite Databases & Prisma local data
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-wal
+prisma/*.db-shm
+*.db
+*.sqlite
+*.sqlite3
 
+# Frontend build outputs
+frontend/dist/
+dist/

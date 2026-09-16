@@ -1,3 +1,6 @@
+process.env.NODE_ENV = "test";
+process.env.DATABASE_URL = "file:./test.db";
+
 const test = require("node:test");
 const assert = require("node:assert");
 const app = require("../src/app");
@@ -373,3 +376,101 @@ test("PATCH /api/ordens-servico/:id/status - Deve recusar status inválido (400 
   assert.strictEqual(res.status, 400);
   assert.strictEqual(data.success, false);
 });
+
+// --- CASOS DE PLANOS DE MANUTENÇÃO (CRUD) ---
+
+test("GET /api/planos-manutencao - Deve listar planos preventivos cadastrados (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/planos-manutencao`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.ok(data.data.length >= 3);
+  assert.ok(data.data.some((p) => p.nome.includes("Pesada")));
+});
+
+test("POST /api/planos-manutencao - Deve cadastrar novo plano de manutenção (201 Created)", async () => {
+  const res = await fetch(`${baseUrl}/planos-manutencao`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: "Plano Teste Severo",
+      descricao: "Aplicação off-road e mineração",
+      intervaloKm: 8000,
+      intervaloMeses: 4,
+      toleranciaKm: 500,
+      itensChecagem: ["Troca de filtros especiais", "Inspeção do diferencial"]
+    })
+  });
+  const data = await res.json();
+  assert.strictEqual(res.status, 201);
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.data.nome, "Plano Teste Severo");
+  assert.strictEqual(data.data.intervaloKm, 8000);
+});
+
+test("PUT /api/planos-manutencao/:id - Deve atualizar plano de manutenção (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/planos-manutencao/1`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: "Plano Pesado - Rodoviário Atualizado",
+      intervaloKm: 16000,
+      intervaloMeses: 6
+    })
+  });
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.data.nome, "Plano Pesado - Rodoviário Atualizado");
+  assert.strictEqual(data.data.intervaloKm, 16000);
+});
+
+test("DELETE /api/planos-manutencao/:id - Deve excluir plano de manutenção (200 OK)", async () => {
+  // Cria um plano para excluir
+  const resCad = await fetch(`${baseUrl}/planos-manutencao`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: "Plano Temporário",
+      intervaloKm: 5000,
+      intervaloMeses: 3
+    })
+  });
+  const dataCad = await resCad.json();
+
+  const resDel = await fetch(`${baseUrl}/planos-manutencao/${dataCad.data.id}`, {
+    method: "DELETE"
+  });
+  const dataDel = await resDel.json();
+  assert.strictEqual(resDel.status, 200);
+  assert.strictEqual(dataDel.success, true);
+});
+
+// --- ROTAS COMPLEMENTARES DE VEÍCULOS E O.S. ---
+
+test("GET /api/veiculos/revisao-imediata - Deve listar veículos com alerta crítico (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/veiculos/revisao-imediata`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.ok(Array.isArray(data.data));
+  assert.ok(data.data.every((v) => v.alertaRevisao.nivelAlerta === "CRITICO"));
+});
+
+test("GET /api/veiculos/:id/historico - Deve retornar histórico de O.S. de um veículo (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/veiculos/1/historico`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.ok(Array.isArray(data.data));
+});
+
+test("GET /api/ordens-servico/:id - Deve buscar detalhes de uma O.S. por ID (200 OK)", async () => {
+  const res = await fetch(`${baseUrl}/ordens-servico/1`);
+  const data = await res.json();
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.data.id, 1);
+  assert.ok(data.data.codigoOS);
+});
+

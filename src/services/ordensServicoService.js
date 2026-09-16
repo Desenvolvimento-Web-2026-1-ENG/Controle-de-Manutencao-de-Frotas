@@ -5,6 +5,16 @@
 
 const prisma = require("../config/prisma");
 
+function adicionarMesesSeguro(dataBase, meses) {
+  const data = new Date(dataBase);
+  const diaEsperado = data.getDate();
+  data.setMonth(data.getMonth() + meses);
+  if (data.getDate() !== diaEsperado) {
+    data.setDate(0);
+  }
+  return data;
+}
+
 class OrdensServicoService {
   _formatarOS(os) {
     if (!os) return null;
@@ -107,15 +117,32 @@ class OrdensServicoService {
       throw error;
     }
 
-    const count = await prisma.ordemServico.count();
     const anoAtual = new Date().getFullYear();
-    const codigoOS = `OS-${anoAtual}-${String(count + 1).padStart(3, "0")}`;
+    const prefixo = `OS-${anoAtual}-`;
+    const todasOS = await prisma.ordemServico.findMany({
+      where: {
+        codigoOS: {
+          startsWith: prefixo
+        }
+      },
+      select: { codigoOS: true }
+    });
+
+    let maiorNum = 0;
+    for (const item of todasOS) {
+      const parteNum = item.codigoOS.replace(prefixo, "");
+      const n = parseInt(parteNum, 10);
+      if (!isNaN(n) && n > maiorNum) {
+        maiorNum = n;
+      }
+    }
+    const codigoOS = `${prefixo}${String(maiorNum + 1).padStart(3, "0")}`;
 
     const pecasProcessadas = (dados.pecas || []).map((p) => {
-      const qtd = Number(p.quantidade) || 1;
-      const unit = Number(p.valorUnitario) || 0;
+      const qtd = Math.max(1, Number(p.quantidade) || 1);
+      const unit = Math.max(0, Number(p.valorUnitario) || 0);
       return {
-        item: p.item,
+        item: p.item || p.descricao || "Item",
         quantidade: qtd,
         valorUnitario: unit,
         valorTotal: qtd * unit
@@ -125,9 +152,9 @@ class OrdensServicoService {
 
     let maoDeObra = { descricao: "Serviço mecânico", horas: 0, valorHora: 0, valorTotal: 0 };
     if (dados.maoDeObra) {
-      const horas = Number(dados.maoDeObra.horas) || 0;
-      const valorHora = Number(dados.maoDeObra.valorHora) || 0;
-      const valorFixo = Number(dados.maoDeObra.valorTotal) || 0;
+      const horas = Math.max(0, Number(dados.maoDeObra.horas) || 0);
+      const valorHora = Math.max(0, Number(dados.maoDeObra.valorHora) || 0);
+      const valorFixo = Math.max(0, Number(dados.maoDeObra.valorTotal) || 0);
       const totalMo = valorFixo > 0 ? valorFixo : horas * valorHora;
 
       maoDeObra = {
@@ -146,34 +173,38 @@ class OrdensServicoService {
 
     const statusInicial = dados.status ? dados.status.toUpperCase() : "ABERTA";
 
-    const novaOS = await prisma.ordemServico.create({
-      data: {
-        codigoOS: codigoOS,
-        veiculoId: Number(dados.veiculoId),
-        tipo: dados.tipo ? dados.tipo.toUpperCase() : "PREVENTIVA",
-        status: statusInicial,
-        mecanicoResponsavel: dados.mecanicoResponsavel || "Carlos Silva (Mecânico Chefe)",
-        kmNoMomento: kmNoMomento,
-        dataAbertura: dados.dataAbertura ? new Date(dados.dataAbertura) : new Date(),
-        dataPrevisao: dados.dataPrevisao ? new Date(dados.dataPrevisao) : null,
-        dataConclusao: statusInicial === "CONCLUIDA" ? new Date() : null,
-        descricao: dados.descricao,
-        pecasJson: JSON.stringify(pecasProcessadas),
-        maoDeObraJson: JSON.stringify(maoDeObra),
-        valorTotalPecas: valorTotalPecas,
-        valorTotalMaoDeObra: valorTotalMaoDeObra,
-        valorTotalGeral: valorTotalGeral,
-        observacoes: dados.observacoes || ""
-      },
-      include: { veiculo: true }
-    });
-
-    if (statusInicial === "EM_ANDAMENTO") {
-      await prisma.veiculo.update({
-        where: { id: Number(dados.veiculoId) },
-        data: { status: "EM_MANUTENCAO" }
+    const novaOS = await prisma.$transaction(async (tx) => {
+      const osCriada = await tx.ordemServico.create({
+        data: {
+          codigoOS: codigoOS,
+          veiculoId: Number(dados.veiculoId),
+          tipo: dados.tipo ? dados.tipo.toUpperCase() : "PREVENTIVA",
+          status: statusInicial,
+          mecanicoResponsavel: dados.mecanicoResponsavel || "Carlos Silva (Mecânico Chefe)",
+          kmNoMomento: kmNoMomento,
+          dataAbertura: dados.dataAbertura ? new Date(dados.dataAbertura) : new Date(),
+          dataPrevisao: dados.dataPrevisao ? new Date(dados.dataPrevisao) : null,
+          dataConclusao: statusInicial === "CONCLUIDA" ? new Date() : null,
+          descricao: dados.descricao,
+          pecasJson: JSON.stringify(pecasProcessadas),
+          maoDeObraJson: JSON.stringify(maoDeObra),
+          valorTotalPecas: valorTotalPecas,
+          valorTotalMaoDeObra: valorTotalMaoDeObra,
+          valorTotalGeral: valorTotalGeral,
+          observacoes: dados.observacoes || ""
+        },
+        include: { veiculo: true }
       });
-    }
+
+      if (statusInicial === "EM_ANDAMENTO") {
+        await tx.veiculo.update({
+          where: { id: Number(dados.veiculoId) },
+          data: { status: "EM_MANUTENCAO" }
+        });
+      }
+
+      return osCriada;
+    });
 
     return this._formatarOS(novaOS);
   }
@@ -273,54 +304,53 @@ class OrdensServicoService {
       updateData.observacoes = os.observacoes ? `${os.observacoes}\n${observacoes}` : observacoes;
     }
 
-    if (statusNormalizado === "EM_ANDAMENTO" && veiculo) {
-      await prisma.veiculo.update({
-        where: { id: veiculo.id },
-        data: { status: "EM_MANUTENCAO" }
-      });
-    }
-
-    if (statusNormalizado === "CONCLUIDA") {
-      updateData.dataConclusao = new Date();
-
-      if (veiculo) {
-        let novoKm = veiculo.kmAtual;
-        if (os.kmNoMomento && os.kmNoMomento > veiculo.kmAtual) {
-          novoKm = os.kmNoMomento;
-        }
-
-        const veiculoUpdate = {
-          kmAtual: novoKm,
-          status: "EM_OPERACAO"
-        };
-
-        if (os.tipo === "PREVENTIVA" && veiculo.planoManutencaoId && veiculo.planoManutencao) {
-          const plano = veiculo.planoManutencao;
-          veiculoUpdate.kmProximaRevisao = novoKm + plano.intervaloKm;
-
-          const proximaData = new Date();
-          proximaData.setMonth(proximaData.getMonth() + plano.intervaloMeses);
-          veiculoUpdate.dataProximaRevisao = proximaData;
-        }
-
-        await prisma.veiculo.update({
+    const osResultado = await prisma.$transaction(async (tx) => {
+      if (statusNormalizado === "EM_ANDAMENTO" && veiculo) {
+        await tx.veiculo.update({
           where: { id: veiculo.id },
-          data: veiculoUpdate
+          data: { status: "EM_MANUTENCAO" }
         });
       }
-    }
 
-    if (statusNormalizado === "CANCELADA" && veiculo && statusAnterior === "EM_ANDAMENTO") {
-      await prisma.veiculo.update({
-        where: { id: veiculo.id },
-        data: { status: "EM_OPERACAO" }
+      if (statusNormalizado === "CONCLUIDA") {
+        updateData.dataConclusao = new Date();
+
+        if (veiculo) {
+          let novoKm = veiculo.kmAtual;
+          if (os.kmNoMomento && os.kmNoMomento > veiculo.kmAtual) {
+            novoKm = os.kmNoMomento;
+          }
+
+          const veiculoUpdate = {
+            kmAtual: novoKm,
+            status: "EM_OPERACAO"
+          };
+
+          if (os.tipo === "PREVENTIVA" && veiculo.planoManutencaoId && veiculo.planoManutencao) {
+            const plano = veiculo.planoManutencao;
+            veiculoUpdate.kmProximaRevisao = novoKm + plano.intervaloKm;
+            veiculoUpdate.dataProximaRevisao = adicionarMesesSeguro(new Date(), plano.intervaloMeses);
+          }
+
+          await tx.veiculo.update({
+            where: { id: veiculo.id },
+            data: veiculoUpdate
+          });
+        }
+      }
+
+      if (statusNormalizado === "CANCELADA" && veiculo && statusAnterior === "EM_ANDAMENTO") {
+        await tx.veiculo.update({
+          where: { id: veiculo.id },
+          data: { status: "EM_OPERACAO" }
+        });
+      }
+
+      return tx.ordemServico.update({
+        where: { id: Number(id) },
+        data: updateData,
+        include: { veiculo: true }
       });
-    }
-
-    const osResultado = await prisma.ordemServico.update({
-      where: { id: Number(id) },
-      data: updateData,
-      include: { veiculo: true }
     });
 
     return this._formatarOS(osResultado);

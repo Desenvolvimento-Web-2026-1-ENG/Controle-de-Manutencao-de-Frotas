@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../../services/api";
 
+const TITULOS = {
+  dashboard: "Dashboard de Manutenção",
+  veiculos: "Gestão da Frota de Veículos",
+  ordens: "Ordens de Serviço (O.S.)",
+  planos: "Planos de Manutenção Preventiva",
+  mecanicos: "Quadro de Mecânicos & Especialistas",
+};
+
 export default function Header({ telaAtiva, onNavegar, onShowToast }) {
   const [apiOnline, setApiOnline] = useState(true);
 
@@ -16,18 +24,10 @@ export default function Header({ telaAtiva, onNavegar, onShowToast }) {
     return () => { ativo = false; };
   }, []);
 
-  const titulos = {
-    dashboard: "Dashboard de Manutenção",
-    veiculos: "Gestão da Frota de Veículos",
-    ordens: "Ordens de Serviço (O.S.)",
-    planos: "Planos de Manutenção Preventiva",
-    mecanicos: "Quadro de Mecânicos & Especialistas",
-  };
-
   return (
     <header className="top-header">
       <h1 className="header-page-title" id="top-bar-title">
-        {titulos[telaAtiva] || "Dashboard de Manutenção"}
+        {TITULOS[telaAtiva] || "Dashboard de Manutenção"}
       </h1>
 
       <div className="header-user-menu">
@@ -42,8 +42,10 @@ export default function Header({ telaAtiva, onNavegar, onShowToast }) {
 
         {/* Notification Bell */}
         <button
+          type="button"
           className="header-btn-icon"
           title="Notificações de Alertas"
+          aria-label="Notificações de Alertas"
           onClick={() => onNavegar && onNavegar("dashboard")}
         >
           🔔
@@ -63,8 +65,10 @@ export default function Header({ telaAtiva, onNavegar, onShowToast }) {
 
         {/* Settings Gear */}
         <button
+          type="button"
           className="header-btn-icon"
           title="Configurações"
+          aria-label="Configurações"
           onClick={() => onShowToast && onShowToast("info", "Configurações", "Painel de configurações da frota.")}
         >
           ⚙️

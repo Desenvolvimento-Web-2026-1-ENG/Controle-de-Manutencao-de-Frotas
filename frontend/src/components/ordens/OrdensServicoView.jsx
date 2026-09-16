@@ -169,7 +169,7 @@ export default function OrdensServicoView({ onShowToast, abrirNovoInicial = fals
   // Ações de Mudança de Status
   const alterarStatusOS = async (osId, novoStatus) => {
     try {
-      await api.atualizarStatusOrdemServico(osId, novoStatus);
+      await api.alterarStatusOS(osId, novoStatus);
       if (onShowToast) {
         if (novoStatus === "CONCLUIDA") {
           onShowToast("sucesso", "O.S. Concluída", "Ordem concluída e ciclo de manutenção recalculado!");
@@ -267,10 +267,6 @@ export default function OrdensServicoView({ onShowToast, abrirNovoInicial = fals
                 </tr>
               ) : (
                 ordens.map((os) => {
-                  const valorPecas = (os.itensPeca || []).reduce(
-                    (s, p) => s + (Number(p.quantidade) || 0) * (Number(p.valorUnitario) || 0),
-                    0
-                  );
                   return (
                     <tr key={os.id}>
                       <td>
