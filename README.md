@@ -1,40 +1,131 @@
 # 🚛 WEBDEV FROTAS — Sistema de Controle de Manutenção de Frotas (Logística)
 
-[![Node.js](https://img.shields.io/badge/Node.js-v20+-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-v22+-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-v4.21-blue.svg)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-v19-61dafb.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-v8-646cff.svg)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-v6-2d3748.svg)](https://www.prisma.io/)
+[![SQLite](https://img.shields.io/badge/SQLite-v3-003b57.svg)](https://www.sqlite.org/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-brightgreen.svg)](http://localhost:3000/api-docs)
-[![Tests](https://img.shields.io/badge/Tests-20%20passed%20%7C%20100%25-success.svg)](#-6-suíte-de-testes-automatizados-cpu)
-[![Release](https://img.shields.io/badge/Release-v1.0.0--p1-orange.svg)](#-8-geração-da-release-no-github)
+[![Tests](https://img.shields.io/badge/Tests-20%20passed%20%7C%20100%25-success.svg)](#-7-suíte-de-testes-automatizados)
+[![Release](https://img.shields.io/badge/Release-v2.0.0--p2-indigo.svg)](#-9-versionamento-semântico-e-release-oficial-v200-p2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Avaliação Parcial (P1) — Disciplina de Desenvolvimento Web**  
+> **Avaliação Parcial (P2) — Disciplina de Desenvolvimento Web**  
 > **Aluno / Gestor:** Gabriel Nunes da Silva  
 > **Tema:** Controle de Manutenção de Frotas (Logística)  
-
+> **Modelo Front-end Escolhido:** SPA (Single Page Application com React.js, Hooks e Tailwind CSS)
 
 ---
 
-## 📌 1. Visão Geral e Tema
+## 📌 1. Visão Geral do Sistema
 
-O **WEBDEV FROTAS** é um sistema corporativo completo voltado à gestão logística e operacional de frotas de transporte (caminhões pesados, cavalos mecânicos, caminhões médios 3/4, utilitários e vans), com foco primordial na **manutenção preventiva sistemática**, no controle detalhado de **Ordens de Serviço (O.S.)** — discriminando itens de peças substituídas e horas de mão de obra técnica —, na gestão do **quadro de mecânicos e especialistas** e na prevenção de falhas através de um **mecanismo proativo de alertas de revisão**.
+O **WEBDEV FROTAS** é um sistema corporativo de gestão logística e operacional de frotas de transporte (caminhões pesados, cavalos mecânicos, caminhões médios 3/4, utilitários e vans), com foco primordial na **manutenção preventiva sistemática**, no controle detalhado de **Ordens de Serviço (O.S.)** — discriminando itens de peças substituídas e horas de mão de obra técnica —, na gestão do **quadro de mecânicos e especialistas** e na prevenção de falhas através de um **mecanismo proativo de alertas de revisão**.
+
+Na **P2**, o sistema foi complementado com uma **Interface SPA moderna desenvolvida em React.js**, consumindo a API RESTful Node.js / Express com CORS ativo, controle de estado com Hooks (`useState`, `useEffect`), persistência em banco relacional via **Prisma ORM + SQLite** e estilização corporativa com **Tailwind CSS**.
 
 ### 👥 Perfis de Usuário e Casos de Uso:
 1. **Gestor de Frota (Gabriel Nunes da Silva):**
-   - Cadastra, atualiza e gerencia os veículos da empresa.
+   - Cadastra, edita e gerencia veículos da frota com odômetro e motoristas atribuídos.
    - Vincula veículos a planos de manutenção preventiva com periodicidade por quilometragem e intervalo de tempo.
    - Monitora o painel de alertas críticos (veículos com revisão vencida por KM ou data).
    - Acompanha custos acumulados em peças e mão de obra através de indicadores consolidados (Dashboard).
-   - Gerencia o quadro de mecânicos e suas especialidades.
+   - Gerencia o quadro de mecânicos e suas especialidades técnicas.
 
-2. **Mecânico (Admin / Oficina):**
+2. **Mecânico (Oficina):**
    - Registra e atualiza Ordens de Serviço (O.S.).
-   - Vincula peças substituídas (especificando quantidade e valor unitário com cálculo dinâmico de subtotal).
+   - Adiciona dinamicamente peças aplicadas (especificando quantidade e valor unitário com cálculo dinâmico de subtotal).
    - Registra horas trabalhadas e valor-hora de mão de obra especializada.
-   - Finaliza manutenções preventivas, acionando o **recálculo automatizado do próximo ciclo de revisão do veículo**.
+   - Conclui manutenções preventivas, acionando o **recálculo automatizado do próximo ciclo de revisão do veículo**.
 
 ---
 
-## ⚙️ 2. Lógica Central de Alertas e Regras de Negócio
+## 💻 2. Guia de Execução Local (Passo a Passo)
+
+O projeto foi estruturado de forma unificada para que o avaliador execute o back-end e o front-end React na mesma porta (`3000`) com comandos simples e padronizados.
+
+### Pré-requisitos:
+- **Node.js** (versão 20+ ou 22+)
+- **npm** (versão 10+)
+
+### Comandos de Instalação e Execução:
+
+```bash
+# 1. Clonar o repositório oficial
+git clone https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas.git
+cd Controle-de-Manutencao-de-Frotas
+
+# 2. Instalar dependências da raiz e compilar a aplicação React
+npm install
+npm run build
+
+# 3. Executar as migrações e popular o banco SQLite inicial
+npx prisma migrate dev --name init_sqlite
+npx prisma db seed
+
+# 4. Iniciar o servidor unificado
+npm start
+```
+
+### URLs de Acesso no Navegador:
+* **Aplicação Front-end SPA (React.js):** [http://localhost:3000](http://localhost:3000)
+* **Documentação Interativa Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+* **Status da API REST:** [http://localhost:3000/api/status](http://localhost:3000/api/status)
+
+### Modo de Desenvolvimento (Opcional):
+Para rodar com hot-reload no back-end e no front-end:
+```bash
+# Terminal 1: Servidor Express
+npm run dev
+
+# Terminal 2: Servidor Vite React
+npm run frontend:dev
+```
+
+---
+
+## 📸 3. Guia de Telas (Screenshots do Front-end React)
+
+A interface SPA foi projetada com design system corporativo sóbrio, dark-mode, mobile-first e acessibilidade WCAG AA.
+
+### 📊 3.1 Painel de Controle & Central de Alertas (Dashboard)
+Painel com indicadores consolidados da frota, status preventivo, métricas de custos em peças e mão de obra, banner de veículos críticos e central de alertas:
+![Dashboard & Alertas](./docs/screenshots/01-dashboard.png)
+
+---
+
+### 🚛 3.2 Gestão da Frota de Veículos (CRUD Completo)
+Tabela responsiva com odômetro, próxima revisão calculada, badges semânticos de nível de alerta (`NORMAL`, `ATENÇÃO`, `CRÍTICO`), filtros por status, busca em tempo real e ações de atualização de KM, histórico, edição e exclusão:
+![Gestão da Frota](./docs/screenshots/02-veiculos.png)
+
+---
+
+### 🔧 3.3 Ordens de Serviço (O.S.)
+Controle de manutenções com filtro por status (`ABERTA`, `EM_ANDAMENTO`, `CONCLUIDA`, `CANCELADA`) e tipo (`PREVENTIVA`, `CORRETIVA`), visualização de custos de peças e mão de obra:
+![Ordens de Serviço](./docs/screenshots/03-ordens-servico.png)
+
+---
+
+### 📋 3.4 Planos de Manutenção Preventiva
+Configuração de políticas periódicas por quilometragem e intervalo de meses, além do checklist detalhado de checagem técnica:
+![Planos Preventivos](./docs/screenshots/04-planos-preventivos.png)
+
+---
+
+### 👨‍🔧 3.5 Quadro Técnico de Mecânicos & Especialistas
+Gestão dos mecânicos da oficina com especialidade técnica, telefone e status operacional (`DISPONIVEL`, `EM_SERVICO`, `AFASTADO`):
+![Quadro de Mecânicos](./docs/screenshots/05-equipe-mecanicos.png)
+
+---
+
+### 📝 3.6 Modal Reativo de Cadastro e Validações
+Formulários modais com validações de campos obrigatórios, detecção de placas duplicadas e tratamento de erros:
+![Modal de Cadastro](./docs/screenshots/06-modal-cadastro.png)
+
+---
+
+## ⚙️ 4. Regras de Negócio e Lógica de Alertas
 
 Cada veículo cadastrado possui um **Plano de Manutenção** associado. O sistema avalia dinamicamente dois critérios primordiais:
 
@@ -43,7 +134,7 @@ flowchart TD
     V[Veículo em Operação] --> C{Avaliação de Alertas}
     C -->|KM Atual >= KM Próxima Revisão| CRITICO[🚨 ALERTA CRÍTICO: Revisão Imediata]
     C -->|Data Atual >= Data Próxima Revisão| CRITICO
-    C -->|Faltam < 1.000 KM ou < 15 Dias| ATENCAO[⚠️ ALERTA DE ATENÇÃO: Revisão Próxima]
+    C -->|Faltam <= 1.000 KM ou <= 15 Dias| ATENCAO[⚠️ ALERTA DE ATENÇÃO: Revisão Próxima]
     C -->|Dentro dos Limites Normais| NORMAL[✅ STATUS EM DIA: Operação Regular]
     
     CRITICO --> OS[Abertura de O.S. Preventiva]
@@ -60,195 +151,74 @@ flowchart TD
 
 ---
 
-## 🏗️ 3. Arquitetura e Organização do Código
+## 🏗️ 5. Arquitetura em Camadas (Front-end & Back-end)
 
-O projeto adota uma arquitetura em camadas modularizada, limpa e desacoplada, seguindo rigorosamente os padrões de engenharia de software e separação de responsabilidades:
+O projeto adota uma arquitetura em camadas modularizada, desacoplada e escalável:
 
 ```
 controleManutencaoFrotas/
-├── .env.example                # Template de variáveis de ambiente
-├── .gitignore                  # Bloqueio de node_modules, envs e logs
-├── package.json                # Dependências e scripts npm
-├── README.md                   # Documentação mestre do projeto
-├── docs/                       # Artefatos técnicos e especificações
-│   ├── WIREFRAMES.md           # Mapeamento completo Wireframes <-> API (Sucesso & Erros)
-│   ├── postman_collection.json # Coleção Postman exportada v2.1
-│   ├── insomnia_collection.json# Coleção Insomnia exportada v4
-│   └── wireframes/             # Protótipos visuais SVG de alta fidelidade
-│       ├── 01-dashboard-alertas.svg
-│       ├── 02-listagem-veiculos.svg
-│       ├── 03-cadastro-veiculo.svg
-│       ├── 04-ordens-servico.svg
-│       └── 05-detalhes-historico-veiculo.svg
-├── public/                     # Aplicação Web Front-end (SPA) & Wireframes
-│   ├── index.html              # Interface SPA (Dashboard, Veículos, OS, Planos, Mecânicos)
-│   ├── wireframes.html         # Navegador interativo de wireframes e mapeamento de rotas
-│   ├── css/
-│   │   └── style.css           # Design tokens corporativos e tema sóbrio
-│   └── js/
-│       └── app.js              # Controlador cliente SPA com Fetch API
-├── src/                        # Código-fonte da API Node.js
-│   ├── app.js                  # Configurações Express, CORS, Morgan e Swagger
-│   ├── server.js               # Ponto de entrada do servidor HTTP e tratamento de portas
+├── frontend/                   # Aplicação Front-end SPA React.js
+│   ├── src/
+│   │   ├── components/         # Componentes organizados por domínio
+│   │   │   ├── common/         # Modais, Toasts e componentes compartilhados
+│   │   │   ├── dashboard/      # Métricas consolidadas e alertas
+│   │   │   ├── veiculos/       # CRUD de veículos, odômetro e histórico
+│   │   │   ├── ordens/         # CRUD de O.S., itens e transição de status
+│   │   │   ├── planos/         # Planos preventivos e checklists
+│   │   │   ├── mecanicos/      # Gestão da equipe técnica
+│   │   │   └── layout/         # Header, Sidebar e navegação por abas
+│   │   ├── services/
+│   │   │   └── api.js          # Módulo centralizado de consumo da API (Fetch)
+│   │   ├── App.jsx             # Shell da SPA com gestão de estado global
+│   │   ├── index.css           # Configuração base Tailwind CSS v4
+│   │   └── main.jsx            # Ponto de entrada do React
+│   ├── vite.config.js          # Configuração Vite com proxy e Tailwind
+│   └── package.json            # Dependências do front-end (React, Lucide, Tailwind)
+├── prisma/                     # Persistência com Prisma ORM v6
+│   ├── schema.prisma           # Modelagem relacional com SQLite (@@map e @map)
+│   ├── dev.db                  # Banco de dados relacional SQLite
+│   ├── seed.js                 # Seeder automatizado com dados realistas
+│   └── migrations/             # Histórico de versionamento SQL das tabelas
+├── src/                        # Back-end Node.js / Express
+│   ├── app.js                  # Configuração Express, CORS, estáticos e fallback SPA
+│   ├── server.js               # Inicialização HTTP
 │   ├── config/
-│   │   └── swagger.js          # Especificação OpenAPI 3.0 completa (Schemas + Erros)
-│   ├── controllers/            # Controladores HTTP (I/O e status semânticos)
-│   │   ├── dashboardController.js
-│   │   ├── veiculosController.js
-│   │   ├── ordensServicoController.js
-│   │   ├── planosManutencaoController.js
-│   │   └── mecanicosController.js
-│   ├── services/               # Regras de Negócio Puras e Recálculos
-│   │   ├── dashboardService.js
-│   │   ├── veiculosService.js
-│   │   ├── ordensServicoService.js
-│   │   ├── planosManutencaoService.js
-│   │   └── mecanicosService.js
-│   ├── middlewares/            # Middlewares centralizados
-│   │   ├── errorHandler.js     # Tratamento central de erros HTTP
-│   │   └── requestValidator.js # Validação de payloads e sanitização
-│   ├── data/                   # Persistência em Memória & Seed Data
-│   │   ├── seedData.js         # Dados iniciais realistas (Veículos, Mecânicos, Planos, OS)
-│   │   └── database.js         # Repositório in-memory reativo com cálculos dinâmicos
-│   └── routes/                 # Roteamento RESTful por entidade
-│       ├── index.js            # Roteador principal (/api/status e módulos)
-│       ├── dashboardRoutes.js
-│       ├── veiculosRoutes.js
-│       ├── ordensServicoRoutes.js
-│       ├── planosManutencaoRoutes.js
-│       └── mecanicosRoutes.js
-└── tests/
-    └── api.test.js             # Suíte de 20 testes de integração automatizados (CPU)
+│   │   ├── prisma.js           # Singleton do PrismaClient
+│   │   └── swagger.js          # Documentação OpenAPI 3.0
+│   ├── controllers/            # Controladores assíncronos HTTP
+│   ├── middlewares/            # Tratamento centralizado de erros e CORS
+│   ├── routes/                 # Roteamento RESTful modularizado
+│   └── services/               # Camada de regras de negócio desacoplada
+├── tests/
+│   └── api.test.js             # Suíte com 20 testes de integração automatizados
+├── docs/
+│   ├── screenshots/            # Galeria de capturas da interface React
+│   └── postman_collection.json # Coleção Postman com asserções automatizadas
+└── package.json                # Configurações raiz e scripts unificados
 ```
 
 ---
 
-## 🚀 4. Instalação e Execução
+## 🗄️ 6. Modelo de Banco de Dados Relacional (Prisma & SQLite)
 
-### Pré-requisitos:
-- [Node.js](https://nodejs.org/) versão 18 ou superior (Recomendado v20+).
-- [Git](https://git-scm.com/) instalado.
+O banco de dados SQLite foi modelado no arquivo `prisma/schema.prisma` seguindo as boas práticas de engenharia de software com mapeamento de nomes via `@map` e `@@map` e integridade referencial:
 
-### Passo a Passo:
-
-1. **Clonar o repositório:**
-   ```bash
-   git clone https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas.git
-   cd Controle-de-Manutencao-de-Frotas
-   ```
-
-2. **Instalar as dependências:**
-   ```bash
-   npm install
-   ```
-
-3. **Executar a suíte de testes automatizados:**
-   ```bash
-   npm test
-   ```
-
-4. **Inicializar a aplicação:**
-   ```bash
-   # Modo de Produção:
-   npm start
-
-   # Modo de Desenvolvimento com auto-reload:
-   npm run dev
-   ```
-
-5. **Acessar os Portais no Navegador:**
-   - 🌐 **Aplicação Web Front-end (SPA):** [http://localhost:3000](http://localhost:3000)
-   - 📄 **Swagger UI (Documentação Interativa):** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
-   - 🎨 **Visualizador Interativo de Wireframes & Rotas:** [http://localhost:3000/wireframes.html](http://localhost:3000/wireframes.html)
-   - 🔍 **Status da API:** [http://localhost:3000/api/status](http://localhost:3000/api/status)
+* **`planos_manutencao` (`PlanoManutencao`):** Armazena intervalos de quilometragem, meses e checklist de itens. Relacionamento `1:N` com veículos.
+* **`veiculos` (`Veiculo`):** Registra a frota, odômetro atual, datas e quilometragens das revisões. Chave estrangeira `plano_manutencao_id` (`onDelete: SetNull`). Relacionamento `1:N` com ordens de serviço.
+* **`ordens_servico` (`OrdemServico`):** Registro de intervenções preventivas e corretivas, peças em JSON, mão de obra técnica e totais financeiros. Chave estrangeira `veiculo_id` (`onDelete: Restrict`).
+* **`mecanicos` (`Mecanico`):** Quadro de profissionais, especialidades técnicas e status de disponibilidade.
 
 ---
 
-## 📚 5. Documentação Completa dos Endpoints da API
+## 🧪 7. Suíte de Testes Automatizados
 
-A API segue o padrão **RESTful**, utilizando verbos HTTP semânticos (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) e respostas em formato padronizado `{ success: boolean, data/message/error, ... }` com códigos de status HTTP semânticos (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `409 Conflict`, `500 Internal Server Error`).
-
-### 📊 5.1 Dashboard e Alertas (`/api/dashboard`)
-
-| Método | Rota | Descrição | Status Sucesso | Tratamento de Erros |
-| :---: | :--- | :--- | :---: | :---: |
-| `GET` | `/api/dashboard/resumo` | Retorna métricas analíticas consolidadas da frota, status dos veículos, total de OS e custos financeiros. | `200 OK` | `500` |
-| `GET` | `/api/dashboard/alertas` | Lista detalhada de veículos em alerta crítico (revisão imediata) ou atenção (revisão próxima). | `200 OK` | `500` |
-
----
-
-### 🚚 5.2 Veículos (`/api/veiculos`)
-
-| Método | Rota | Descrição | Status Sucesso | Tratamento de Erros |
-| :---: | :--- | :--- | :---: | :---: |
-| `GET` | `/api/veiculos` | Lista todos os veículos cadastrados. Suporta filtros (`status`, `marca`, `modelo`, `categoria`, `busca`, `apenasAlertas`). | `200 OK` | `400`, `500` |
-| `GET` | `/api/veiculos/revisao-imediata` | Lista rápida apenas dos veículos em alerta crítico. | `200 OK` | `500` |
-| `GET` | `/api/veiculos/:id` | Busca dados detalhados de um veículo por ID. | `200 OK` | `400`, `404`, `500` |
-| `GET` | `/api/veiculos/:id/historico` | Retorna a linha do tempo com todas as manutenções já realizadas no veículo. | `200 OK` | `404`, `500` |
-| `POST` | `/api/veiculos` | Cadastra novo veículo vinculado a um Plano de Manutenção (calcula primeira revisão automaticamente). | `201 Created` | `400`, `409`, `500` |
-| `PUT` | `/api/veiculos/:id` | Atualiza os dados cadastrais do veículo. | `200 OK` | `400`, `404`, `409`, `500` |
-| `PATCH` | `/api/veiculos/:id/km` | Atualiza o odômetro do veículo (recalcula alertas de revisão instantaneamente). | `200 OK` | `400`, `404`, `500` |
-| `DELETE` | `/api/veiculos/:id` | Remove um veículo (valida ausência de O.S. abertas ou em andamento). | `200 OK` | `400`, `404`, `500` |
-
----
-
-### 🛠️ 5.3 Ordens de Serviço (`/api/ordens-servico`)
-
-| Método | Rota | Descrição | Status Sucesso | Tratamento de Erros |
-| :---: | :--- | :--- | :---: | :---: |
-| `GET` | `/api/ordens-servico` | Lista todas as OS com filtros opcionais (`status`, `tipo`, `veiculoId`, `mecanico`). | `200 OK` | `500` |
-| `GET` | `/api/ordens-servico/:id` | Detalhes completos da OS com itens de peças, mão de obra e totais. | `200 OK` | `400`, `404`, `500` |
-| `POST` | `/api/ordens-servico` | Abre nova OS com composição de peças e mão de obra. | `201 Created` | `400`, `404`, `500` |
-| `PUT` | `/api/ordens-servico/:id` | Atualiza os dados da OS. | `200 OK` | `400`, `404`, `500` |
-| `PATCH` | `/api/ordens-servico/:id/status` | Altera status (`ABERTA`, `EM_ANDAMENTO`, `CONCLUIDA`, `CANCELADA`). Na conclusão preventiva, recalcula próximo ciclo de revisão. | `200 OK` | `400`, `404`, `500` |
-| `DELETE` | `/api/ordens-servico/:id` | Remove uma OS (valida que não esteja em andamento). | `200 OK` | `400`, `404`, `500` |
-
----
-
-### ⚙️ 5.4 Planos de Manutenção Preventiva (`/api/planos-manutencao`)
-
-| Método | Rota | Descrição | Status Sucesso | Tratamento de Erros |
-| :---: | :--- | :--- | :---: | :---: |
-| `GET` | `/api/planos-manutencao` | Lista todos os planos preventivos configurados. | `200 OK` | `500` |
-| `GET` | `/api/planos-manutencao/:id` | Detalhes de um plano específico e itens de checagem. | `200 OK` | `400`, `404`, `500` |
-| `POST` | `/api/planos-manutencao` | Cria um novo plano com intervalos de KM e meses. | `201 Created` | `400`, `500` |
-| `PUT` | `/api/planos-manutencao/:id` | Atualiza intervalos ou itens do plano. | `200 OK` | `400`, `404`, `500` |
-| `DELETE` | `/api/planos-manutencao/:id` | Remove um plano de manutenção. | `200 OK` | `400`, `404`, `500` |
-
----
-
-### 👥 5.5 Quadro de Mecânicos (`/api/mecanicos`)
-
-| Método | Rota | Descrição | Status Sucesso | Tratamento de Erros |
-| :---: | :--- | :--- | :---: | :---: |
-| `GET` | `/api/mecanicos` | Lista todos os mecânicos e especialistas da oficina. | `200 OK` | `500` |
-| `GET` | `/api/mecanicos/:id` | Obtém detalhes do mecânico por ID. | `200 OK` | `400`, `404`, `500` |
-| `POST` | `/api/mecanicos` | Cadastra um novo mecânico no quadro da oficina. | `201 Created` | `400`, `500` |
-| `PUT` | `/api/mecanicos/:id` | Atualiza os dados, especialidade, telefone e status operacional do mecânico. | `200 OK` | `400`, `404`, `500` |
-| `DELETE` | `/api/mecanicos/:id` | Remove um mecânico do quadro. | `200 OK` | `400`, `404`, `500` |
-
-#### Exemplo de Payload — `POST /api/mecanicos`:
-```json
-{
-  "nome": "Roberto Nascimento",
-  "cargo": "Mecânico Especialista",
-  "especialidade": "Injeção Eletrônica e Scanner Diesel",
-  "telefone": "(11) 98888-7777",
-  "status": "DISPONIVEL"
-}
-```
-
----
-
-## 🧪 6. Suíte de Testes Automatizados (CPU)
-
-O projeto possui uma suíte com **20 testes automatizados de integração**, executados diretamente na CPU através do test runner nativo do Node.js (`node --test`), garantindo 100% de cobertura funcional dos endpoints e regras de negócio:
+O projeto possui **20 testes automatizados de integração**, executados diretamente pelo test runner nativo do Node.js (`node --test`), com reset automático do banco de dados SQLite a cada execução:
 
 ```bash
 npm test
 ```
 
-### Casos de Teste Validados:
+### Saída da Execução (100% de Sucesso):
 ```text
 ✔ GET /api/status - Deve retornar status online e nome WEBDEV FROTAS (200 OK)
 ✔ GET /api/dashboard/resumo - Deve retornar indicadores consolidados (200 OK)
@@ -271,51 +241,66 @@ npm test
 ✔ POST /api/ordens-servico e PATCH status - Deve abrir OS e recalcular revisão na conclusão (201 & 200)
 ✔ PATCH /api/ordens-servico/:id/status - Deve recusar status inválido (400 Bad Request)
 
-ℹ tests 20 | pass 20 | fail 0 (100% de sucesso na CPU)
+ℹ tests 20 | pass 20 | fail 0 (100% de sucesso)
 ```
 
 ---
 
-## 🎨 7. Wireframes e Planejamento da Interface
+## 🌐 8. Resumo dos Endpoints da API REST
 
-Todos os wireframes e o mapeamento dos componentes de tela com cada endpoint da API (incluindo respostas de sucesso e tratamento de erros) estão documentados em [`docs/WIREFRAMES.md`](./docs/WIREFRAMES.md) e disponíveis no visualizador interativo em [http://localhost:3000/wireframes.html](http://localhost:3000/wireframes.html).
+A documentação interativa e interativa Swagger está disponível em `http://localhost:3000/api-docs`.
 
-### Galeria de Telas do Projeto:
-
-| Tela | Protótipo Visual | Mapeamento Principal de Endpoints |
-| :--- | :---: | :--- |
-| **1. Dashboard & Alertas** | [Visualizar SVG](./docs/wireframes/01-dashboard-alertas.svg) | `GET /api/dashboard/resumo`<br>`GET /api/dashboard/alertas`<br>`POST /api/ordens-servico` |
-| **2. Listagem de Veículos** | [Visualizar SVG](./docs/wireframes/02-listagem-veiculos.svg) | `GET /api/veiculos`<br>`PATCH /api/veiculos/:id/km`<br>`DELETE /api/veiculos/:id` |
-| **3. Cadastro / Edição** | [Visualizar SVG](./docs/wireframes/03-cadastro-veiculo.svg) | `GET /api/planos-manutencao`<br>`POST /api/veiculos`<br>`PUT /api/veiculos/:id` |
-| **4. Ordens de Serviço** | [Visualizar SVG](./docs/wireframes/04-ordens-servico.svg) | `GET /api/ordens-servico`<br>`POST /api/ordens-servico`<br>`PATCH /api/ordens-servico/:id/status` |
-| **5. Detalhes & Histórico** | [Visualizar SVG](./docs/wireframes/05-detalhes-historico-veiculo.svg) | `GET /api/veiculos/:id`<br>`GET /api/veiculos/:id/historico` |
+| Módulo | Método | Endpoint | Descrição Principal |
+| :--- | :---: | :--- | :--- |
+| **Status** | `GET` | `/api/status` | Verificação de integridade e metadados da aplicação. |
+| **Dashboard** | `GET` | `/api/dashboard/resumo` | Métricas consolidadas da frota, O.S. e financeiro. |
+| **Dashboard** | `GET` | `/api/dashboard/alertas` | Relatório de veículos em alerta crítico ou atenção. |
+| **Veículos** | `GET` | `/api/veiculos` | Listagem com filtros por marca, modelo, categoria e alertas. |
+| **Veículos** | `GET` | `/api/veiculos/:id` | Detalhes do veículo e alerta calculado. |
+| **Veículos** | `POST` | `/api/veiculos` | Cadastro de novo veículo com validação de placa. |
+| **Veículos** | `PUT` | `/api/veiculos/:id` | Atualização cadastral do veículo. |
+| **Veículos** | `PATCH` | `/api/veiculos/:id/km` | Atualização do odômetro (valida avanço de KM). |
+| **Veículos** | `DELETE` | `/api/veiculos/:id` | Exclusão de veículo (bloqueia se houver O.S. ativa). |
+| **Veículos** | `GET` | `/api/veiculos/:id/historico` | Histórico completo de manutenções do veículo. |
+| **Ordens de Serviço** | `GET` | `/api/ordens-servico` | Listagem de O.S. com filtros de status e tipo. |
+| **Ordens de Serviço** | `POST` | `/api/ordens-servico` | Emissão de O.S. com peças, mão de obra e totais. |
+| **Ordens de Serviço** | `PATCH` | `/api/ordens-servico/:id/status` | Transição de status (recalcula revisão na conclusão). |
+| **Ordens de Serviço** | `DELETE` | `/api/ordens-servico/:id` | Cancelamento/exclusão de O.S. |
+| **Planos** | `GET` | `/api/planos-manutencao` | Listagem de planos preventivos. |
+| **Planos** | `POST` | `/api/planos-manutencao` | Criação de novo plano preventivo. |
+| **Mecânicos** | `GET` | `/api/mecanicos` | Listagem de mecânicos e disponibilidade. |
+| **Mecânicos** | `POST` | `/api/mecanicos` | Cadastro de novo mecânico na equipe. |
 
 ---
 
-## 🏷️ 8. Versionamento Semântico e Release Oficial (`v1.0.0-p1`)
+## 🏷️ 9. Versionamento Semântico e Release Oficial (`v2.0.0-p2`)
 
-O projeto adota o padrão de versionamento semântico ([SemVer](https://semver.org/)). O congelamento oficial do código referente à entrega da Avaliação Parcial (P1) foi publicado e documentado:
+O projeto segue as diretrizes do versionamento semântico ([SemVer](https://semver.org/)):
 
-- **Versão / Tag:** [`v1.0.0-p1`](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v1.0.0-p1)
-- **Status da Versão:** Entregue e Congelada 
-- **Release Notes:** Resumo das funcionalidades, cobertura de testes e endpoints disponível na aba [Releases](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v1.0.0-p1).
+* **Release P2 (Atual):** [`v2.0.0-p2`](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v2.0.0-p2)
+  - **Título Oficial:** `Entrega P2 - Interface React`
+  - **Descrição:** Front-end SPA integrado com React.js, Tailwind CSS, Prisma ORM e SQLite, com link para o vídeo de apresentação.
+* **Release P1 (Congelada):** [`v1.0.0-p1`](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas/releases/tag/v1.0.0-p1)
+  - Congelamento da arquitetura da API REST, Swagger e testes da primeira etapa.
 
 ---
 
-## ✅ 9. Checklist dos Recursos do Projeto
+## ✅ 10. Checklist de Requisitos da Avaliação P2
 
-- [x] Repositório estruturado e versionado via Git com Conventional Commits.
-- [x] Arquivo `.gitignore` configurado (bloqueando `node_modules`, arquivos de ambiente e logs).
-- [x] API Node.js / Express inicializando sem erros com `npm start` ou `npm run dev`.
-- [x] Documentação interativa via Swagger UI (`/api-docs`), Postman Collection e Insomnia Collection.
-- [x] Suíte de 20 testes automatizados passando 100% via `npm test` (sem falhas na CPU).
-- [x] Wireframes visuais em SVG de todas as 5 telas principais com mapeamento de rotas de sucesso e erro.
-- [x] Front-end SPA moderno e funcional (Dashboard, Veículos, OS com Peças/Mão de Obra, Mecânicos e Histórico).
-- [x] Arquivo `README.md` detalhado com requisitos, regras de negócio, tabelas de rotas e guia de execução.
-- [x] Banco de dados in-memory estruturado com regras de integridade e cálculos dinâmicos.
-- [x] Tag e Release `v1.0.0-p1` preparada.
+- [x] **Modelo SPA implementado:** Front-end desenvolvido em **React.js** com componentes funcionais.
+- [x] **Consumo de API:** Requisições via `fetch` tratando respostas de sucesso (`200`, `201`) e erros (`400`, `404`, `409`).
+- [x] **Gestão de Estado com Hooks:** Uso extensivo de `useState` para controle de formulários, modais e filtros, e `useEffect` para ciclo de vida.
+- [x] **CORS:** Middleware `cors` configurado e ativo no Express.
+- [x] **CRUDs Funcionais:** Telas completas com listagem, criação, edição e exclusão de Veículos, O.S., Planos e Mecânicos.
+- [x] **Navegação (UX):** Sidebar e Header com navegação fluida por abas e hash routing, sem necessidade de digitação de URL.
+- [x] **Estilização com Framework CSS:** Interface construída com **Tailwind CSS**, design executivo e ícones `lucide-react`.
+- [x] **Persistência Relacional:** Migração e integração com **Prisma ORM v6** e **SQLite**.
+- [x] **Documentação Completa (README.md):** Guia de execução local, galeria com screenshots e link da release.
+- [x] **Suíte de Testes:** 20/20 testes automatizados passando 100%.
 
 ---
 
 ### 👨‍💻 Autor
-Desenvolvido por **Gabriel Nunes da Silva** — Projeto de Avaliação Parcial (P1) | Disciplina de Desenvolvimento Web.
+Desenvolvido por **Gabriel Nunes da Silva**  
+Disciplina de Desenvolvimento Web (2026-1) — Curso de Engenharia  
+Repositório: [https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas](https://github.com/Desenvolvimento-Web-2026-1-ENG/Controle-de-Manutencao-de-Frotas)
