@@ -16,24 +16,29 @@ export default function App() {
       : "dashboard";
   });
 
-  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
   const [toasts, setToasts] = useState([]);
-  const [recarregando, setRecarregando] = useState(false);
-
-  // Parâmetros de navegação cruzada entre telas
   const [veiculoPreSelecionadoOS, setVeiculoPreSelecionadoOS] = useState(null);
   const [filtroAlertasVeiculos, setFiltroAlertasVeiculos] = useState(false);
   const [abrirNovaOSGatilho, setAbrirNovaOSGatilho] = useState(false);
   const [abrirNovoVeiculoGatilho, setAbrirNovoVeiculoGatilho] = useState(false);
 
-  // Atualizar hash na URL para histórico do navegador sem recarregar a página
   useEffect(() => {
     window.location.hash = telaAtiva;
   }, [telaAtiva]);
 
-  // Sistema de Notificações (Toasts) com auto-dismiss
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (["dashboard", "veiculos", "ordens", "planos", "mecanicos"].includes(hash)) {
+        setTelaAtiva(hash);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   const showToast = (tipo, titulo, mensagem) => {
-    const id = Date.now() + Math.random().toString(36).substr(2, 4);
+    const id = Date.now() + Math.random().toString(36).substring(2, 6);
     setToasts((prev) => [...prev, { id, tipo, titulo, mensagem }]);
 
     setTimeout(() => {
@@ -45,96 +50,86 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Navegação cruzada inteligente (ex: do Dashboard para a tela de O.S. ou Veículos)
-  const navegarPara = (tela, opcoes = {}) => {
+  const navegarParaAba = (tela, opcoes = {}) => {
     if (opcoes.veiculoId) {
       setVeiculoPreSelecionadoOS(opcoes.veiculoId);
+    } else {
+      setVeiculoPreSelecionadoOS(null);
     }
+
     if (opcoes.apenasAlertas !== undefined) {
       setFiltroAlertasVeiculos(opcoes.apenasAlertas);
+    } else {
+      setFiltroAlertasVeiculos(false);
     }
-    if (opcoes.abrirNovo) {
-      if (tela === "ordens") setAbrirNovaOSGatilho(true);
-      if (tela === "veiculos") setAbrirNovoVeiculoGatilho(true);
-    }
+
+    setAbrirNovaOSGatilho(Boolean(opcoes.abrirNovo && tela === "ordens"));
+    setAbrirNovoVeiculoGatilho(Boolean(opcoes.abrirNovo && tela === "veiculos"));
+
     setTelaAtiva(tela);
   };
 
-  const handleRecarregarGlobal = () => {
-    setRecarregando(true);
-    // Força re-render simulando atualização
-    setTimeout(() => {
-      setRecarregando(false);
-      showToast("sucesso", "Sincronizado", "Dados atualizados com o banco de dados.");
-    }, 400);
-  };
-
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
-      {/* Sidebar de Navegação */}
+    <div className="app-wrapper">
+      {/* 1. Sidebar de Navegação Lateral */}
       <Sidebar
         telaAtiva={telaAtiva}
-        setTelaAtiva={(t) => {
-          setFiltroAlertasVeiculos(false);
-          setVeiculoPreSelecionadoOS(null);
-          setTelaAtiva(t);
-        }}
-        isOpen={isOpenSidebar}
-        setIsOpen={setIsOpenSidebar}
+        setTelaAtiva={(t) => navegarParaAba(t)}
+        onShowToast={showToast}
       />
 
-      {/* Área Principal de Conteúdo */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* 2. Conteúdo Principal */}
+      <div className="main-wrapper">
         <Header
           telaAtiva={telaAtiva}
-          setIsOpenSidebar={setIsOpenSidebar}
-          onAbrirNovaOS={() => setAbrirNovaOSGatilho(true)}
-          onAbrirNovoVeiculo={() => setAbrirNovoVeiculoGatilho(true)}
-          onRecarregar={handleRecarregarGlobal}
-          recarregando={recarregando}
+          onNavegar={navegarParaAba}
+          onShowToast={showToast}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950/50">
-          <div className="max-w-7xl mx-auto">
-            {telaAtiva === "dashboard" && (
-              <DashboardView
-                onNavegar={navegarPara}
-                onAbrirOSComVeiculo={(vId) =>
-                  navegarPara("ordens", { veiculoId: vId, abrirNovo: true })
-                }
-              />
-            )}
+        <main className="content-body">
+          {telaAtiva === "dashboard" && (
+            <DashboardView
+              onNavegar={navegarParaAba}
+              onAbrirOSComVeiculo={(vId) =>
+                navegarParaAba("ordens", { veiculoId: vId, abrirNovo: true })
+              }
+            />
+          )}
 
-            {telaAtiva === "veiculos" && (
-              <VeiculosView
-                key={`veiculos-${recarregando}-${filtroAlertasVeiculos}`}
-                onShowToast={showToast}
-                abrirNovoInicial={abrirNovoVeiculoGatilho}
-                filtroAlertasInicial={filtroAlertasVeiculos}
-              />
-            )}
+          {telaAtiva === "veiculos" && (
+            <VeiculosView
+              key={`veiculos-${filtroAlertasVeiculos}-${abrirNovoVeiculoGatilho}`}
+              onShowToast={showToast}
+              abrirNovoInicial={abrirNovoVeiculoGatilho}
+              filtroAlertasInicial={filtroAlertasVeiculos}
+            />
+          )}
 
-            {telaAtiva === "ordens" && (
-              <OrdensServicoView
-                key={`ordens-${recarregando}-${veiculoPreSelecionadoOS}`}
-                onShowToast={showToast}
-                abrirNovoInicial={abrirNovaOSGatilho}
-                veiculoPreSelecionadoId={veiculoPreSelecionadoOS}
-              />
-            )}
+          {telaAtiva === "ordens" && (
+            <OrdensServicoView
+              key={`ordens-${veiculoPreSelecionadoOS}-${abrirNovaOSGatilho}`}
+              onShowToast={showToast}
+              abrirNovoInicial={abrirNovaOSGatilho}
+              veiculoPreSelecionadoId={veiculoPreSelecionadoOS}
+            />
+          )}
 
-            {telaAtiva === "planos" && (
-              <PlanosView key={`planos-${recarregando}`} onShowToast={showToast} />
-            )}
+          {telaAtiva === "planos" && (
+            <PlanosView onShowToast={showToast} />
+          )}
 
-            {telaAtiva === "mecanicos" && (
-              <MecanicosView key={`mecanicos-${recarregando}`} onShowToast={showToast} />
-            )}
-          </div>
+          {telaAtiva === "mecanicos" && (
+            <MecanicosView onShowToast={showToast} />
+          )}
         </main>
+
+        {/* 3. Rodapé Corporativo */}
+        <footer className="app-footer">
+          WEBDEV FROTAS &copy; 2026 — Sistema de Logística &amp; Controle de Manutenção | Gestor: Gabriel Nunes
+        </footer>
       </div>
 
-      {/* Sistema Flutuante de Toasts */}
+      {/* 4. Sistema Flutuante de Notificações */}
       <Toast toasts={toasts} onClose={removeToast} />
     </div>
   );

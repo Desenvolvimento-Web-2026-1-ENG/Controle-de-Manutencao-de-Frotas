@@ -1,35 +1,20 @@
 import React, { useState, useEffect } from "react";
-import {
-  ClipboardList,
-  Plus,
-  Edit2,
-  Trash2,
-  CheckCircle2,
-  Clock,
-  Gauge,
-  ListChecks,
-} from "lucide-react";
 import { api } from "../../services/api";
-import Modal from "../common/Modal";
 
 export default function PlanosView({ onShowToast }) {
   const [planos, setPlanos] = useState([]);
   const [carregando, setCarregando] = useState(true);
+
   const [modalAberto, setModalAberto] = useState(false);
   const [planoEditando, setPlanoEditando] = useState(null);
-  const [salvando, setSalvando] = useState(false);
-
-  const [formData, setFormData] = useState({
+  const [formPlano, setFormPlano] = useState({
     nome: "",
     descricao: "",
-    intervaloKm: 10000,
+    intervaloKm: 15000,
     intervaloMeses: 6,
-    itensChecagem: "",
+    toleranciaKm: 1000,
+    itensChecagem: "Troca de óleo do motor\nSubstituição de filtros\nInspeção do sistema de freios\nAlinhamento e suspensão",
   });
-
-  useEffect(() => {
-    carregarPlanos();
-  }, []);
 
   const carregarPlanos = async () => {
     try {
@@ -37,31 +22,37 @@ export default function PlanosView({ onShowToast }) {
       const res = await api.getPlanosManutencao();
       if (res.success) setPlanos(res.data);
     } catch (err) {
-      onShowToast("erro", "Erro ao carregar planos", err.message);
+      if (onShowToast) onShowToast("erro", "Erro", err.message || "Erro ao listar planos.");
     } finally {
       setCarregando(false);
     }
   };
 
-  const abrirCriacao = () => {
+  useEffect(() => {
+    carregarPlanos();
+  }, []);
+
+  const abrirNovo = () => {
     setPlanoEditando(null);
-    setFormData({
+    setFormPlano({
       nome: "",
       descricao: "",
       intervaloKm: 15000,
       intervaloMeses: 6,
-      itensChecagem: "Troca de óleo do motor\nSubstituição de filtros\nInspeção do sistema de freios\nAlinhamento e balanceamento",
+      toleranciaKm: 1000,
+      itensChecagem: "Troca de óleo do motor\nSubstituição de filtros\nInspeção de freios e suspensão",
     });
     setModalAberto(true);
   };
 
-  const abrirEdicao = (plano) => {
+  const abrirEditar = (plano) => {
     setPlanoEditando(plano);
-    setFormData({
+    setFormPlano({
       nome: plano.nome,
       descricao: plano.descricao || "",
       intervaloKm: plano.intervaloKm,
       intervaloMeses: plano.intervaloMeses,
+      toleranciaKm: plano.toleranciaKm || 1000,
       itensChecagem: Array.isArray(plano.itensChecagem)
         ? plano.itensChecagem.join("\n")
         : plano.itensChecagem || "",
@@ -69,251 +60,233 @@ export default function PlanosView({ onShowToast }) {
     setModalAberto(true);
   };
 
-  const handleSalvar = async (e) => {
+  const salvarPlano = async (e) => {
     e.preventDefault();
     try {
-      setSalvando(true);
       const payload = {
-        nome: formData.nome,
-        descricao: formData.descricao,
-        intervaloKm: Number(formData.intervaloKm),
-        intervaloMeses: Number(formData.intervaloMeses),
-        itensChecagem: formData.itensChecagem
+        ...formPlano,
+        intervaloKm: Number(formPlano.intervaloKm),
+        intervaloMeses: Number(formPlano.intervaloMeses),
+        toleranciaKm: Number(formPlano.toleranciaKm),
+        itensChecagem: formPlano.itensChecagem
           .split("\n")
           .map((i) => i.trim())
           .filter(Boolean),
       };
 
       if (planoEditando) {
-        await api.atualizarPlano(planoEditando.id, payload);
-        onShowToast("sucesso", "Plano atualizado", `Plano ${formData.nome} salvo com sucesso.`);
+        await api.atualizarPlanoManutencao(planoEditando.id, payload);
+        if (onShowToast) onShowToast("sucesso", "Plano Atualizado", `Plano ${payload.nome} atualizado com sucesso!`);
       } else {
-        await api.criarPlano(payload);
-        onShowToast("sucesso", "Plano criado", `Novo plano ${formData.nome} cadastrado.`);
+        await api.criarPlanoManutencao(payload);
+        if (onShowToast) onShowToast("sucesso", "Plano Criado", `Plano ${payload.nome} cadastrado com sucesso!`);
       }
+
       setModalAberto(false);
       carregarPlanos();
     } catch (err) {
-      onShowToast("erro", "Erro ao salvar plano", err.message);
-    } finally {
-      setSalvando(false);
+      if (onShowToast) onShowToast("erro", "Falha ao salvar", err.message);
     }
   };
 
-  const handleExcluir = async (plano) => {
-    if (!window.confirm(`Deseja remover o plano "${plano.nome}"?`)) return;
+  const excluirPlano = async (id, nome) => {
+    if (!window.confirm(`Deseja excluir o plano "${nome}"?`)) return;
     try {
-      await api.deletarPlano(plano.id);
-      onShowToast("sucesso", "Plano removido", `Plano ${plano.nome} excluído com sucesso.`);
+      await api.deletarPlanoManutencao(id);
+      if (onShowToast) onShowToast("sucesso", "Plano Excluído", `Plano ${nome} removido.`);
       carregarPlanos();
     } catch (err) {
-      onShowToast("erro", "Impedimento de exclusão", err.message);
+      if (onShowToast) onShowToast("erro", "Erro ao excluir", err.message);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Barra de Ação */}
-      <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800">
+    <section id="section-planos" className="app-view active">
+      <div className="view-header">
         <div>
-          <h3 className="text-sm font-bold text-white">Planos de Manutenção Periódica</h3>
-          <p className="text-xs text-slate-400">
-            Regras de intervalos por quilometragem e tempo para cálculo de alertas
-          </p>
+          <h2 className="view-title">Planos de Manutenção Preventiva</h2>
+          <p className="view-desc">Configuração de periodicidade por quilometragem e intervalo de meses para cada categoria.</p>
         </div>
-        <button
-          onClick={abrirCriacao}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-600/25 transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Novo Plano</span>
+        <button className="btn btn-primary" onClick={abNovo => abrirNovo()}>
+          + Novo Plano Preventivo
         </button>
       </div>
 
-      {/* Grid de Cards de Planos */}
       {carregando ? (
-        <div className="p-12 text-center text-slate-400">
-          <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          Carregando planos preventivos...
-        </div>
-      ) : planos.length === 0 ? (
-        <div className="p-12 text-center text-slate-400 bg-slate-900 border border-slate-800 rounded-2xl">
-          <ClipboardList className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-          <p className="text-sm font-medium text-slate-300">Nenhum plano cadastrado</p>
+        <div className="text-center py-12 text-slate-400">
+          Carregando planos de manutenção...
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {planos.map((plano) => (
-            <div
-              key={plano.id}
-              className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all group"
-            >
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400">
-                      <ClipboardList className="w-5 h-5" />
+        <div id="planos-cards-container" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {planos.map((plano) => {
+            const itens = Array.isArray(plano.itensChecagem)
+              ? plano.itensChecagem
+              : (plano.itensChecagem || "").split("\n").filter(Boolean);
+
+            return (
+              <div key={plano.id} className="card flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="card-title text-blue-700 font-extrabold">{plano.nome}</h3>
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">
+                      ± {Number(plano.toleranciaKm || 1000).toLocaleString("pt-BR")} KM
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 mb-4 min-h-[36px]">
+                    {plano.descricao || "Diretriz preventiva de fábrica para a frota."}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-semibold uppercase">Periodicidade KM</div>
+                      <div className="text-sm font-bold text-slate-900">
+                        A cada {Number(plano.intervaloKm).toLocaleString("pt-BR")} KM
+                      </div>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
-                        {plano.nome}
-                      </h4>
-                      <span className="text-[10px] font-mono text-slate-500">ID #{plano.id}</span>
+                      <div className="text-[11px] text-slate-500 font-semibold uppercase">Periodicidade Meses</div>
+                      <div className="text-sm font-bold text-slate-900">
+                        A cada {plano.intervaloMeses} meses
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => abrirEdicao(plano)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-                      title="Editar plano"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleExcluir(plano)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                      title="Excluir plano"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-400 leading-relaxed min-h-[36px]">
-                  {plano.descricao || "Sem descrição cadastrada."}
-                </p>
-
-                {/* Badges de Intervalo */}
-                <div className="grid grid-cols-2 gap-2 pt-2">
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-500 block uppercase">Intervalo KM</span>
-                    <strong className="font-mono text-xs text-indigo-400">
-                      {plano.intervaloKm.toLocaleString()} km
-                    </strong>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-500 block uppercase">Intervalo Meses</span>
-                    <strong className="font-mono text-xs text-emerald-400">
-                      {plano.intervaloMeses} meses
-                    </strong>
-                  </div>
-                </div>
-
-                {/* Checklist de Itens */}
-                {plano.itensChecagem && plano.itensChecagem.length > 0 && (
-                  <div className="pt-2 border-t border-slate-800/80">
-                    <span className="text-[11px] font-semibold text-slate-300 block mb-2 flex items-center gap-1.5">
-                      <ListChecks className="w-3.5 h-3.5 text-indigo-400" />
-                      Checklist ({plano.itensChecagem.length} itens)
-                    </span>
-                    <ul className="space-y-1 max-h-32 overflow-y-auto pr-1">
-                      {plano.itensChecagem.map((item, i) => (
-                        <li key={i} className="text-xs text-slate-400 flex items-start gap-2">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-500/80 shrink-0 mt-0.5" />
-                          <span className="line-clamp-1">{item}</span>
-                        </li>
-                      ))}
+                  <div>
+                    <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider mb-2">
+                      📋 Itens Inclusos no Ciclo:
+                    </h4>
+                    <ul className="text-xs text-slate-600 space-y-1.5 pl-4 list-disc">
+                      {itens.length === 0 ? (
+                        <li className="text-slate-400 italic">Inspeção geral recomendada</li>
+                      ) : (
+                        itens.map((item, idx) => <li key={idx}>{item}</li>)
+                      )}
                     </ul>
                   </div>
-                )}
+                </div>
+
+                <div className="border-t border-slate-100 pt-3 mt-6 flex justify-end gap-2">
+                  <button
+                    className="action-btn-link text-slate-600"
+                    onClick={() => abrirEditar(plano)}
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    className="action-btn-link action-btn-danger"
+                    onClick={() => excluirPlano(plano.id, plano.nome)}
+                  >
+                    🗑️ Excluir
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Modal de Criação / Edição */}
-      <Modal
-        isOpen={modalAberto}
-        onClose={() => setModalAberto(false)}
-        title={planoEditando ? `Editar Plano — ${planoEditando.nome}` : "Cadastrar Novo Plano Preventivo"}
-      >
-        <form onSubmit={handleSalvar} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Nome do Plano *</label>
-            <input
-              type="text"
-              required
-              placeholder="Ex: Plano Frota Pesada (Caminhões Trucados)"
-              value={formData.nome}
-              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-            />
+      {/* ==================== MODAL: CADASTRO / EDIÇÃO DE PLANO ==================== */}
+      <div className={`modal-overlay ${modalAberto ? "active" : ""}`} role="dialog" aria-modal="true">
+        <div className="modal-card" style={{ maxWidth: "560px" }}>
+          <div className="modal-header">
+            <h3 className="modal-title">
+              {planoEditando ? "Editar Plano Preventivo" : "Cadastrar Novo Plano Preventivo"}
+            </h3>
+            <button className="modal-close" onClick={() => setModalAberto(false)}>&times;</button>
           </div>
+          <form onSubmit={salvarPlano}>
+            <div className="modal-body">
+              <div className="form-group mb-3">
+                <label className="form-label" htmlFor="plano-nome">Nome do Plano *</label>
+                <input
+                  type="text"
+                  id="plano-nome"
+                  className="form-input"
+                  placeholder="Ex: Plano Pesado - Rodoviário"
+                  required
+                  value={formPlano.nome}
+                  onChange={(e) => setFormPlano({ ...formPlano, nome: e.target.value })}
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Descrição</label>
-            <input
-              type="text"
-              placeholder="Ex: Revisão periódica de eixos, freios e motor para viagens longas"
-              value={formData.descricao}
-              onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-            />
-          </div>
+              <div className="form-group mb-3">
+                <label className="form-label" htmlFor="plano-desc">Descrição</label>
+                <input
+                  type="text"
+                  id="plano-desc"
+                  className="form-input"
+                  placeholder="Descrição da aplicação deste plano"
+                  value={formPlano.descricao}
+                  onChange={(e) => setFormPlano({ ...formPlano, descricao: e.target.value })}
+                />
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Intervalo em KM *</label>
-              <input
-                type="number"
-                required
-                min={1000}
-                step={500}
-                placeholder="Ex: 15000"
-                value={formData.intervaloKm}
-                onChange={(e) => setFormData({ ...formData, intervaloKm: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-slate-100 focus:outline-none focus:border-indigo-500"
-              />
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="plano-km">Intervalo em KM *</label>
+                  <input
+                    type="number"
+                    id="plano-km"
+                    className="form-input font-bold"
+                    min="1000"
+                    step="500"
+                    required
+                    value={formPlano.intervaloKm}
+                    onChange={(e) => setFormPlano({ ...formPlano, intervaloKm: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="plano-meses">Intervalo em Meses *</label>
+                  <input
+                    type="number"
+                    id="plano-meses"
+                    className="form-input font-bold"
+                    min="1"
+                    max="60"
+                    required
+                    value={formPlano.intervaloMeses}
+                    onChange={(e) => setFormPlano({ ...formPlano, intervaloMeses: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="plano-tol">Tolerância (KM)</label>
+                  <input
+                    type="number"
+                    id="plano-tol"
+                    className="form-input"
+                    min="0"
+                    step="100"
+                    value={formPlano.toleranciaKm}
+                    onChange={(e) => setFormPlano({ ...formPlano, toleranciaKm: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="plano-itens">Itens de Checagem (um por linha)</label>
+                <textarea
+                  id="plano-itens"
+                  rows={4}
+                  className="form-textarea text-xs font-mono"
+                  value={formPlano.itensChecagem}
+                  onChange={(e) => setFormPlano({ ...formPlano, itensChecagem: e.target.value })}
+                ></textarea>
+              </div>
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Intervalo em Meses *</label>
-              <input
-                type="number"
-                required
-                min={1}
-                max={24}
-                placeholder="Ex: 6"
-                value={formData.intervaloMeses}
-                onChange={(e) => setFormData({ ...formData, intervaloMeses: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-slate-100 focus:outline-none focus:border-indigo-500"
-              />
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setModalAberto(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Salvar Plano
+              </button>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Checklist de Itens (um por linha)
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Troca de óleo&#10;Substituição de filtros&#10;Regulagem de freios"
-              value={formData.itensChecagem}
-              onChange={(e) => setFormData({ ...formData, itensChecagem: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 font-mono focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button
-              type="button"
-              onClick={() => setModalAberto(false)}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvando}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
-            >
-              {salvando ? "Salvando..." : planoEditando ? "Salvar Alterações" : "Criar Plano"}
-            </button>
-          </div>
-        </form>
-      </Modal>
-    </div>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 }

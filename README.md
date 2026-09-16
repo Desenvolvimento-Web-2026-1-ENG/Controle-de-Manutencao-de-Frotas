@@ -87,7 +87,7 @@ npm run frontend:dev
 
 ## 📸 3. Guia de Telas (Screenshots do Front-end React)
 
-A interface SPA foi projetada com design system corporativo sóbrio, dark-mode, mobile-first e acessibilidade WCAG AA.
+A interface SPA foi projetada em total conformidade com a identidade visual sóbria corporativa da P1 (paleta Light Theme / Solid Navy Blue `#1d4ed8` / Clean Slate `#f1f5f9` / White Cards), responsiva (mobile-first) e com acessibilidade WCAG AA.
 
 ### 📊 3.1 Painel de Controle & Central de Alertas (Dashboard)
 Painel com indicadores consolidados da frota, status preventivo, métricas de custos em peças e mão de obra, banner de veículos críticos e central de alertas:
@@ -170,7 +170,7 @@ controleManutencaoFrotas/
 │   │   ├── services/
 │   │   │   └── api.js          # Módulo centralizado de consumo da API (Fetch)
 │   │   ├── App.jsx             # Shell da SPA com gestão de estado global
-│   │   ├── index.css           # Configuração base Tailwind CSS v4
+│   │   ├── index.css           # Design System corporativo P1 integrado ao Tailwind CSS v4
 │   │   └── main.jsx            # Ponto de entrada do React
 │   ├── vite.config.js          # Configuração Vite com proxy e Tailwind
 │   └── package.json            # Dependências do front-end (React, Lucide, Tailwind)

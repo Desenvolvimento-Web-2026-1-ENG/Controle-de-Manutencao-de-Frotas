@@ -1,120 +1,74 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Plus, Activity, RefreshCw } from "lucide-react";
 import { api } from "../../services/api";
 
-export default function Header({
-  telaAtiva,
-  setIsOpenSidebar,
-  onAbrirNovaOS,
-  onAbrirNovoVeiculo,
-  onRecarregar,
-  recarregando,
-}) {
-  const [statusApi, setStatusApi] = useState({ online: true, projeto: "WEBDEV FROTAS" });
+export default function Header({ telaAtiva, onNavegar, onShowToast }) {
+  const [apiOnline, setApiOnline] = useState(true);
 
   useEffect(() => {
-    let montado = true;
-    api
-      .getStatus()
+    let ativo = true;
+    api.getStatus()
       .then((res) => {
-        if (montado && res.success) {
-          setStatusApi({ online: true, projeto: res.projeto || "WEBDEV FROTAS" });
-        }
+        if (ativo && res.success) setApiOnline(true);
       })
       .catch(() => {
-        if (montado) setStatusApi({ online: false, projeto: "Offline" });
+        if (ativo) setApiOnline(false);
       });
-    return () => {
-      montado = false;
-    };
+    return () => { ativo = false; };
   }, []);
 
   const titulos = {
-    dashboard: { titulo: "Painel de Controle & Alertas", subtitulo: "Monitoramento em tempo real de manutenções e custos" },
-    veiculos: { titulo: "Gestão da Frota", subtitulo: "Cadastro, quilometragem e previsão de revisões" },
-    ordens: { titulo: "Ordens de Serviço (O.S.)", subtitulo: "Abertura, peças, mão de obra e conclusão" },
-    planos: { titulo: "Planos Preventivos", subtitulo: "Políticas periódicas por quilometragem e meses" },
-    mecanicos: { titulo: "Quadro de Mecânicos", subtitulo: "Especialistas da oficina e disponibilidade" },
+    dashboard: "Dashboard de Manutenção",
+    veiculos: "Gestão da Frota de Veículos",
+    ordens: "Ordens de Serviço (O.S.)",
+    planos: "Planos de Manutenção Preventiva",
+    mecanicos: "Quadro de Mecânicos & Especialistas",
   };
 
-  const infoAtual = titulos[telaAtiva] || titulos.dashboard;
-
   return (
-    <header className="h-16 px-4 sm:px-8 bg-slate-900/60 backdrop-blur-md border-b border-slate-800 flex items-center justify-between sticky top-0 z-30">
-      {/* Left side: Hamburger & Title */}
-      <div className="flex items-center gap-4">
+    <header className="top-header">
+      <h1 className="header-page-title" id="top-bar-title">
+        {titulos[telaAtiva] || "Dashboard de Manutenção"}
+      </h1>
+
+      <div className="header-user-menu">
+        {/* Status API indicator */}
+        <div id="api-status-container" className="flex items-center gap-1.5 text-xs font-semibold text-white/90">
+          <span
+            className="inline-block w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: apiOnline ? "#22c55e" : "#ef4444" }}
+          ></span>
+          <span>{apiOnline ? "API Online" : "API Offline"}</span>
+        </div>
+
+        {/* Notification Bell */}
         <button
-          onClick={() => setIsOpenSidebar(true)}
-          className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
-          aria-label="Abrir menu"
+          className="header-btn-icon"
+          title="Notificações de Alertas"
+          onClick={() => onNavegar && onNavegar("dashboard")}
         >
-          <Menu className="w-5 h-5" />
+          🔔
+          <span className="badge-notification"></span>
         </button>
 
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight leading-none">
-            {infoAtual.titulo}
-          </h2>
-          <p className="text-[11px] text-slate-400 font-normal hidden sm:block mt-0.5">
-            {infoAtual.subtitulo}
-          </p>
-        </div>
-      </div>
-
-      {/* Right side: Status Badge, Refresh and Action Buttons */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Status Badge */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs">
-          <span className="relative flex h-2 w-2">
-            <span
-              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                statusApi.online ? "bg-emerald-400" : "bg-rose-400"
-              }`}
-            ></span>
-            <span
-              className={`relative inline-flex rounded-full h-2 w-2 ${
-                statusApi.online ? "bg-emerald-500" : "bg-rose-500"
-              }`}
-            ></span>
-          </span>
-          <span className="text-slate-300 font-mono text-[11px]">
-            API {statusApi.online ? "Online" : "Desconectada"}
-          </span>
+        {/* User Profile: Gabriel Nunes */}
+        <div className="user-profile">
+          <div className="user-avatar">
+            GN
+          </div>
+          <div className="user-info">
+            <span className="user-name">Gabriel Nunes</span>
+            <span className="user-role">(Gestor)</span>
+          </div>
         </div>
 
-        {/* Refresh Button */}
-        {onRecarregar && (
-          <button
-            onClick={onRecarregar}
-            disabled={recarregando}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent hover:border-slate-700 transition-all disabled:opacity-50"
-            title="Atualizar dados"
-          >
-            <RefreshCw className={`w-4 h-4 ${recarregando ? "animate-spin text-indigo-400" : ""}`} />
-          </button>
-        )}
-
-        {/* Action Button: Nova OS */}
-        {telaAtiva === "ordens" && (
-          <button
-            onClick={onAbrirNovaOS}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-indigo-600/25 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nova O.S.</span>
-          </button>
-        )}
-
-        {/* Action Button: Novo Veículo */}
-        {telaAtiva === "veiculos" && (
-          <button
-            onClick={onAbrirNovoVeiculo}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-indigo-600/25 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Novo Veículo</span>
-          </button>
-        )}
+        {/* Settings Gear */}
+        <button
+          className="header-btn-icon"
+          title="Configurações"
+          onClick={() => onShowToast && onShowToast("info", "Configurações", "Painel de configurações da frota.")}
+        >
+          ⚙️
+        </button>
       </div>
     </header>
   );

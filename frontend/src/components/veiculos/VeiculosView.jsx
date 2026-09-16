@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Truck,
-  Plus,
-  Search,
-  Filter,
-  Gauge,
-  History,
-  Edit2,
-  Trash2,
-  AlertTriangle,
-  CheckCircle2,
-  Calendar,
-  AlertCircle,
-} from "lucide-react";
 import { api } from "../../services/api";
-import Modal from "../common/Modal";
 
 export default function VeiculosView({ onShowToast, abrirNovoInicial = false, filtroAlertasInicial = false }) {
   const [veiculos, setVeiculos] = useState([]);
@@ -23,641 +8,580 @@ export default function VeiculosView({ onShowToast, abrirNovoInicial = false, fi
 
   // Filtros
   const [busca, setBusca] = useState("");
-  const [statusFiltro, setStatusFiltro] = useState("TODOS");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState("");
   const [apenasAlertas, setApenasAlertas] = useState(filtroAlertasInicial);
 
   // Modais
-  const [modalNovoAberto, setModalNovoAberto] = useState(abrirNovoInicial);
+  const [modalVeiculoAberto, setModalVeiculoAberto] = useState(abrirNovoInicial);
   const [veiculoEditando, setVeiculoEditando] = useState(null);
-  const [veiculoAtualizarKm, setVeiculoAtualizarKm] = useState(null);
-  const [veiculoHistorico, setVeiculoHistorico] = useState(null);
-  const [historicoOS, setHistoricoOS] = useState([]);
-  const [carregandoHistorico, setCarregandoHistorico] = useState(false);
+  const [modalKmAberto, setModalKmAberto] = useState(false);
+  const [veiculoKm, setVeiculoKm] = useState(null);
+  const [novoKmValor, setNovoKmValor] = useState("");
 
-  // Formulário Veículo (Criação / Edição)
-  const [formData, setFormData] = useState({
+  const [modalHistoricoAberto, setModalHistoricoAberto] = useState(false);
+  const [veiculoHist, setVeiculoHist] = useState(null);
+  const [historicoOS, setHistoricoOS] = useState([]);
+
+  // Form de Veículo
+  const [formVeiculo, setFormVeiculo] = useState({
     placa: "",
     marca: "",
     modelo: "",
-    ano: new Date().getFullYear(),
+    ano: 2023,
     categoria: "Pesado",
     kmAtual: "",
-    planoManutencaoId: "",
     motoristaResponsavel: "",
+    planoManutencaoId: "",
   });
-  const [novoKmValor, setNovoKmValor] = useState("");
-  const [salvando, setSalvando] = useState(false);
-
-  useEffect(() => {
-    carregarDados();
-  }, [statusFiltro, apenasAlertas]);
-
-  useEffect(() => {
-    if (abrirNovoInicial) {
-      abrirModalCriacao();
-    }
-  }, [abrirNovoInicial]);
 
   const carregarDados = async () => {
     try {
       setCarregando(true);
       const [resVeiculos, resPlanos] = await Promise.all([
         api.getVeiculos({
-          status: statusFiltro,
+          status: filtroStatus || undefined,
+          categoria: filtroCategoria || undefined,
           apenasAlertas: apenasAlertas ? "true" : undefined,
         }),
         api.getPlanosManutencao(),
       ]);
 
       if (resVeiculos.success) setVeiculos(resVeiculos.data);
-      if (resPlanos.success) setPlanos(resPlanos.data);
+      if (resPlanos.success) {
+        setPlanos(resPlanos.data);
+        if (resPlanos.data.length > 0 && !formVeiculo.planoManutencaoId) {
+          setFormVeiculo((prev) => ({ ...prev, planoManutencaoId: resPlanos.data[0].id }));
+        }
+      }
     } catch (err) {
-      onShowToast("erro", "Falha ao carregar veículos", err.message);
+      if (onShowToast) onShowToast("erro", "Erro", err.message || "Erro ao listar veículos.");
     } finally {
       setCarregando(false);
     }
   };
 
-  const abrirModalCriacao = () => {
+  useEffect(() => {
+    carregarDados();
+  }, [filtroStatus, filtroCategoria, apenasAlertas]);
+
+  // Abertura Modal Veículo (Novo ou Edição)
+  const abrirModalNovo = () => {
     setVeiculoEditando(null);
-    setFormData({
+    setFormVeiculo({
       placa: "",
       marca: "",
       modelo: "",
-      ano: new Date().getFullYear(),
+      ano: 2023,
       categoria: "Pesado",
       kmAtual: "",
-      planoManutencaoId: planos.length > 0 ? planos[0].id : "",
       motoristaResponsavel: "",
+      planoManutencaoId: planos[0]?.id || "",
     });
-    setModalNovoAberto(true);
+    setModalVeiculoAberto(true);
   };
 
-  const abrirModalEdicao = (veiculo) => {
+  const abrirModalEditar = (veiculo) => {
     setVeiculoEditando(veiculo);
-    setFormData({
+    setFormVeiculo({
       placa: veiculo.placa,
       marca: veiculo.marca,
       modelo: veiculo.modelo,
       ano: veiculo.ano,
       categoria: veiculo.categoria || "Pesado",
       kmAtual: veiculo.kmAtual,
-      planoManutencaoId: veiculo.planoManutencaoId || "",
       motoristaResponsavel: veiculo.motoristaResponsavel || "",
+      planoManutencaoId: veiculo.planoManutencaoId || planos[0]?.id || "",
     });
-    setModalNovoAberto(true);
+    setModalVeiculoAberto(true);
   };
 
-  const handleSalvarVeiculo = async (e) => {
+  const salvarVeiculo = async (e) => {
     e.preventDefault();
     try {
-      setSalvando(true);
+      const payload = {
+        ...formVeiculo,
+        ano: Number(formVeiculo.ano),
+        kmAtual: Number(formVeiculo.kmAtual),
+      };
+
       if (veiculoEditando) {
-        await api.atualizarVeiculo(veiculoEditando.id, formData);
-        onShowToast("sucesso", "Veículo atualizado", `Dados do veículo ${formData.placa} foram salvos com sucesso.`);
+        await api.atualizarVeiculo(veiculoEditando.id, payload);
+        if (onShowToast) onShowToast("sucesso", "Veículo Atualizado", `Veículo ${payload.placa} atualizado com sucesso!`);
       } else {
-        await api.criarVeiculo(formData);
-        onShowToast("sucesso", "Veículo cadastrado", `Veículo ${formData.placa} registrado na frota.`);
+        await api.criarVeiculo(payload);
+        if (onShowToast) onShowToast("sucesso", "Veículo Cadastrado", `Veículo ${payload.placa} cadastrado com sucesso!`);
       }
-      setModalNovoAberto(false);
+
+      setModalVeiculoAberto(false);
       carregarDados();
     } catch (err) {
-      onShowToast("erro", "Erro ao salvar veículo", err.message);
-    } finally {
-      setSalvando(false);
+      if (onShowToast) onShowToast("erro", "Erro ao salvar", err.message);
     }
   };
 
-  const handleAtualizarKm = async (e) => {
+  const excluirVeiculo = async (id, placa) => {
+    if (!window.confirm(`Tem certeza que deseja excluir o veículo ${placa}?`)) return;
+    try {
+      await api.deletarVeiculo(id);
+      if (onShowToast) onShowToast("sucesso", "Veículo Removido", `Veículo ${placa} excluído.`);
+      carregarDados();
+    } catch (err) {
+      if (onShowToast) onShowToast("erro", "Erro ao excluir", err.message);
+    }
+  };
+
+  // Modal Atualizar KM
+  const abrirModalKm = (v) => {
+    setVeiculoKm(v);
+    setNovoKmValor(v.kmAtual);
+    setModalKmAberto(true);
+  };
+
+  const salvarNovoKm = async (e) => {
     e.preventDefault();
-    if (!veiculoAtualizarKm) return;
+    if (!veiculoKm) return;
     try {
-      setSalvando(true);
-      await api.atualizarKmVeiculo(veiculoAtualizarKm.id, novoKmValor);
-      onShowToast("sucesso", "Quilometragem atualizada", `Odômetro do veículo ${veiculoAtualizarKm.placa} atualizado para ${Number(novoKmValor).toLocaleString()} km.`);
-      setVeiculoAtualizarKm(null);
-      setNovoKmValor("");
+      await api.atualizarKmVeiculo(veiculoKm.id, Number(novoKmValor));
+      if (onShowToast) onShowToast("sucesso", "Quilometragem Atualizada", `KM do veículo ${veiculoKm.placa} atualizado para ${novoKmValor} KM.`);
+      setModalKmAberto(false);
       carregarDados();
     } catch (err) {
-      onShowToast("erro", "Erro ao atualizar KM", err.message);
-    } finally {
-      setSalvando(false);
+      if (onShowToast) onShowToast("erro", "Erro ao atualizar KM", err.message);
     }
   };
 
-  const handleAbrirHistorico = async (veiculo) => {
-    setVeiculoHistorico(veiculo);
-    setCarregandoHistorico(true);
+  // Modal Histórico
+  const abrirHistorico = async (v) => {
+    setVeiculoHist(v);
+    setModalHistoricoAberto(true);
     try {
-      const res = await api.getVeiculoHistorico(veiculo.id);
+      const res = await api.getOrdensServico({ veiculoId: v.id });
       if (res.success) setHistoricoOS(res.data);
     } catch (err) {
-      onShowToast("erro", "Falha ao carregar histórico", err.message);
-    } finally {
-      setCarregandoHistorico(false);
+      setHistoricoOS([]);
     }
   };
 
-  const handleExcluirVeiculo = async (veiculo) => {
-    if (!window.confirm(`Tem certeza que deseja remover o veículo ${veiculo.placa} (${veiculo.modelo}) da frota?`)) {
-      return;
-    }
-    try {
-      await api.deletarVeiculo(veiculo.id);
-      onShowToast("sucesso", "Veículo excluído", `Veículo ${veiculo.placa} foi removido com sucesso.`);
-      carregarDados();
-    } catch (err) {
-      onShowToast("erro", "Impedimento de exclusão", err.message);
-    }
-  };
-
-  // Filtro de busca local
+  // Filtro no client para busca por texto
   const veiculosFiltrados = veiculos.filter((v) => {
     const termo = busca.toLowerCase();
     return (
-      v.placa.toLowerCase().includes(termo) ||
-      v.marca.toLowerCase().includes(termo) ||
-      v.modelo.toLowerCase().includes(termo) ||
-      (v.motoristaResponsavel && v.motoristaResponsavel.toLowerCase().includes(termo))
+      (v.placa || "").toLowerCase().includes(termo) ||
+      (v.modelo || "").toLowerCase().includes(termo) ||
+      (v.marca || "").toLowerCase().includes(termo) ||
+      (v.motoristaResponsavel || "").toLowerCase().includes(termo)
     );
   });
 
+  // Projeção estimada para o form
+  const planoSelecionado = planos.find((p) => p.id === formVeiculo.planoManutencaoId);
+  const projKm = formVeiculo.kmAtual && planoSelecionado
+    ? Number(formVeiculo.kmAtual) + Number(planoSelecionado.intervaloKm)
+    : null;
+
   return (
-    <div className="space-y-6">
-      {/* 1. Barra de Ações & Filtros */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <div className="flex flex-1 items-center gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+    <section id="section-veiculos" className="app-view active">
+      <div className="view-header">
+        <div>
+          <h2 className="view-title">Frota de Veículos</h2>
+          <p className="view-desc">Gestão completa, atualização de quilometragem e status de revisão.</p>
+        </div>
+        <button className="btn btn-primary" onClick={abrirModalNovo}>
+          + Cadastrar Novo Veículo
+        </button>
+      </div>
+
+      <div className="card">
+        <div className="table-toolbar">
+          <div className="search-box-wrapper">
+            <span className="search-icon-inside">🔍</span>
             <input
               type="text"
-              placeholder="Buscar por placa, modelo, marca ou motorista..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="input-search"
+              placeholder="Buscar por placa, modelo, marca ou motorista..."
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400 hidden sm:block" />
-            <select
-              value={statusFiltro}
-              onChange={(e) => setStatusFiltro(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-slate-200 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500"
-            >
-              <option value="TODOS">Todos os Status</option>
-              <option value="EM_OPERACAO">Em Operação</option>
-              <option value="EM_MANUTENCAO">Em Manutenção</option>
-              <option value="ALERTA_REVISAO">Alerta Revisão</option>
-            </select>
-          </div>
-        </div>
+          <select
+            value={filtroStatus}
+            onChange={(e) => setFiltroStatus(e.target.value)}
+            className="select-filter"
+          >
+            <option value="">Status: Todos</option>
+            <option value="EM_OPERACAO">Em Operação</option>
+            <option value="EM_MANUTENCAO">Em Manutenção</option>
+            <option value="ALERTA_REVISAO">Alerta Revisão</option>
+          </select>
 
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 hover:border-slate-700">
-            <input
-              type="checkbox"
-              checked={apenasAlertas}
-              onChange={(e) => setApenasAlertas(e.target.checked)}
-              className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0"
-            />
-            <span>Apenas Alertas</span>
-          </label>
+          <select
+            value={filtroCategoria}
+            onChange={(e) => setFiltroCategoria(e.target.value)}
+            className="select-filter"
+          >
+            <option value="">Categoria: Todas</option>
+            <option value="Pesado">Pesado (Caminhões)</option>
+            <option value="Médio">Médio (Urbanos 3/4)</option>
+            <option value="Leve">Leve (Vans/Furgões)</option>
+          </select>
 
           <button
-            onClick={abrirModalCriacao}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-600/25 transition-all"
+            className={`btn btn-sm ${apenasAlertas ? "btn-danger" : "btn-secondary"}`}
+            onClick={() => setApenasAlertas(!apenasAlertas)}
           >
-            <Plus className="w-4 h-4" />
-            <span>Novo Veículo</span>
+            ⚠️ Apenas Alertas
           </button>
         </div>
-      </div>
 
-      {/* 2. Tabela Responsiva de Veículos */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-        {carregando ? (
-          <div className="p-12 text-center text-slate-400">
-            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            Carregando frota de veículos...
-          </div>
-        ) : veiculosFiltrados.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
-            <Truck className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-            <p className="text-sm font-medium text-slate-300">Nenhum veículo encontrado</p>
-            <p className="text-xs text-slate-500 mt-1">Tente ajustar os filtros ou a busca.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm text-slate-300">
-              <thead className="bg-slate-950/60 border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider">
+        <div className="overflow-x-auto">
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Modelo / Marca</th>
+                <th>KM Atual</th>
+                <th>Próxima Revisão</th>
+                <th>Status Operacional</th>
+                <th>Status Revisão</th>
+                <th>Plano Vinculado</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {carregando ? (
                 <tr>
-                  <th className="px-6 py-4">Veículo & Placa</th>
-                  <th className="px-6 py-4">Odômetro (KM)</th>
-                  <th className="px-6 py-4">Próxima Revisão</th>
-                  <th className="px-6 py-4">Status & Alerta</th>
-                  <th className="px-6 py-4">Plano Vinculado</th>
-                  <th className="px-6 py-4 text-right">Ações</th>
+                  <td colSpan="8" className="text-center py-6 text-slate-400">
+                    Carregando veículos da frota...
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {veiculosFiltrados.map((v) => {
-                  const nivelAlerta = v.alertaRevisao?.nivelAlerta || "NORMAL";
-                  const isCritico = nivelAlerta === "CRITICO";
-                  const isAtencao = nivelAlerta === "ATENCAO";
-
-                  return (
-                    <tr key={v.id} className="hover:bg-slate-800/30 transition-colors">
-                      {/* Veículo & Placa */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-indigo-400 shrink-0">
-                            <Truck className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-white border border-slate-700">
-                                {v.placa}
-                              </span>
-                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-300">
-                                {v.categoria || "Geral"}
-                              </span>
-                            </div>
-                            <p className="text-xs font-semibold text-slate-100 mt-1">
-                              {v.marca} {v.modelo} ({v.ano})
-                            </p>
-                            <p className="text-[11px] text-slate-500">
-                              Motorista: {v.motoristaResponsavel || "Não informado"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Odômetro */}
-                      <td className="px-6 py-4">
-                        <div className="font-mono text-xs font-semibold text-slate-100">
-                          {v.kmAtual.toLocaleString()} km
-                        </div>
+              ) : veiculosFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-6 text-slate-400">
+                    Nenhum veículo encontrado com os filtros selecionados.
+                  </td>
+                </tr>
+              ) : (
+                veiculosFiltrados.map((v) => (
+                  <tr key={v.id}>
+                    <td className="font-bold text-slate-900">{v.placa}</td>
+                    <td>
+                      <div className="font-semibold">{v.modelo}</div>
+                      <div className="text-xs text-slate-500">{v.marca} ({v.ano})</div>
+                    </td>
+                    <td className="font-mono font-bold">
+                      {Number(v.kmAtual).toLocaleString("pt-BR")} KM
+                    </td>
+                    <td className="font-mono text-slate-600">
+                      {v.kmProximaRevisao ? `${Number(v.kmProximaRevisao).toLocaleString("pt-BR")} KM` : "-"}
+                    </td>
+                    <td>
+                      {v.status === "EM_OPERACAO" && (
+                        <span className="status-pill pill-ok">Operação</span>
+                      )}
+                      {v.status === "EM_MANUTENCAO" && (
+                        <span className="status-pill pill-andamento">Manutenção</span>
+                      )}
+                      {v.status === "ALERTA_REVISAO" && (
+                        <span className="status-pill pill-atrasado">Alerta</span>
+                      )}
+                    </td>
+                    <td>
+                      {v.alertaRevisao?.nivelAlerta === "CRITICO" && (
+                        <span className="status-pill pill-atrasado">Atrasado</span>
+                      )}
+                      {v.alertaRevisao?.nivelAlerta === "ATENCAO" && (
+                        <span className="status-pill pill-embreve">Em Breve</span>
+                      )}
+                      {(v.alertaRevisao?.nivelAlerta === "NORMAL" || !v.alertaRevisao?.necessitaAtencao) && (
+                        <span className="status-pill pill-ok">OK</span>
+                      )}
+                    </td>
+                    <td className="text-slate-600 text-xs">
+                      {v.planoManutencao?.nome || "Plano Padrão"}
+                    </td>
+                    <td>
+                      <div className="action-links">
                         <button
-                          onClick={() => {
-                            setVeiculoAtualizarKm(v);
-                            setNovoKmValor(v.kmAtual);
-                          }}
-                          className="mt-1 inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors"
+                          className="action-btn-link text-blue-700"
+                          onClick={() => abrirModalKm(v)}
+                          title="Atualizar Quilometragem"
                         >
-                          <Gauge className="w-3 h-3" /> Atualizar KM
+                          ⚡ KM
                         </button>
-                      </td>
-
-                      {/* Próxima Revisão */}
-                      <td className="px-6 py-4">
-                        <div className="text-xs text-slate-200">
-                          Alvo: <strong className="font-mono">{v.kmProximaRevisao ? `${v.kmProximaRevisao.toLocaleString()} km` : "N/D"}</strong>
-                        </div>
-                        {v.dataProximaRevisao && (
-                          <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                            <Calendar className="w-3 h-3 text-slate-500" />
-                            {new Date(v.dataProximaRevisao).toLocaleDateString("pt-BR")}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Status & Alerta */}
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1.5 items-start">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 ${
-                              v.status === "EM_OPERACAO"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : v.status === "EM_MANUTENCAO"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : "bg-slate-800 text-slate-400"
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                v.status === "EM_OPERACAO" ? "bg-emerald-400" : "bg-amber-400"
-                              }`}
-                            ></span>
-                            {v.status.replace("_", " ")}
-                          </span>
-
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                              isCritico
-                                ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                                : isAtencao
-                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                                : "bg-slate-800 text-slate-400"
-                            }`}
-                          >
-                            {nivelAlerta}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Plano */}
-                      <td className="px-6 py-4">
-                        <span className="text-xs text-slate-300 line-clamp-1">
-                          {v.planoManutencao?.nome || "Sem plano vinculado"}
-                        </span>
-                        {v.planoManutencao && (
-                          <span className="text-[11px] text-slate-500">
-                            A cada {v.planoManutencao.intervaloKm.toLocaleString()} km
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Ações */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleAbrirHistorico(v)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition-colors"
-                            title="Ver histórico de manutenções"
-                          >
-                            <History className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => abrirModalEdicao(v)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
-                            title="Editar veículo"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleExcluirVeiculo(v)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                            title="Excluir veículo"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        <button
+                          className="action-btn-link text-slate-600"
+                          onClick={() => abrirHistorico(v)}
+                          title="Ver Ficha e Histórico"
+                        >
+                          📜 Ficha
+                        </button>
+                        <button
+                          className="action-btn-link text-slate-600"
+                          onClick={() => abrirModalEditar(v)}
+                          title="Editar Cadastro"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="action-btn-link action-btn-danger"
+                          onClick={() => excluirVeiculo(v.id, v.placa)}
+                          title="Excluir Veículo"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* MODAL 1: Cadastro / Edição de Veículo */}
-      <Modal
-        isOpen={modalNovoAberto}
-        onClose={() => setModalNovoAberto(false)}
-        title={veiculoEditando ? `Editar Veículo — ${veiculoEditando.placa}` : "Cadastrar Novo Veículo na Frota"}
-      >
-        <form onSubmit={handleSalvarVeiculo} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Placa (Mercosul ou Padrão) *</label>
-              <input
-                type="text"
-                required
-                maxLength={8}
-                placeholder="Ex: BRA2E19"
-                value={formData.placa}
-                onChange={(e) => setFormData({ ...formData, placa: e.target.value.toUpperCase() })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 uppercase font-mono focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Categoria *</label>
-              <select
-                value={formData.categoria}
-                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              >
-                <option value="Pesado">Pesado (Caminhão/Carreta)</option>
-                <option value="Médio">Médio (Caminhão 3/4)</option>
-                <option value="Leve">Leve (Van/Furgão)</option>
-                <option value="Utilitário">Utilitário Geral</option>
-              </select>
-            </div>
+      {/* ==================== MODAL: CADASTRO / EDIÇÃO DE VEÍCULO ==================== */}
+      <div className={`modal-overlay ${modalVeiculoAberto ? "active" : ""}`} role="dialog" aria-modal="true">
+        <div className="modal-card">
+          <div className="modal-header">
+            <h3 className="modal-title">
+              {veiculoEditando ? "Editar Veículo" : "Cadastrar Novo Veículo"}
+            </h3>
+            <button className="modal-close" onClick={() => setModalVeiculoAberto(false)}>&times;</button>
           </div>
+          <form onSubmit={salvarVeiculo}>
+            <div className="modal-body">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-placa">Placa do Veículo *</label>
+                  <input
+                    type="text"
+                    id="veiculo-placa"
+                    className="form-input uppercase font-bold"
+                    placeholder="ABC-1234"
+                    maxLength={8}
+                    required
+                    value={formVeiculo.placa}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, placa: e.target.value.toUpperCase() })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-marca">Marca *</label>
+                  <input
+                    type="text"
+                    id="veiculo-marca"
+                    className="form-input"
+                    placeholder="Volvo, Scania, Mercedes..."
+                    required
+                    value={formVeiculo.marca}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, marca: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-modelo">Modelo *</label>
+                  <input
+                    type="text"
+                    id="veiculo-modelo"
+                    className="form-input"
+                    placeholder="FH 540 6x4, Delivery..."
+                    required
+                    value={formVeiculo.modelo}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, modelo: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-ano">Ano de Fabricação *</label>
+                  <input
+                    type="number"
+                    id="veiculo-ano"
+                    className="form-input"
+                    min="1980"
+                    max="2030"
+                    required
+                    value={formVeiculo.ano}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, ano: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-km">KM Atual Registrado *</label>
+                  <input
+                    type="number"
+                    id="veiculo-km"
+                    className="form-input font-bold"
+                    min="0"
+                    placeholder="50000"
+                    required
+                    value={formVeiculo.kmAtual}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, kmAtual: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="veiculo-categoria">Categoria</label>
+                  <select
+                    id="veiculo-categoria"
+                    className="form-select"
+                    value={formVeiculo.categoria}
+                    onChange={(e) => setFormVeiculo({ ...formVeiculo, categoria: e.target.value })}
+                  >
+                    <option value="Pesado">Pesado (Caminhão / Cavalo Mecânico)</option>
+                    <option value="Médio">Médio (Urbano 3/4)</option>
+                    <option value="Leve">Leve (Van / Furgão)</option>
+                  </select>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Marca *</label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: Volvo, Scania, Mercedes"
-                value={formData.marca}
-                onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              />
-            </div>
+              <div className="form-group mb-3">
+                <label className="form-label" htmlFor="veiculo-motorista">Motorista Responsável</label>
+                <input
+                  type="text"
+                  id="veiculo-motorista"
+                  className="form-input"
+                  placeholder="Nome do motorista"
+                  value={formVeiculo.motoristaResponsavel}
+                  onChange={(e) => setFormVeiculo({ ...formVeiculo, motoristaResponsavel: e.target.value })}
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Modelo *</label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: FH 540 6x4"
-                value={formData.modelo}
-                onChange={(e) => setFormData({ ...formData, modelo: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              />
-            </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="veiculo-plano-select">Plano de Manutenção Preventiva *</label>
+                <select
+                  id="veiculo-plano-select"
+                  className="form-select"
+                  required
+                  value={formVeiculo.planoManutencaoId}
+                  onChange={(e) => setFormVeiculo({ ...formVeiculo, planoManutencaoId: e.target.value })}
+                >
+                  {planos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} — a cada {Number(p.intervaloKm).toLocaleString("pt-BR")} KM ou {p.intervaloMeses} meses
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Ano *</label>
-              <input
-                type="number"
-                required
-                min={1990}
-                max={new Date().getFullYear() + 1}
-                value={formData.ano}
-                onChange={(e) => setFormData({ ...formData, ano: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Quilometragem Atual (KM) *</label>
-              <input
-                type="number"
-                required
-                min={0}
-                placeholder="Ex: 85000"
-                value={formData.kmAtual}
-                onChange={(e) => setFormData({ ...formData, kmAtual: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 font-mono focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Plano Preventivo Vinculado</label>
-              <select
-                value={formData.planoManutencaoId}
-                onChange={(e) => setFormData({ ...formData, planoManutencaoId: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-              >
-                <option value="">Nenhum plano</option>
-                {planos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} (a cada {p.intervaloKm.toLocaleString()} km)
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Motorista Responsável</label>
-            <input
-              type="text"
-              placeholder="Ex: Marcos Oliveira"
-              value={formData.motoristaResponsavel}
-              onChange={(e) => setFormData({ ...formData, motoristaResponsavel: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button
-              type="button"
-              onClick={() => setModalNovoAberto(false)}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvando}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
-            >
-              {salvando ? "Salvando..." : veiculoEditando ? "Salvar Alterações" : "Cadastrar Veículo"}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* MODAL 2: Atualização Rápida de Odômetro (KM) */}
-      <Modal
-        isOpen={!!veiculoAtualizarKm}
-        onClose={() => setVeiculoAtualizarKm(null)}
-        title={`Atualizar Odômetro — ${veiculoAtualizarKm?.placa}`}
-        maxWidth="max-w-md"
-      >
-        <form onSubmit={handleAtualizarKm} className="space-y-4">
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Informe a nova leitura do odômetro registrada para o veículo{" "}
-            <strong>{veiculoAtualizarKm?.modelo}</strong>. A regra de negócio não permite retrocesso de quilometragem.
-          </p>
-
-          <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center text-xs">
-            <span className="text-slate-400">Leitura Atual:</span>
-            <span className="font-mono font-bold text-slate-200">
-              {veiculoAtualizarKm?.kmAtual.toLocaleString()} km
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Novo KM Lido no Painel *</label>
-            <input
-              type="number"
-              required
-              min={veiculoAtualizarKm?.kmAtual || 0}
-              placeholder="Ex: 95000"
-              value={novoKmValor}
-              onChange={(e) => setNovoKmValor(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-slate-100 focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button
-              type="button"
-              onClick={() => setVeiculoAtualizarKm(null)}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={salvando}
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
-            >
-              {salvando ? "Salvando..." : "Confirmar Leitura"}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* MODAL 3: Histórico de Manutenções do Veículo */}
-      <Modal
-        isOpen={!!veiculoHistorico}
-        onClose={() => setVeiculoHistorico(null)}
-        title={`Histórico de Manutenções — ${veiculoHistorico?.placa}`}
-        maxWidth="max-w-3xl"
-      >
-        <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-wrap justify-between items-center gap-3 text-xs">
-            <div>
-              <span className="font-bold text-slate-200">{veiculoHistorico?.marca} {veiculoHistorico?.modelo}</span>
-              <p className="text-slate-500">KM Atual: {veiculoHistorico?.kmAtual.toLocaleString()} km</p>
-            </div>
-            <div>
-              <span className="text-slate-400">Total de O.S.: </span>
-              <strong className="text-indigo-400">{historicoOS.length}</strong>
-            </div>
-          </div>
-
-          {carregandoHistorico ? (
-            <div className="py-8 text-center text-slate-400 text-xs">
-              <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              Buscando histórico de Ordens de Serviço...
-            </div>
-          ) : historicoOS.length === 0 ? (
-            <div className="py-8 text-center text-slate-400 border border-dashed border-slate-800 rounded-xl">
-              <AlertCircle className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-              <p className="text-xs font-medium text-slate-300">Nenhuma Ordem de Serviço registrada para este veículo.</p>
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-              {historicoOS.map((os) => (
-                <div key={os.id} className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-indigo-400">{os.codigoOS}</span>
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold text-[10px]">
-                        {os.tipo}
-                      </span>
-                    </div>
-                    <span
-                      className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                        os.status === "CONCLUIDA"
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : os.status === "EM_ANDAMENTO"
-                          ? "bg-amber-500/20 text-amber-400"
-                          : "bg-slate-800 text-slate-400"
-                      }`}
-                    >
-                      {os.status}
-                    </span>
-                  </div>
-
-                  <p className="text-slate-200">{os.descricao}</p>
-
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
-                    <span>Mecânico: {os.mecanicoResponsavel}</span>
-                    <span className="font-mono font-bold text-slate-200">
-                      R$ {Number(os.valorTotalGeral || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </span>
+              {/* Auto-calc projection banner */}
+              {projKm && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3 text-xs text-blue-900">
+                  <div className="font-bold mb-1">⚡ Projeção Automática do Próximo Ciclo:</div>
+                  <div>
+                    KM da Revisão: <strong>{projKm.toLocaleString("pt-BR")} KM</strong> | Intervalo: <strong>+{Number(planoSelecionado.intervaloKm).toLocaleString("pt-BR")} KM</strong>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
-          )}
+
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setModalVeiculoAberto(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Salvar Veículo
+              </button>
+            </div>
+          </form>
         </div>
-      </Modal>
-    </div>
+      </div>
+
+      {/* ==================== MODAL: ATUALIZAR KM ==================== */}
+      <div className={`modal-overlay ${modalKmAberto ? "active" : ""}`} role="dialog" aria-modal="true">
+        <div className="modal-card" style={{ maxWidth: "420px" }}>
+          <div className="modal-header">
+            <h3 className="modal-title">⚡ Atualizar KM do Veículo</h3>
+            <button className="modal-close" onClick={() => setModalKmAberto(false)}>&times;</button>
+          </div>
+          <form onSubmit={salvarNovoKm}>
+            <div className="modal-body">
+              <p className="text-sm text-slate-600 mb-3">
+                Informe o novo valor do odômetro para o veículo <strong>{veiculoKm?.placa}</strong>. O sistema recalculará os alertas automaticamente.
+              </p>
+              <div className="text-sm mb-3">
+                KM Atual no Sistema: <strong className="text-blue-700">{Number(veiculoKm?.kmAtual || 0).toLocaleString("pt-BR")} KM</strong>
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="novo-km-input">Novo KM *</label>
+                <input
+                  type="number"
+                  id="novo-km-input"
+                  className="form-input font-bold text-lg"
+                  required
+                  value={novoKmValor}
+                  onChange={(e) => setNovoKmValor(e.target.value)}
+                  min={veiculoKm?.kmAtual || 0}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setModalKmAberto(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Atualizar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* ==================== MODAL: HISTÓRICO & FICHA DO VEÍCULO ==================== */}
+      <div className={`modal-overlay ${modalHistoricoAberto ? "active" : ""}`} role="dialog" aria-modal="true">
+        <div className="modal-card" style={{ maxWidth: "680px" }}>
+          <div className="modal-header">
+            <h3 className="modal-title">Ficha e Histórico de Manutenções</h3>
+            <button className="modal-close" onClick={() => setModalHistoricoAberto(false)}>&times;</button>
+          </div>
+          <div className="modal-body">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xl font-black text-blue-700">{veiculoHist?.placa}</span>
+                <span className="text-sm font-semibold text-slate-800">
+                  {veiculoHist?.marca} {veiculoHist?.modelo} ({veiculoHist?.ano})
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-600">
+                <span>KM Atual: <strong className="text-slate-900">{Number(veiculoHist?.kmAtual || 0).toLocaleString("pt-BR")} KM</strong></span>
+                <span>Plano: <strong className="text-blue-700">{veiculoHist?.planoManutencao?.nome || "Padrão"}</strong></span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-bold text-sm text-slate-800">Linha do Tempo de Manutenções</h4>
+              <span className="text-xs text-slate-500">
+                Total Registros: <strong className="text-slate-900">{historicoOS.length}</strong>
+              </span>
+            </div>
+
+            <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              {historicoOS.length === 0 ? (
+                <p className="text-center py-6 text-slate-400 text-sm">
+                  Nenhuma ordem de serviço registrada para este veículo.
+                </p>
+              ) : (
+                historicoOS.map((os) => (
+                  <div key={os.id} className="p-3 rounded-lg border border-slate-200 bg-white shadow-xs">
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-bold text-blue-700">{os.codigoOS || `O.S. #${os.id}`}</span>
+                      <span className="text-slate-500">{new Date(os.createdAt).toLocaleDateString("pt-BR")}</span>
+                    </div>
+                    <div className="text-sm font-medium text-slate-800 mb-1">{os.descricao}</div>
+                    <div className="flex justify-between items-center text-xs text-slate-500">
+                      <span>Mecânico: {os.mecanico?.nome || "-"}</span>
+                      <span className="font-bold text-emerald-700">
+                        R$ {Number(os.custoTotal || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={() => setModalHistoricoAberto(false)}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

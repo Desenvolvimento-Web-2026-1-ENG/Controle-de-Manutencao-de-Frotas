@@ -1,392 +1,388 @@
 import React, { useState, useEffect } from "react";
-import {
-  Truck,
-  Wrench,
-  AlertTriangle,
-  CheckCircle2,
-  DollarSign,
-  Calendar,
-  ArrowUpRight,
-  Clock,
-  ShieldAlert,
-} from "lucide-react";
 import { api } from "../../services/api";
 
 export default function DashboardView({ onNavegar, onAbrirOSComVeiculo }) {
   const [resumo, setResumo] = useState(null);
   const [alertas, setAlertas] = useState(null);
+  const [ordensRecentes, setOrdensRecentes] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
-  useEffect(() => {
-    carregarDados();
-  }, []);
+  const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
 
   const carregarDados = async () => {
     try {
       setCarregando(true);
       setErro(null);
-      const [resumoData, alertasData] = await Promise.all([
+      const [resumoRes, alertasRes, osRes] = await Promise.all([
         api.getDashboardResumo(),
         api.getDashboardAlertas(),
+        api.getOrdensServico(),
       ]);
 
-      if (resumoData.success) setResumo(resumoData.data);
-      if (alertasData.success) setAlertas(alertasData.data);
+      if (resumoRes.success) setResumo(resumoRes.data);
+      if (alertasRes.success) setAlertas(alertasRes.data);
+      if (osRes.success) {
+        setOrdensRecentes((osRes.data || []).slice(0, 5));
+      }
     } catch (err) {
-      setErro(err.message || "Falha ao carregar indicadores do dashboard.");
+      setErro(err.message || "Erro ao conectar à API.");
     } finally {
       setCarregando(false);
     }
   };
 
-  if (carregando) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm">Consolidando métricas da frota e ordens de serviço...</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    carregarDados();
+  }, []);
 
-  if (erro) {
-    return (
-      <div className="p-6 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-200">
-        <div className="flex items-center gap-3 mb-2">
-          <AlertTriangle className="w-5 h-5 text-rose-400" />
-          <h3 className="font-semibold">Erro ao carregar Dashboard</h3>
-        </div>
-        <p className="text-sm">{erro}</p>
-        <button
-          onClick={carregarDados}
-          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl transition-all"
-        >
-          Tentar novamente
-        </button>
-      </div>
-    );
-  }
+  const frota = resumo?.frota || { total: 0, emOperacao: 0, emManutencao: 0 };
+  const ordensInfo = resumo?.ordensServico || { abertas: 0, emAndamento: 0, concluidas: 0 };
+  const financeiro = resumo?.financeiro || { totalGeral: 0 };
 
-  const { frota, ordensServico, financeiro } = resumo || {
-    frota: {},
-    ordensServico: {},
-    financeiro: {},
-  };
+  const criticos = alertas?.alertasCriticos || [];
+  const atencao = alertas?.alertasAtencao || [];
+  const normais = alertas?.normais || [];
 
-  const listaCriticos = alertas?.alertasCriticos || [];
-  const listaAtencao = alertas?.alertasAtencao || [];
+  // Combina todos os alertas para a tabela com filtros
+  const todosAlertas = [
+    ...criticos.map((a) => ({ ...a, statusAlerta: "CRITICO" })),
+    ...atencao.map((a) => ({ ...a, statusAlerta: "ATENCAO" })),
+    ...normais.map((a) => ({ ...a, statusAlerta: "NORMAL" })),
+  ];
+
+  const alertasFiltrados = todosAlertas.filter((item) => {
+    const matchBusca =
+      (item.placa || "").toLowerCase().includes(busca.toLowerCase()) ||
+      (item.modelo || "").toLowerCase().includes(busca.toLowerCase());
+    const matchStatus = !filtroStatus || item.statusAlerta === filtroStatus;
+    return matchBusca && matchStatus;
+  });
+
+  // Próxima revisão crítica
+  const proxCritico = criticos[0] || null;
+
+  // Alturas dinâmicas para o gráfico de barras
+  const totalFrota = frota.total || 1;
+  const hOperacao = Math.max(16, Math.min(110, Math.round((frota.emOperacao / totalFrota) * 110)));
+  const hCritico = Math.max(16, Math.min(110, Math.round((criticos.length / totalFrota) * 110)));
+  const hAtencao = Math.max(16, Math.min(110, Math.round((atencao.length / totalFrota) * 110)));
+  const hOficina = Math.max(16, Math.min(110, Math.round((frota.emManutencao / totalFrota) * 110)));
 
   return (
-    <div className="space-y-6">
-      {/* 1. Alerta Crítico Banner (se houver veículos críticos) */}
-      {listaCriticos.length > 0 && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-950/80 via-slate-900 to-slate-900 border border-rose-500/30 shadow-xl">
-          <div className="flex items-start gap-4">
-            <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5">
-              <ShieldAlert className="w-6 h-6" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="text-sm font-bold text-rose-200 uppercase tracking-wider">
-                  Atenção Imediata: {listaCriticos.length} Veículo(s) com Revisão Vencida
-                </h3>
-                <button
-                  onClick={() => onNavegar("veiculos", { apenasAlertas: true })}
-                  className="text-xs text-rose-300 hover:text-white font-medium flex items-center gap-1 transition-colors"
-                >
-                  Ver todos na frota <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <p className="text-xs text-slate-300 mt-1">
-                Veículos ultrapassaram o limite de quilometragem ou a data estipulada pelo plano preventivo.
-              </p>
+    <section id="section-dashboard" className="app-view active">
+      {/* 1. Header da Tela */}
+      <div className="view-header">
+        <div>
+          <h2 className="view-title">Dashboard de Manutenção</h2>
+          <p className="view-desc">Monitoramento proativo da frota e controle de intervenções preventivas.</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="btn btn-primary shadow-sm"
+            onClick={() => onNavegar("veiculos", { abrirNovo: true })}
+          >
+            + Novo Veículo
+          </button>
+          <button
+            className="btn btn-secondary shadow-sm"
+            onClick={() => onNavegar("ordens", { abrirNovo: true })}
+          >
+            + Criar O.S.
+          </button>
+        </div>
+      </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                {listaCriticos.slice(0, 2).map((item) => (
-                  <div
-                    key={item.veiculoId}
-                    className="p-3 rounded-xl bg-slate-950/80 border border-rose-500/20 flex items-center justify-between gap-3"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-xs font-bold">
-                          {item.placa}
-                        </span>
-                        <span className="text-xs font-medium text-slate-200 truncate">
-                          {item.modelo}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        KM Atual: <strong className="text-slate-200">{item.kmAtual.toLocaleString()}</strong> |
-                        Rev: <strong className="text-rose-400">{item.kmProximaRevisao.toLocaleString()}</strong>
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onAbrirOSComVeiculo(item.veiculoId)}
-                      className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs whitespace-nowrap shadow-md shadow-rose-600/20 transition-all"
-                    >
-                      Abrir O.S.
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+      {erro && (
+        <div className="p-4 mb-4 rounded-lg bg-red-100 border border-red-300 text-red-800 text-sm flex justify-between items-center">
+          <span>⚠️ {erro}</span>
+          <button className="btn btn-secondary btn-sm" onClick={carregarDados}>Tentar novamente</button>
         </div>
       )}
 
-      {/* 2. Grid de Indicadores Principais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Total da Frota */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Total da Frota
-            </span>
-            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
-              <Truck className="w-5 h-5" />
-            </div>
+      {/* 2. 4 KPI CARDS */}
+      <div className="kpi-row">
+        {/* Card 1: Total de Veículos */}
+        <div className="kpi-box">
+          <div className="kpi-content">
+            <span className="kpi-label">Total de Veículos</span>
+            <span className="kpi-number" id="kpi-total-veiculos">{frota.total}</span>
+            <span className="kpi-subdetail" id="kpi-veiculos-operacao">{frota.emOperacao} em operação normal</span>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white tracking-tight">
-              {frota.totalVeiculos || 0}
-            </span>
-            <span className="text-xs text-slate-400 font-medium">veículos cadastrados</span>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              {frota.emOperacao || 0} em operação
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-              {frota.emManutencao || 0} em manutenção
-            </span>
+          <div className="kpi-icon-badge kpi-icon-blue">
+            🚗
           </div>
         </div>
 
-        {/* Status Preventivo da Frota */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Revisões Preventivas
-            </span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
+        {/* Card 2: Em Manutenção */}
+        <div className="kpi-box">
+          <div className="kpi-content">
+            <span className="kpi-label">Em Manutenção</span>
+            <span className="kpi-number" id="kpi-veiculos-manutencao">{frota.emManutencao}</span>
+            <span className="kpi-subdetail" id="kpi-os-ativas">{ordensInfo.emAndamento} O.S. em andamento</span>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-emerald-400 tracking-tight">
-              {frota.revisaoEmDia || 0}
-            </span>
-            <span className="text-xs text-slate-400 font-medium">veículos em conformidade</span>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span className="text-rose-400 font-semibold">
-              {frota.revisaoCritica || 0} críticos
-            </span>
-            <span className="text-amber-400 font-semibold">
-              {frota.revisaoAtencao || 0} em atenção
-            </span>
+          <div className="kpi-icon-badge kpi-icon-green">
+            🔧
           </div>
         </div>
 
-        {/* Ordens de Serviço Ativas */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Ordens de Serviço
+        {/* Card 3: Revisões Pendentes */}
+        <div className="kpi-box">
+          <div className="kpi-content">
+            <span className="kpi-label">Revisões Pendentes</span>
+            <span className="kpi-number" id="kpi-alertas-criticos" style={{ color: "var(--color-danger)" }}>
+              {criticos.length}
             </span>
-            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
-              <Wrench className="w-5 h-5" />
-            </div>
+            <span className="kpi-subdetail" id="kpi-alertas-atencao">{atencao.length} em atenção</span>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white tracking-tight">
-              {(ordensServico.abertas || 0) + (ordensServico.emAndamento || 0)}
-            </span>
-            <span className="text-xs text-slate-400 font-medium">em oficina ou abertas</span>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span>{ordensServico.concluidas || 0} concluídas</span>
-            <span>Total: {ordensServico.total || 0}</span>
+          <div className="kpi-icon-badge kpi-icon-orange">
+            📋
           </div>
         </div>
 
-        {/* Investimento Total em Manutenção */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Custo Total Concluído
+        {/* Card 4: Próxima Revisão Crítica */}
+        <div className="kpi-box">
+          <div className="kpi-content">
+            <span className="kpi-label">Próxima Revisão Crítica</span>
+            <span className="text-base font-bold text-slate-900" id="kpi-critico-placa">
+              {proxCritico ? proxCritico.placa : "Nenhum Alerta"}
             </span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <DollarSign className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              R$ {(financeiro.totalGastoGeral || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            <span className="text-xs font-semibold text-rose-600 mt-1" id="kpi-critico-desc">
+              {proxCritico
+                ? `${Number(proxCritico.kmAtual).toLocaleString("pt-BR")} KM - Atrasado`
+                : "Frota 100% em dia"}
             </span>
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span>Peças: R$ {(financeiro.totalGastoPecas || 0).toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</span>
-            <span>Mão de Obra: R$ {(financeiro.totalGastoMaoDeObra || 0).toLocaleString("pt-BR", { minimumFractionDigits: 0 })}</span>
+          <div className="kpi-icon-badge kpi-icon-red">
+            ⚠️
           </div>
         </div>
       </div>
 
-      {/* 3. Seção Detalhada: Alertas de Manutenção e Ações Rápidas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna 1 e 2: Lista Completa de Alertas */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-base font-semibold text-white">Central de Alertas Preventivos</h3>
-              <p className="text-xs text-slate-400">
-                Veículos que exigem intervenção baseada em odômetro ou tempo decorrido
-              </p>
+      {/* 3. DASHBOARD 2-COLUMN GRID */}
+      <div className="dashboard-main-grid">
+        {/* LEFT COLUMN: Alertas de Revisão Imediata */}
+        <div className="card">
+          <h3 className="card-title">Alertas de Revisão Imediata</h3>
+
+          {/* Toolbar */}
+          <div className="table-toolbar">
+            <div className="search-box-wrapper">
+              <span className="search-icon-inside">🔍</span>
+              <input
+                type="text"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="input-search"
+                placeholder="Buscar por placa, modelo..."
+              />
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-mono text-xs font-semibold">
-              {alertas?.totalAlertas || 0} pendências
-            </span>
+
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              className="select-filter"
+            >
+              <option value="">Todos os Status</option>
+              <option value="CRITICO">Atrasado</option>
+              <option value="ATENCAO">Em Breve</option>
+              <option value="NORMAL">OK</option>
+            </select>
+
+            <button className="btn btn-secondary btn-sm" onClick={carregarDados} title="Atualizar dados">
+              🔄 Atualizar
+            </button>
           </div>
 
-          <div className="space-y-3">
-            {[...listaCriticos, ...listaAtencao].length === 0 ? (
-              <div className="p-8 text-center text-slate-400 border border-dashed border-slate-800 rounded-xl">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2 opacity-80" />
-                <p className="text-sm font-medium text-slate-200">
-                  Toda a frota está em dia com os planos de revisão!
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Nenhum veículo atingiu o limite de quilometragem ou prazo.
-                </p>
+          {/* Tabela de Alertas */}
+          <div className="overflow-x-auto">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Placa</th>
+                  <th>Modelo</th>
+                  <th>KM Atual</th>
+                  <th>Plano de Manutenção</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="dash-alerts-tbody">
+                {alertasFiltrados.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-6 text-slate-400">
+                      Nenhum alerta localizado para os filtros informados.
+                    </td>
+                  </tr>
+                ) : (
+                  alertasFiltrados.map((item, idx) => (
+                    <tr key={item.id || idx}>
+                      <td className="font-bold text-slate-900">{item.placa}</td>
+                      <td>{item.modelo}</td>
+                      <td className="font-mono">{Number(item.kmAtual).toLocaleString("pt-BR")} KM</td>
+                      <td className="text-slate-600">{item.plano?.nome || "Plano Padrão"}</td>
+                      <td>
+                        {item.statusAlerta === "CRITICO" && (
+                          <span className="status-pill pill-atrasado">Atrasado</span>
+                        )}
+                        {item.statusAlerta === "ATENCAO" && (
+                          <span className="status-pill pill-embreve">Em Breve</span>
+                        )}
+                        {item.statusAlerta === "NORMAL" && (
+                          <span className="status-pill pill-ok">OK</span>
+                        )}
+                      </td>
+                      <td>
+                        <div className="action-links">
+                          <button
+                            className="action-btn-link text-blue-700"
+                            onClick={() => onAbrirOSComVeiculo(item.id)}
+                            title="Abrir Ordem de Serviço"
+                          >
+                            + Criar O.S.
+                          </button>
+                          <button
+                            className="action-btn-link text-slate-600"
+                            onClick={() => onNavegar("veiculos")}
+                            title="Gerenciar Veículo"
+                          >
+                            ⚡ KM
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Ordens Recentes + Gráfico da Frota */}
+        <div className="dashboard-side-column">
+          {/* Widget 1: Ordens de Serviço Recentes */}
+          <div className="card">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="card-title mb-0">Ordens de Serviço Recentes</h3>
+              <button
+                className="text-xs text-blue-600 font-semibold hover:underline"
+                onClick={() => onNavegar("ordens")}
+              >
+                Ver todas &rarr;
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="custom-table" style={{ fontSize: "0.8rem" }}>
+                <thead>
+                  <tr>
+                    <th>O.S. #</th>
+                    <th>Veículo</th>
+                    <th>Serviço</th>
+                    <th>Custo</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-os-tbody">
+                  {ordensRecentes.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-slate-400">
+                        Nenhuma ordem de serviço recente.
+                      </td>
+                    </tr>
+                  ) : (
+                    ordensRecentes.map((os) => (
+                      <tr key={os.id}>
+                        <td className="font-mono font-bold text-blue-700">{os.codigoOS || `#${os.id}`}</td>
+                        <td>{os.veiculo?.placa || "-"}</td>
+                        <td className="truncate max-w-[120px]" title={os.descricao}>
+                          {os.descricao}
+                        </td>
+                        <td className="font-semibold text-slate-800">
+                          R$ {Number(os.valorTotalGeral || os.custoTotal || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td>
+                          {os.status === "CONCLUIDA" && (
+                            <span className="status-pill pill-concluida">Concluída</span>
+                          )}
+                          {os.status === "EM_ANDAMENTO" && (
+                            <span className="status-pill pill-andamento">Andamento</span>
+                          )}
+                          {os.status === "ABERTA" && (
+                            <span className="status-pill pill-aberta">Aberta</span>
+                          )}
+                          {os.status === "CANCELADA" && (
+                            <span className="status-pill pill-cancelada">Cancelada</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Widget 2: Visão Geral da Frota (Gráfico de Barras) */}
+          <div className="card">
+            <h3 className="card-title">Visão Geral da Frota</h3>
+
+            <div className="fleet-chart-container">
+              <div className="chart-bar-group">
+                <div
+                  className="chart-bar chart-bar-1"
+                  style={{ height: `${hOperacao}px` }}
+                  title={`Em Operação: ${frota.emOperacao}`}
+                ></div>
+                <span className="chart-label">Operação</span>
               </div>
-            ) : (
-              [...listaCriticos, ...listaAtencao].map((alerta) => {
-                const isCritico = alerta.gravidade.includes("CRÍTICA");
-                return (
-                  <div
-                    key={alerta.veiculoId}
-                    className={`p-4 rounded-xl border transition-all flex items-start justify-between gap-4 ${
-                      isCritico
-                        ? "bg-rose-950/30 border-rose-500/30 hover:border-rose-500/50"
-                        : "bg-amber-950/20 border-amber-500/20 hover:border-amber-500/40"
-                    }`}
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span
-                          className={`font-mono text-xs font-bold px-2 py-0.5 rounded ${
-                            isCritico ? "bg-rose-500/20 text-rose-300" : "bg-amber-500/20 text-amber-300"
-                          }`}
-                        >
-                          {alerta.placa}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-200">
-                          {alerta.modelo}
-                        </span>
-                        <span className="text-[11px] text-slate-400">
-                          • {alerta.motorista || "Sem motorista"}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-300">
-                        {alerta.motivos.join(" | ")}
-                      </p>
-                      <p className="text-[11px] text-slate-400">
-                        {alerta.acaoRecomendada}
-                      </p>
-                    </div>
 
-                    <button
-                      onClick={() => onAbrirOSComVeiculo(alerta.veiculoId)}
-                      className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs whitespace-nowrap shadow-md shadow-indigo-600/20 transition-all shrink-0"
-                    >
-                      Criar O.S.
-                    </button>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
+              <div className="chart-bar-group">
+                <div
+                  className="chart-bar chart-bar-3"
+                  style={{ height: `${hCritico}px` }}
+                  title={`Crítico: ${criticos.length}`}
+                ></div>
+                <span className="chart-label">Crítico</span>
+              </div>
 
-        {/* Coluna 3: Atalhos Operacionais & Parâmetros */}
-        <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-base font-semibold text-white mb-1">Ações Rápidas</h3>
-            <p className="text-xs text-slate-400 mb-4">Gestão direta dos registros operacionais</p>
+              <div className="chart-bar-group">
+                <div
+                  className="chart-bar chart-bar-2"
+                  style={{ height: `${hAtencao}px` }}
+                  title={`Atenção: ${atencao.length}`}
+                ></div>
+                <span className="chart-label">Atenção</span>
+              </div>
 
-            <div className="space-y-2.5">
-              <button
-                onClick={() => onNavegar("ordens", { abrirNovo: true })}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-left transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                    <Wrench className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-200">Abrir Nova O.S.</h4>
-                    <p className="text-[11px] text-slate-400">Registrar manutenção com peças</p>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
-              </button>
-
-              <button
-                onClick={() => onNavegar("veiculos", { abrirNovo: true })}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-left transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <Truck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-200">Cadastrar Veículo</h4>
-                    <p className="text-[11px] text-slate-400">Adicionar caminhão ou van à frota</p>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" />
-              </button>
-
-              <button
-                onClick={() => onNavegar("mecanicos")}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-left transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-200">Equipe & Disponibilidade</h4>
-                    <p className="text-[11px] text-slate-400">Consultar mecânicos em serviço</p>
-                  </div>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-colors" />
-              </button>
+              <div className="chart-bar-group">
+                <div
+                  className="chart-bar chart-bar-4"
+                  style={{ height: `${hOficina}px` }}
+                  title={`Oficina: ${frota.emManutencao}`}
+                ></div>
+                <span className="chart-label">Oficina</span>
+              </div>
             </div>
-          </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-base font-semibold text-white mb-2">Critérios de Alerta</h3>
-            <ul className="text-xs text-slate-400 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-500 mt-1 shrink-0"></span>
-                <span><strong>Crítico:</strong> KM atual ultrapassou a revisão OU data ultrapassou o vencimento.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500 mt-1 shrink-0"></span>
-                <span><strong>Atenção:</strong> Faltando &le; 1.000 km OU faltam &le; 15 dias para o prazo.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1 shrink-0"></span>
-                <span><strong>Normal:</strong> Dentro da margem de quilometragem e tempo.</span>
-              </li>
-            </ul>
+            <div className="flex justify-between text-xs text-slate-500 mt-3 px-2">
+              <span>
+                Total Frota:{" "}
+                <strong id="chart-total-text" className="text-slate-800">
+                  {frota.total} veículos
+                </strong>
+              </span>
+              <span>
+                Custo Total:{" "}
+                <strong id="chart-custo-text" className="text-emerald-700">
+                  R$ {Number(financeiro.totalGeral || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </strong>
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
