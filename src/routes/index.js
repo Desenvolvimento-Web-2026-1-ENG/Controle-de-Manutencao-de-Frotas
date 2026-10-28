@@ -16,7 +16,7 @@ router.get("/status", (req, res) => {
   res.status(200).json({
     success: true,
     projeto: "WEBDEV FROTAS — Controle de Manutenção de Frotas",
-    versao: "1.0.0-p1",
+    versao: "2.0.0-p2",
     usuarioPadrao: "Gabriel Nunes (Gestor)",
     status: "online",
     timestamp: new Date().toISOString(),
